@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Settings } from "lucide-react";
+import { ArrowLeft, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,19 +98,17 @@ const AnnonsGenerator = () => {
     condition: "",
   });
 
-  // Load saved settings from localStorage
+  // Load saved tone from localStorage
   useEffect(() => {
     const savedTone = localStorage.getItem("ad_tone") as ToneType | null;
-    const savedPrompt = localStorage.getItem("ad_system_prompt");
     
     if (savedTone && TONE_OPTIONS.find(t => t.id === savedTone)) {
       setSelectedTone(savedTone);
       const toneOption = TONE_OPTIONS.find(t => t.id === savedTone);
-      if (toneOption && !savedPrompt) {
+      if (toneOption) {
         setSystemPrompt(toneOption.prompt);
       }
     }
-    if (savedPrompt) setSystemPrompt(savedPrompt);
   }, []);
 
   // Handle tone change
@@ -120,14 +118,7 @@ const AnnonsGenerator = () => {
     const toneOption = TONE_OPTIONS.find(t => t.id === tone);
     if (toneOption) {
       setSystemPrompt(toneOption.prompt);
-      localStorage.setItem("ad_system_prompt", toneOption.prompt);
     }
-  };
-
-  // Save prompt when changed
-  const handlePromptChange = (value: string) => {
-    setSystemPrompt(value);
-    localStorage.setItem("ad_system_prompt", value);
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -155,7 +146,7 @@ const AnnonsGenerator = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4 animate-fade-in-up">
           <Button
@@ -175,180 +166,148 @@ const AnnonsGenerator = () => {
           <p className="text-muted-foreground">Skapa professionella annonser på sekunder</p>
         </div>
 
-        {/* Two-column layout */}
-        <div className="grid gap-6 lg:grid-cols-[350px_1fr]">
-          {/* Left Column - Settings */}
-          <div className="space-y-6">
-            <div 
-              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Settings className="h-5 w-5 text-foreground" />
-                Inställningar
-              </h2>
+        {/* Single column layout */}
+        <div className="space-y-6">
+          {/* Car Information Card */}
+          <div 
+            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            style={{ animationDelay: "0.2s" }}
+          >
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <Car className="h-5 w-5 text-foreground" />
+              Bilinformation
+            </h2>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Märke *</Label>
+                <Input
+                  id="brand"
+                  placeholder="t.ex. Volvo"
+                  value={formData.brand}
+                  onChange={(e) => handleInputChange("brand", e.target.value)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
+              </div>
               
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="prompt">System Prompt</Label>
-                  <Textarea
-                    id="prompt"
-                    placeholder="Instruktioner till AI..."
-                    value={systemPrompt}
-                    onChange={(e) => handlePromptChange(e.target.value)}
-                    className="min-h-[200px] text-sm transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Modell *</Label>
+                <Input
+                  id="model"
+                  placeholder="t.ex. XC60"
+                  value={formData.model}
+                  onChange={(e) => handleInputChange("model", e.target.value)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="year">Årsmodell</Label>
+                <Input
+                  id="year"
+                  placeholder="t.ex. 2020"
+                  value={formData.year}
+                  onChange={(e) => handleInputChange("year", e.target.value)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="mileage">Miltal</Label>
+                <Input
+                  id="mileage"
+                  placeholder="t.ex. 45000"
+                  value={formData.mileage}
+                  onChange={(e) => handleInputChange("mileage", e.target.value)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
+              </div>
+              
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="price">Pris (kr)</Label>
+                <Input
+                  id="price"
+                  placeholder="t.ex. 299000"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
               </div>
             </div>
           </div>
 
-          {/* Right Column - Car Info Form */}
-          <div className="space-y-6">
-            {/* Car Information Card */}
-            <div 
-              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Car className="h-5 w-5 text-foreground" />
-                Bilinformation
-              </h2>
+          {/* Equipment & Condition Card */}
+          <div 
+            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            style={{ animationDelay: "0.3s" }}
+          >
+            <h2 className="mb-4 text-lg font-semibold text-foreground">Utrustning & Skick</h2>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="equipment">Utrustning</Label>
+                <Textarea
+                  id="equipment"
+                  placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
+                  value={formData.equipment}
+                  onChange={(e) => handleInputChange("equipment", e.target.value)}
+                  className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
+              </div>
               
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Märke *</Label>
-                  <Input
-                    id="brand"
-                    placeholder="t.ex. Volvo"
-                    value={formData.brand}
-                    onChange={(e) => handleInputChange("brand", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="model">Modell *</Label>
-                  <Input
-                    id="model"
-                    placeholder="t.ex. XC60"
-                    value={formData.model}
-                    onChange={(e) => handleInputChange("model", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="year">Årsmodell</Label>
-                  <Input
-                    id="year"
-                    placeholder="t.ex. 2020"
-                    value={formData.year}
-                    onChange={(e) => handleInputChange("year", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="mileage">Miltal</Label>
-                  <Input
-                    id="mileage"
-                    placeholder="t.ex. 45000"
-                    value={formData.mileage}
-                    onChange={(e) => handleInputChange("mileage", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="price">Pris (kr)</Label>
-                  <Input
-                    id="price"
-                    placeholder="t.ex. 299000"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange("price", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="condition">Skick</Label>
+                <Textarea
+                  id="condition"
+                  placeholder="Beskriv bilens skick..."
+                  value={formData.condition}
+                  onChange={(e) => handleInputChange("condition", e.target.value)}
+                  className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                />
               </div>
             </div>
+          </div>
 
-            {/* Equipment & Condition Card */}
-            <div 
-              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-              style={{ animationDelay: "0.4s" }}
+          {/* Tone Selection */}
+          <div 
+            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <h2 className="mb-4 text-lg font-semibold text-foreground">Välj tonläge</h2>
+            
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {TONE_OPTIONS.map((tone) => (
+                <button
+                  key={tone.id}
+                  onClick={() => handleToneChange(tone.id)}
+                  className={`group flex flex-col items-center rounded-lg border-2 p-4 transition-all duration-200 ${
+                    selectedTone === tone.id
+                      ? "border-foreground bg-foreground/10 shadow-[0_0_20px_0_hsl(var(--foreground)/0.2)]"
+                      : "border-border hover:border-foreground/50 hover:bg-secondary"
+                  }`}
+                >
+                  <span className="text-2xl mb-2">{tone.icon}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {tone.label}
+                  </span>
+                  <span className="text-xs text-muted-foreground text-center mt-1">
+                    {tone.description}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+            <Button
+              onClick={handleGenerate}
+              className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--foreground)/0.4)]"
             >
-              <h2 className="mb-4 text-lg font-semibold text-foreground">Utrustning & Skick</h2>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="equipment">Utrustning</Label>
-                  <Textarea
-                    id="equipment"
-                    placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
-                    value={formData.equipment}
-                    onChange={(e) => handleInputChange("equipment", e.target.value)}
-                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="condition">Skick</Label>
-                  <Textarea
-                    id="condition"
-                    placeholder="Beskriv bilens skick..."
-                    value={formData.condition}
-                    onChange={(e) => handleInputChange("condition", e.target.value)}
-                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Tone Selection */}
-            <div 
-              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-              style={{ animationDelay: "0.5s" }}
-            >
-              <h2 className="mb-4 text-lg font-semibold text-foreground">Välj tonläge</h2>
-              
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {TONE_OPTIONS.map((tone) => (
-                  <button
-                    key={tone.id}
-                    onClick={() => handleToneChange(tone.id)}
-                    className={`group flex flex-col items-center rounded-lg border-2 p-4 transition-all duration-200 ${
-                      selectedTone === tone.id
-                        ? "border-foreground bg-foreground/10 shadow-[0_0_20px_0_hsl(var(--foreground)/0.2)]"
-                        : "border-border hover:border-foreground/50 hover:bg-secondary"
-                    }`}
-                  >
-                    <span className="text-2xl mb-2">{tone.icon}</span>
-                    <span className={`text-sm font-medium ${
-                      selectedTone === tone.id ? "text-foreground" : "text-foreground"
-                    }`}>
-                      {tone.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground text-center mt-1">
-                      {tone.description}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Generate Button */}
-            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
-              <Button
-                onClick={handleGenerate}
-                className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--foreground)/0.4)]"
-              >
-                <Car className="mr-2 h-5 w-5" />
-                Generera Annons
-                {/* Bottom accent line */}
-                <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary-foreground transition-all duration-300 group-hover:w-3/4" />
-              </Button>
-            </div>
+              <Car className="mr-2 h-5 w-5" />
+              Generera Annons
+              <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary-foreground transition-all duration-300 group-hover:w-3/4" />
+            </Button>
           </div>
         </div>
       </div>

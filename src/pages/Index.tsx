@@ -25,9 +25,9 @@ const Index = () => {
           onClick={() => handleLevelSelect("Bilannonsgenerator")}
         />
         <LevelCard
-          title="Level 2"
-          description="Avancerad"
-          onClick={() => handleLevelSelect("Level 2")}
+          title="Bil Research Expert"
+          description="Lär känna era nya bilar genom att fråga mig om den – kanske lättare att sälja ju mer du vet"
+          onClick={() => handleLevelSelect("Bil Research Expert")}
         />
       </div>
     </div>

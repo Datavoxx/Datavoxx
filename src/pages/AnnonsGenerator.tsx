@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import gothiaLogo from "@/assets/gothia-bil-logo.png";
+import bilgenLogo from "@/assets/bilgen-logo.png";
 
 interface FormData {
   brand: string;
@@ -157,7 +157,7 @@ const AnnonsGenerator = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <img src={gothiaLogo} alt="GothiaBil" className="h-10" />
+          <img src={bilgenLogo} alt="BILGEN" className="h-10" />
         </div>
 
         {/* Title */}

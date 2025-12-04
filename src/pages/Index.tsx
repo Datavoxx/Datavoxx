@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
-import gothiaLogo from "@/assets/gothia-bil-logo.png";
+import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -13,8 +13,8 @@ const Index = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
       {/* Logo */}
       <img 
-        src={gothiaLogo} 
-        alt="GothiaBil" 
+        src={bilgenLogo} 
+        alt="BILGEN" 
         className="h-16 mb-8 animate-fade-in-up"
       />
       

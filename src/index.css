@@ -36,7 +36,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 85%;
     --input: 0 0% 90%;
-    --ring: 0 85% 55%;
+    --ring: 0 0% 10%;
 
     --radius: 0.75rem;
 
@@ -44,7 +44,7 @@ All colors MUST be HSL.
     --level-card-bg: 0 0% 100%;
     --level-card-hover: 0 0% 96%;
     --level-card-border: 0 0% 85%;
-    --level-card-glow: 0 85% 55%;
+    --level-card-glow: 0 0% 10%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 10%;
@@ -53,7 +53,7 @@ All colors MUST be HSL.
     --sidebar-accent: 0 0% 95%;
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 0 85% 55%;
+    --sidebar-ring: 0 0% 10%;
   }
 }
 

@@ -184,7 +184,7 @@ const AnnonsGenerator = () => {
               style={{ animationDelay: "0.2s" }}
             >
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Settings className="h-5 w-5 text-primary" />
+                <Settings className="h-5 w-5 text-foreground" />
                 Inställningar
               </h2>
               
@@ -196,7 +196,7 @@ const AnnonsGenerator = () => {
                     placeholder="Instruktioner till AI..."
                     value={systemPrompt}
                     onChange={(e) => handlePromptChange(e.target.value)}
-                    className="min-h-[200px] text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="min-h-[200px] text-sm transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
               </div>
@@ -211,7 +211,7 @@ const AnnonsGenerator = () => {
               style={{ animationDelay: "0.3s" }}
             >
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Car className="h-5 w-5 text-primary" />
+                <Car className="h-5 w-5 text-foreground" />
                 Bilinformation
               </h2>
               
@@ -223,7 +223,7 @@ const AnnonsGenerator = () => {
                     placeholder="t.ex. Volvo"
                     value={formData.brand}
                     onChange={(e) => handleInputChange("brand", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
                 
@@ -234,7 +234,7 @@ const AnnonsGenerator = () => {
                     placeholder="t.ex. XC60"
                     value={formData.model}
                     onChange={(e) => handleInputChange("model", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
                 
@@ -245,7 +245,7 @@ const AnnonsGenerator = () => {
                     placeholder="t.ex. 2020"
                     value={formData.year}
                     onChange={(e) => handleInputChange("year", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
                 
@@ -256,7 +256,7 @@ const AnnonsGenerator = () => {
                     placeholder="t.ex. 45000"
                     value={formData.mileage}
                     onChange={(e) => handleInputChange("mileage", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
                 
@@ -267,7 +267,7 @@ const AnnonsGenerator = () => {
                     placeholder="t.ex. 299000"
                     value={formData.price}
                     onChange={(e) => handleInputChange("price", e.target.value)}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
               </div>
@@ -288,7 +288,7 @@ const AnnonsGenerator = () => {
                     placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
                     value={formData.equipment}
                     onChange={(e) => handleInputChange("equipment", e.target.value)}
-                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
                 
@@ -299,7 +299,7 @@ const AnnonsGenerator = () => {
                     placeholder="Beskriv bilens skick..."
                     value={formData.condition}
                     onChange={(e) => handleInputChange("condition", e.target.value)}
-                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                   />
                 </div>
               </div>
@@ -319,13 +319,13 @@ const AnnonsGenerator = () => {
                     onClick={() => handleToneChange(tone.id)}
                     className={`group flex flex-col items-center rounded-lg border-2 p-4 transition-all duration-200 ${
                       selectedTone === tone.id
-                        ? "border-primary bg-primary/10 shadow-[0_0_20px_0_hsl(var(--primary)/0.2)]"
-                        : "border-border hover:border-primary/50 hover:bg-secondary"
+                        ? "border-foreground bg-foreground/10 shadow-[0_0_20px_0_hsl(var(--foreground)/0.2)]"
+                        : "border-border hover:border-foreground/50 hover:bg-secondary"
                     }`}
                   >
                     <span className="text-2xl mb-2">{tone.icon}</span>
                     <span className={`text-sm font-medium ${
-                      selectedTone === tone.id ? "text-primary" : "text-foreground"
+                      selectedTone === tone.id ? "text-foreground" : "text-foreground"
                     }`}>
                       {tone.label}
                     </span>
@@ -341,7 +341,7 @@ const AnnonsGenerator = () => {
             <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
               <Button
                 onClick={handleGenerate}
-                className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--primary)/0.4)]"
+                className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--foreground)/0.4)]"
               >
                 <Car className="mr-2 h-5 w-5" />
                 Generera Annons

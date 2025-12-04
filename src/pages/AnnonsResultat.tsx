@@ -153,7 +153,7 @@ const AnnonsResultat = () => {
                 <Button
                   variant="outline"
                   onClick={handleCopy}
-                  className="transition-all duration-200 hover:border-primary hover:text-primary"
+                  className="transition-all duration-200 hover:border-foreground hover:text-foreground"
                 >
                   {copied ? (
                     <>
@@ -171,7 +171,7 @@ const AnnonsResultat = () => {
                 <Button
                   variant="outline"
                   onClick={handleRegenerate}
-                  className="transition-all duration-200 hover:border-primary hover:text-primary"
+                  className="transition-all duration-200 hover:border-foreground hover:text-foreground"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Regenerera

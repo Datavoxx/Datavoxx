@@ -1,16 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
-import { toast } from "@/hooks/use-toast";
 import expressLogo from "@/assets/express-bilar-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
 
   const handleResearchSelect = () => {
-    toast({
-      title: "Bil Research Expert vald",
-      description: "Du har valt Bil Research Expert",
-    });
+    navigate("/bil-research");
   };
 
   return (

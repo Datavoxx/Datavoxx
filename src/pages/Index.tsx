@@ -1,12 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
 import { toast } from "@/hooks/use-toast";
 import expressLogo from "@/assets/express-bilar-logo.png";
 
 const Index = () => {
-  const handleLevelSelect = (level: string) => {
+  const navigate = useNavigate();
+
+  const handleResearchSelect = () => {
     toast({
-      title: `${level} vald`,
-      description: `Du har valt ${level}`,
+      title: "Bil Research Expert vald",
+      description: "Du har valt Bil Research Expert",
     });
   };
 
@@ -30,12 +33,12 @@ const Index = () => {
         <LevelCard
           title="Bilannonsgenerator"
           description="Skapa annonser snabbare med en annonsgenerator"
-          onClick={() => handleLevelSelect("Bilannonsgenerator")}
+          onClick={() => navigate("/annons-generator")}
         />
         <LevelCard
           title="Bil Research Expert"
           description="Lär känna era nya bilar genom att fråga mig om den – kanske lättare att sälja ju mer du vet"
-          onClick={() => handleLevelSelect("Bil Research Expert")}
+          onClick={handleResearchSelect}
         />
       </div>
     </div>

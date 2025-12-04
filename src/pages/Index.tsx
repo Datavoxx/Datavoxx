@@ -15,7 +15,7 @@ const Index = () => {
       <img 
         src={bilgenLogo} 
         alt="BILGEN" 
-        className="h-16 mb-8 animate-fade-in-up"
+        className="h-28 mb-8 animate-fade-in-up"
       />
       
       {/* Header */}

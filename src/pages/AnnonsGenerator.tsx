@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import expressLogo from "@/assets/express-bilar-logo.png";
+import gothiaLogo from "@/assets/gothia-bil-logo.png";
 
 interface FormData {
   brand: string;
@@ -185,7 +185,7 @@ const AnnonsGenerator = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <img src={expressLogo} alt="Express Bilar" className="h-10" />
+          <img src={gothiaLogo} alt="GothiaBil" className="h-10" />
         </div>
 
         {/* Title */}

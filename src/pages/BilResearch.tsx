@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
-import expressLogo from "@/assets/express-bilar-logo.png";
+import gothiaLogo from "@/assets/gothia-bil-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -82,7 +82,7 @@ const BilResearch = () => {
           <ArrowLeft className="h-4 w-4" />
           Tillbaka
         </Button>
-        <img src={expressLogo} alt="Express Bilar" className="h-10" />
+        <img src={gothiaLogo} alt="GothiaBil" className="h-10" />
         <div className="w-24" /> {/* Spacer for centering */}
       </header>
 

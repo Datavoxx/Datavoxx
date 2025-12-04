@@ -18,18 +18,77 @@ interface FormData {
   condition: string;
 }
 
-const DEFAULT_PROMPT = `Du är en expert på att skriva säljande bilannonser på svenska. 
-Skapa en professionell och engagerande annons baserat på bilinformationen.
+type ToneType = "professional" | "casual" | "luxury" | "urgent";
+
+interface ToneOption {
+  id: ToneType;
+  label: string;
+  icon: string;
+  description: string;
+  prompt: string;
+}
+
+const TONE_OPTIONS: ToneOption[] = [
+  {
+    id: "professional",
+    label: "Professionell",
+    icon: "💼",
+    description: "Formell och seriös ton",
+    prompt: `Du är en expert på att skriva professionella bilannonser på svenska.
+Skapa en formell och seriös annons baserat på bilinformationen.
 Annonsen ska vara:
 - Tydlig och välstrukturerad
-- Säljande men ärlig
-- Innehålla emojis för visuell appeal
-- Inkludera en uppmaning att kontakta säljaren`;
+- Professionell och trovärdig
+- Faktabaserad med tekniska detaljer
+- Inkludera en professionell uppmaning att kontakta säljaren`,
+  },
+  {
+    id: "casual",
+    label: "Avslappnad",
+    icon: "😊",
+    description: "Vänlig och lättsam ton",
+    prompt: `Du är en vänlig bilsäljare som skriver avslappnade annonser på svenska.
+Skapa en lättsam och personlig annons baserat på bilinformationen.
+Annonsen ska vara:
+- Vänlig och inbjudande
+- Personlig med emojis
+- Enkel att läsa
+- Avsluta med en trevlig uppmaning att höra av sig`,
+  },
+  {
+    id: "luxury",
+    label: "Lyxig",
+    icon: "✨",
+    description: "Exklusiv och premium ton",
+    prompt: `Du är en expert på lyxbilar och skriver exklusiva annonser på svenska.
+Skapa en premium och sofistikerad annons baserat på bilinformationen.
+Annonsen ska vara:
+- Elegant och exklusiv i tonen
+- Betona kvalitet och komfort
+- Använda raffinerat språk
+- Skapa en känsla av lyx och prestige`,
+  },
+  {
+    id: "urgent",
+    label: "Brådskande",
+    icon: "🔥",
+    description: "Snabb försäljning",
+    prompt: `Du är en säljare som behöver sälja bilar snabbt och skriver på svenska.
+Skapa en brådskande och säljande annons baserat på bilinformationen.
+Annonsen ska vara:
+- Energisk med känsla av brådska
+- Betona bra pris och värde
+- Använda action-ord och emojis
+- Skapa FOMO (fear of missing out)
+- Uppmana till snabb kontakt`,
+  },
+];
 
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
   const [apiKey, setApiKey] = useState("");
-  const [systemPrompt, setSystemPrompt] = useState(DEFAULT_PROMPT);
+  const [selectedTone, setSelectedTone] = useState<ToneType>("professional");
+  const [systemPrompt, setSystemPrompt] = useState(TONE_OPTIONS[0].prompt);
   const [formData, setFormData] = useState<FormData>({
     brand: "",
     model: "",
@@ -43,8 +102,17 @@ const AnnonsGenerator = () => {
   // Load saved settings from localStorage
   useEffect(() => {
     const savedApiKey = localStorage.getItem("openai_api_key");
+    const savedTone = localStorage.getItem("ad_tone") as ToneType | null;
     const savedPrompt = localStorage.getItem("ad_system_prompt");
+    
     if (savedApiKey) setApiKey(savedApiKey);
+    if (savedTone && TONE_OPTIONS.find(t => t.id === savedTone)) {
+      setSelectedTone(savedTone);
+      const toneOption = TONE_OPTIONS.find(t => t.id === savedTone);
+      if (toneOption && !savedPrompt) {
+        setSystemPrompt(toneOption.prompt);
+      }
+    }
     if (savedPrompt) setSystemPrompt(savedPrompt);
   }, []);
 
@@ -52,6 +120,17 @@ const AnnonsGenerator = () => {
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
     localStorage.setItem("openai_api_key", value);
+  };
+
+  // Handle tone change
+  const handleToneChange = (tone: ToneType) => {
+    setSelectedTone(tone);
+    localStorage.setItem("ad_tone", tone);
+    const toneOption = TONE_OPTIONS.find(t => t.id === tone);
+    if (toneOption) {
+      setSystemPrompt(toneOption.prompt);
+      localStorage.setItem("ad_system_prompt", toneOption.prompt);
+    }
   };
 
   // Save prompt when changed
@@ -260,8 +339,40 @@ const AnnonsGenerator = () => {
               </div>
             </div>
 
+            {/* Tone Selection */}
+            <div 
+              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <h2 className="mb-4 text-lg font-semibold text-foreground">Välj tonläge</h2>
+              
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {TONE_OPTIONS.map((tone) => (
+                  <button
+                    key={tone.id}
+                    onClick={() => handleToneChange(tone.id)}
+                    className={`group flex flex-col items-center rounded-lg border-2 p-4 transition-all duration-200 ${
+                      selectedTone === tone.id
+                        ? "border-primary bg-primary/10 shadow-[0_0_20px_0_hsl(var(--primary)/0.2)]"
+                        : "border-border hover:border-primary/50 hover:bg-secondary"
+                    }`}
+                  >
+                    <span className="text-2xl mb-2">{tone.icon}</span>
+                    <span className={`text-sm font-medium ${
+                      selectedTone === tone.id ? "text-primary" : "text-foreground"
+                    }`}>
+                      {tone.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground text-center mt-1">
+                      {tone.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Generate Button */}
-            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
               <Button
                 onClick={handleGenerate}
                 className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--primary)/0.4)]"

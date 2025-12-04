@@ -138,9 +138,9 @@ const AnnonsResultat = () => {
         >
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+              <Loader2 className="h-12 w-12 animate-spin text-foreground mb-4" />
               <p className="text-lg text-muted-foreground">Genererar din annons...</p>
-              <p className="text-sm text-muted-foreground mt-2">Detta kan ta några sekunder</p>
+              <p className="text-sm text-muted-foreground mt-2">Detta kan ta 30-60 sekunder</p>
             </div>
           ) : generatedAd ? (
             <>

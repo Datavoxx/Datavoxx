@@ -8,51 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark theme - Express Bilar style (white, red, black) */
-    --background: 0 0% 5%;
-    --foreground: 0 0% 95%;
+    /* Light theme - Express Bilar style (white, red, black) */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
     /* Red accent - Express Bilar coral red */
     --primary: 0 85% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 45%;
 
     --accent: 0 80% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
+    --border: 0 0% 85%;
+    --input: 0 0% 90%;
     --ring: 0 85% 55%;
 
     --radius: 0.75rem;
 
     /* Level card specific */
-    --level-card-bg: 0 0% 12%;
-    --level-card-hover: 0 0% 16%;
-    --level-card-border: 0 0% 22%;
+    --level-card-bg: 0 0% 100%;
+    --level-card-hover: 0 0% 96%;
+    --level-card-border: 0 0% 85%;
     --level-card-glow: 0 85% 55%;
 
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 95%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
     --sidebar-primary: 0 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 85%;
     --sidebar-ring: 0 85% 55%;
   }
 }

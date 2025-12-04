@@ -20,9 +20,9 @@ const Index = () => {
       {/* Level Cards */}
       <div className="flex flex-col sm:flex-row gap-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
         <LevelCard
-          title="Level 1"
-          description="Grundläggande"
-          onClick={() => handleLevelSelect("Level 1")}
+          title="Bilannonsgenerator"
+          description="Skapa annonser snabbare med en annonsgenerator"
+          onClick={() => handleLevelSelect("Bilannonsgenerator")}
         />
         <LevelCard
           title="Level 2"

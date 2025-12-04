@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Copy, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Car, Settings, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,11 +18,18 @@ interface FormData {
   condition: string;
 }
 
+const DEFAULT_PROMPT = `Du är en expert på att skriva säljande bilannonser på svenska. 
+Skapa en professionell och engagerande annons baserat på bilinformationen.
+Annonsen ska vara:
+- Tydlig och välstrukturerad
+- Säljande men ärlig
+- Innehålla emojis för visuell appeal
+- Inkludera en uppmaning att kontakta säljaren`;
+
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedAd, setGeneratedAd] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState(DEFAULT_PROMPT);
   const [formData, setFormData] = useState<FormData>({
     brand: "",
     model: "",
@@ -33,11 +40,31 @@ const AnnonsGenerator = () => {
     condition: "",
   });
 
+  // Load saved settings from localStorage
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem("openai_api_key");
+    const savedPrompt = localStorage.getItem("ad_system_prompt");
+    if (savedApiKey) setApiKey(savedApiKey);
+    if (savedPrompt) setSystemPrompt(savedPrompt);
+  }, []);
+
+  // Save API key when changed
+  const handleApiKeyChange = (value: string) => {
+    setApiKey(value);
+    localStorage.setItem("openai_api_key", value);
+  };
+
+  // Save prompt when changed
+  const handlePromptChange = (value: string) => {
+    setSystemPrompt(value);
+    localStorage.setItem("ad_system_prompt", value);
+  };
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!formData.brand || !formData.model) {
       toast({
         title: "Fyll i obligatoriska fält",
@@ -47,44 +74,28 @@ const AnnonsGenerator = () => {
       return;
     }
 
-    setIsGenerating(true);
-    
-    // Simulera generering (kan kopplas till AI senare)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    const ad = `🚗 ${formData.brand} ${formData.model} ${formData.year ? `(${formData.year})` : ""}
+    if (!apiKey) {
+      toast({
+        title: "API-nyckel saknas",
+        description: "Ange din OpenAI API-nyckel i inställningarna",
+        variant: "destructive",
+      });
+      return;
+    }
 
-${formData.mileage ? `📍 Miltal: ${formData.mileage} mil` : ""}
-${formData.price ? `💰 Pris: ${formData.price} kr` : ""}
-
-${formData.equipment ? `✨ Utrustning:\n${formData.equipment}` : ""}
-
-${formData.condition ? `📋 Skick:\n${formData.condition}` : ""}
-
-Kontakta oss för mer information!`;
-
-    setGeneratedAd(ad.trim());
-    setIsGenerating(false);
-    
-    toast({
-      title: "Annons genererad!",
-      description: "Din annons är nu redo att användas",
+    // Navigate to results page with form data
+    navigate("/annons-resultat", {
+      state: {
+        formData,
+        apiKey,
+        systemPrompt,
+      },
     });
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedAd);
-    setCopied(true);
-    toast({
-      title: "Kopierat!",
-      description: "Annonsen har kopierats till urklipp",
-    });
-    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4 animate-fade-in-up">
           <Button
@@ -104,161 +115,165 @@ Kontakta oss för mer information!`;
           <p className="text-muted-foreground">Skapa professionella annonser på sekunder</p>
         </div>
 
-        {/* Car Information Card */}
-        <div 
-          className="mb-6 rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-          style={{ animationDelay: "0.2s" }}
-        >
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-            <Car className="h-5 w-5 text-primary" />
-            Bilinformation
-          </h2>
-          
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="brand">Märke *</Label>
-              <Input
-                id="brand"
-                placeholder="t.ex. Volvo"
-                value={formData.brand}
-                onChange={(e) => handleInputChange("brand", e.target.value)}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="model">Modell *</Label>
-              <Input
-                id="model"
-                placeholder="t.ex. XC60"
-                value={formData.model}
-                onChange={(e) => handleInputChange("model", e.target.value)}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="year">Årsmodell</Label>
-              <Input
-                id="year"
-                placeholder="t.ex. 2020"
-                value={formData.year}
-                onChange={(e) => handleInputChange("year", e.target.value)}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="mileage">Miltal</Label>
-              <Input
-                id="mileage"
-                placeholder="t.ex. 45000"
-                value={formData.mileage}
-                onChange={(e) => handleInputChange("mileage", e.target.value)}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="price">Pris (kr)</Label>
-              <Input
-                id="price"
-                placeholder="t.ex. 299000"
-                value={formData.price}
-                onChange={(e) => handleInputChange("price", e.target.value)}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
+        {/* Two-column layout */}
+        <div className="grid gap-6 lg:grid-cols-[350px_1fr]">
+          {/* Left Column - Settings */}
+          <div className="space-y-6">
+            <div 
+              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                <Settings className="h-5 w-5 text-primary" />
+                Inställningar
+              </h2>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="apiKey">OpenAI API-nyckel *</Label>
+                  <Input
+                    id="apiKey"
+                    type="password"
+                    placeholder="sk-..."
+                    value={apiKey}
+                    onChange={(e) => handleApiKeyChange(e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Sparas lokalt i din webbläsare
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="prompt">System Prompt</Label>
+                  <Textarea
+                    id="prompt"
+                    placeholder="Instruktioner till AI..."
+                    value={systemPrompt}
+                    onChange={(e) => handlePromptChange(e.target.value)}
+                    className="min-h-[200px] text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Equipment & Condition Card */}
-        <div 
-          className="mb-8 rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-          style={{ animationDelay: "0.3s" }}
-        >
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Utrustning & Skick</h2>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="equipment">Utrustning</Label>
-              <Textarea
-                id="equipment"
-                placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
-                value={formData.equipment}
-                onChange={(e) => handleInputChange("equipment", e.target.value)}
-                className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
+          {/* Right Column - Car Info Form */}
+          <div className="space-y-6">
+            {/* Car Information Card */}
+            <div 
+              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                <Car className="h-5 w-5 text-primary" />
+                Bilinformation
+              </h2>
+              
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="brand">Märke *</Label>
+                  <Input
+                    id="brand"
+                    placeholder="t.ex. Volvo"
+                    value={formData.brand}
+                    onChange={(e) => handleInputChange("brand", e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="model">Modell *</Label>
+                  <Input
+                    id="model"
+                    placeholder="t.ex. XC60"
+                    value={formData.model}
+                    onChange={(e) => handleInputChange("model", e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="year">Årsmodell</Label>
+                  <Input
+                    id="year"
+                    placeholder="t.ex. 2020"
+                    value={formData.year}
+                    onChange={(e) => handleInputChange("year", e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="mileage">Miltal</Label>
+                  <Input
+                    id="mileage"
+                    placeholder="t.ex. 45000"
+                    value={formData.mileage}
+                    onChange={(e) => handleInputChange("mileage", e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="price">Pris (kr)</Label>
+                  <Input
+                    id="price"
+                    placeholder="t.ex. 299000"
+                    value={formData.price}
+                    onChange={(e) => handleInputChange("price", e.target.value)}
+                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="condition">Skick</Label>
-              <Textarea
-                id="condition"
-                placeholder="Beskriv bilens skick..."
-                value={formData.condition}
-                onChange={(e) => handleInputChange("condition", e.target.value)}
-                className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-          </div>
-        </div>
 
-        {/* Generate Button */}
-        <div className="mb-8 flex justify-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--primary)/0.4)]"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Genererar...
-              </>
-            ) : (
-              <>
+            {/* Equipment & Condition Card */}
+            <div 
+              className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              <h2 className="mb-4 text-lg font-semibold text-foreground">Utrustning & Skick</h2>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="equipment">Utrustning</Label>
+                  <Textarea
+                    id="equipment"
+                    placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
+                    value={formData.equipment}
+                    onChange={(e) => handleInputChange("equipment", e.target.value)}
+                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="condition">Skick</Label>
+                  <Textarea
+                    id="condition"
+                    placeholder="Beskriv bilens skick..."
+                    value={formData.condition}
+                    onChange={(e) => handleInputChange("condition", e.target.value)}
+                    className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+              <Button
+                onClick={handleGenerate}
+                className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--primary)/0.4)]"
+              >
                 <Car className="mr-2 h-5 w-5" />
                 Generera Annons
-              </>
-            )}
-            {/* Bottom accent line */}
-            <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary-foreground transition-all duration-300 group-hover:w-3/4" />
-          </Button>
-        </div>
-
-        {/* Generated Ad */}
-        {generatedAd && (
-          <div 
-            className="rounded-xl border border-level-border bg-level-card p-6 animate-fade-in-up"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Genererad Annons</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopy}
-                className="transition-all duration-200 hover:border-primary hover:text-primary"
-              >
-                {copied ? (
-                  <>
-                    <Check className="mr-1 h-4 w-4" />
-                    Kopierat
-                  </>
-                ) : (
-                  <>
-                    <Copy className="mr-1 h-4 w-4" />
-                    Kopiera
-                  </>
-                )}
+                {/* Bottom accent line */}
+                <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary-foreground transition-all duration-300 group-hover:w-3/4" />
               </Button>
             </div>
-            
-            <div className="whitespace-pre-wrap rounded-lg bg-secondary p-4 text-foreground">
-              {generatedAd}
-            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

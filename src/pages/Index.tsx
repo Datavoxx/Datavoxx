@@ -20,8 +20,8 @@ const Index = () => {
       
       {/* Header */}
       <div className="mb-16 text-center animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Välj nivå</h1>
-        <p className="text-muted-foreground">Välj den nivå du vill använda</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Välj verktyg</h1>
+        <p className="text-muted-foreground">Vad vill du göra idag?</p>
       </div>
 
       {/* Level Cards */}

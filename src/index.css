@@ -18,8 +18,8 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Black accent - GothiaBil style */
-    --primary: 0 0% 15%;
+    /* Red accent - Express Bilar coral red */
+    --primary: 0 85% 55%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 95%;
@@ -28,7 +28,7 @@ All colors MUST be HSL.
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 0 0% 20%;
+    --accent: 0 80% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -36,7 +36,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 85%;
     --input: 0 0% 90%;
-    --ring: 0 0% 15%;
+    --ring: 0 85% 55%;
 
     --radius: 0.75rem;
 
@@ -44,16 +44,16 @@ All colors MUST be HSL.
     --level-card-bg: 0 0% 100%;
     --level-card-hover: 0 0% 96%;
     --level-card-border: 0 0% 85%;
-    --level-card-glow: 0 0% 15%;
+    --level-card-glow: 0 85% 55%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 0 0% 15%;
+    --sidebar-primary: 0 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 95%;
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 0 0% 15%;
+    --sidebar-ring: 0 85% 55%;
   }
 }
 

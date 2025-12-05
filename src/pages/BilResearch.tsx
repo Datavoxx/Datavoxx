@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
+import FeedbackWidget from "@/components/FeedbackWidget";
 
 interface Message {
   role: "user" | "assistant";
@@ -167,6 +168,7 @@ const BilResearch = () => {
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
+      <FeedbackWidget />
       {/* Header */}
       <AppHeader showBackButton={true} />
 

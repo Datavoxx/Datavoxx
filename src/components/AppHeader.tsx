@@ -73,7 +73,7 @@ const AppHeader = ({
             </button>
           ) : (
             <a
-              href="mailto:kontakt@bilgen.se"
+              href="mailto:info@datavoxx.se"
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
             >
               <Mail className="h-4 w-4" />

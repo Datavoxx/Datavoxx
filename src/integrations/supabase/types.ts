@@ -98,6 +98,30 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          services: string[]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          services?: string[]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          services?: string[]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

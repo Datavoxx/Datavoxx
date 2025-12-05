@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, Copy, RotateCcw } from "lucide-react";
+import { ArrowLeft, Send, Copy, RotateCcw, Mail, MessageSquare, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,38 @@ interface Message {
   role: "user" | "assistant";
   content: string;
 }
+
+interface EmailTemplate {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  prompt: string;
+}
+
+const emailTemplates: EmailTemplate[] = [
+  {
+    id: "followup",
+    title: "Uppföljning",
+    description: "Följ upp med en kund efter visning eller samtal",
+    icon: <MessageSquare className="h-5 w-5" />,
+    prompt: "Skriv ett uppföljningsmail till en kund som nyligen visade intresse för en bil. Fråga mig vilken bil och kundens namn.",
+  },
+  {
+    id: "inquiry",
+    title: "Kundfråga",
+    description: "Svara på en fråga från en potentiell köpare",
+    icon: <Mail className="h-5 w-5" />,
+    prompt: "Hjälp mig svara på en kundfråga om en bil. Berätta för mig vad kunden frågade och vilken bil det gäller.",
+  },
+  {
+    id: "offer",
+    title: "Erbjudande",
+    description: "Skicka ett specialerbjudande eller kampanj",
+    icon: <Tag className="h-5 w-5" />,
+    prompt: "Skriv ett e-postmeddelande med ett specialerbjudande. Berätta vilken bil och vad erbjudandet innebär.",
+  },
+];
 
 const EmailAssistent = () => {
   const navigate = useNavigate();
@@ -82,6 +114,10 @@ const EmailAssistent = () => {
     }
   };
 
+  const handleTemplateSelect = (template: EmailTemplate) => {
+    setInput(template.prompt);
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -113,11 +149,27 @@ const EmailAssistent = () => {
             <h2 className="text-2xl font-semibold text-foreground mb-2">
               Email Assistent
             </h2>
-            <p className="text-muted-foreground max-w-md">
-              Beskriv vilket e-postmeddelande du behöver hjälp med. Till exempel:
-              "Skriv ett uppföljningsmail till en kund som visade intresse för en
-              Volvo XC60"
+            <p className="text-muted-foreground max-w-md mb-8">
+              Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
             </p>
+            
+            {/* Template Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+              {emailTemplates.map((template, index) => (
+                <button
+                  key={template.id}
+                  onClick={() => handleTemplateSelect(template)}
+                  className="group flex flex-col items-center p-4 rounded-xl border border-border bg-card hover:bg-muted hover:border-foreground/30 transition-all duration-300 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors duration-300 mb-3">
+                    {template.icon}
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-1">{template.title}</h3>
+                  <p className="text-xs text-muted-foreground text-center">{template.description}</p>
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           messages.map((message, index) => (

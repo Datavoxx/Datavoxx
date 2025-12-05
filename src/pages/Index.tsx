@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
+import NameInput from "@/components/NameInput";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
@@ -10,7 +11,11 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background p-6">
+      {/* Name Input - Top Right */}
+      <div className="absolute top-4 right-4 z-10">
+        <NameInput />
+      </div>
       {/* Logo */}
       <img 
         src={bilgenLogo} 

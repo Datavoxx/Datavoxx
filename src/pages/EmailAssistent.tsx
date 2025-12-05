@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import NameInput from "@/components/NameInput";
 
 interface Message {
   role: "user" | "assistant";
@@ -131,15 +132,18 @@ const EmailAssistent = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <img src={bilgenLogo} alt="BILGEN" className="h-12" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={clearChat}
-          className="hover:bg-muted"
-          title="Rensa chatt"
-        >
-          <RotateCcw className="h-5 w-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <NameInput />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={clearChat}
+            className="hover:bg-muted"
+            title="Rensa chatt"
+          >
+            <RotateCcw className="h-5 w-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Chat Area */}

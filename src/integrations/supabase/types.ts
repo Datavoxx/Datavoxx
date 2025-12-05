@@ -14,7 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ad_generations: {
+        Row: {
+          brand: string
+          condition: string | null
+          created_at: string
+          equipment: string | null
+          generated_ad: string | null
+          id: string
+          mileage: string | null
+          model: string
+          price: string | null
+          session_id: string
+          tone: string | null
+          user_name: string
+          year: string | null
+        }
+        Insert: {
+          brand: string
+          condition?: string | null
+          created_at?: string
+          equipment?: string | null
+          generated_ad?: string | null
+          id?: string
+          mileage?: string | null
+          model: string
+          price?: string | null
+          session_id: string
+          tone?: string | null
+          user_name: string
+          year?: string | null
+        }
+        Update: {
+          brand?: string
+          condition?: string | null
+          created_at?: string
+          equipment?: string | null
+          generated_ad?: string | null
+          id?: string
+          mileage?: string | null
+          model?: string
+          price?: string | null
+          session_id?: string
+          tone?: string | null
+          user_name?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      email_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          request: string
+          response: string | null
+          session_id: string
+          template_used: string | null
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request: string
+          response?: string | null
+          session_id: string
+          template_used?: string | null
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request?: string
+          response?: string | null
+          session_id?: string
+          template_used?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
+      research_conversations: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          question: string
+          session_id: string
+          user_name: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          question: string
+          session_id: string
+          user_name: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          question?: string
+          session_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          updated_at: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          updated_at?: string
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          updated_at?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

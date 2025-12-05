@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const SERVICES = [
   { id: "annons", label: "Bilannonsgenerator" },
@@ -13,6 +15,8 @@ const SERVICES = [
 const FeedbackWidget = () => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleServiceClick = (serviceId: string) => {
     setSelectedServices(prev => 
@@ -20,6 +24,34 @@ const FeedbackWidget = () => {
         ? prev.filter(id => id !== serviceId)
         : [...prev, serviceId]
     );
+  };
+
+  const handleSubmit = async () => {
+    if (!email.trim() || !message.trim()) {
+      toast.error("Fyll i både e-post och meddelande");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    const { error } = await supabase
+      .from("feedback")
+      .insert({
+        email: email.trim(),
+        services: selectedServices,
+        message: message.trim()
+      });
+
+    if (error) {
+      toast.error("Kunde inte skicka feedback");
+    } else {
+      toast.success("Tack för din feedback!");
+      setEmail("");
+      setMessage("");
+      setSelectedServices([]);
+    }
+    
+    setIsSubmitting(false);
   };
 
   return (
@@ -85,6 +117,8 @@ const FeedbackWidget = () => {
 
         <Textarea
           placeholder="Skriv din feedback här..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           className="min-h-[100px] mb-3 resize-none bg-white border-border"
         />
         
@@ -97,8 +131,8 @@ const FeedbackWidget = () => {
           required
         />
         
-        <Button className="w-full">
-          Skicka feedback
+        <Button className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Skicka feedback"}
         </Button>
       </div>
     </div>

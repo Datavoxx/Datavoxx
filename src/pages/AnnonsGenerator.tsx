@@ -1,13 +1,15 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Settings, Sparkles, Wrench } from "lucide-react";
+import { ArrowLeft, Car, Check, Settings, Sparkles, Wrench, History, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+import HistoryPanel from "@/components/HistoryPanel";
 
 interface FormData {
   brand: string;
@@ -107,10 +109,12 @@ const STEPS = [
 
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   const [selectedTone, setSelectedTone] = useState<ToneType>("professional");
   const [systemPrompt, setSystemPrompt] = useState(TONE_OPTIONS[0].prompt);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     brand: "",
     model: "",
@@ -120,6 +124,13 @@ const AnnonsGenerator = () => {
     equipment: "",
     condition: "",
   });
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   // Load saved tone from localStorage
   useEffect(() => {
@@ -194,6 +205,15 @@ const AnnonsGenerator = () => {
     });
   };
 
+  const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
+    // For ad history, we show the generated ad
+    toast({
+      title: item.title,
+      description: "Tidigare annons visas",
+    });
+    setIsHistoryOpen(false);
+  };
+
   // Step Indicator Component
   const StepIndicator = () => (
     <div className="flex items-center justify-center gap-2 mb-2">
@@ -235,11 +255,41 @@ const AnnonsGenerator = () => {
     </div>
   );
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="relative min-h-screen bg-background">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} onBackClick={handleBack} />
+
+      {/* History Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setIsHistoryOpen(true)}
+        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+      >
+        <History className="h-5 w-5" />
+      </Button>
+
+      {/* History Panel */}
+      <HistoryPanel
+        type="ad"
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelect={handleHistorySelect}
+      />
       
       <div className="mx-auto max-w-3xl relative z-10 p-6">
 
@@ -481,10 +531,6 @@ const AnnonsGenerator = () => {
                   Generera Annons
                 </Button>
               </div>
-              
-              <p className="text-center text-sm text-muted-foreground mt-4">
-                Du kan redigera texten efteråt
-              </p>
             </div>
           )}
         </div>

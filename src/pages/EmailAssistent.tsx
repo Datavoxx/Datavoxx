@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, MessageSquare, Tag } from "lucide-react";
+import { Send, Copy, Mail, MessageSquare, Tag, History, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserSession } from "@/hooks/useUserSession";
+import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+import HistoryPanel from "@/components/HistoryPanel";
 
 interface Message {
   role: "user" | "assistant";
@@ -49,14 +50,22 @@ const emailTemplates: EmailTemplate[] = [
 const EmailAssistent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { sessionId, userName } = useUserSession();
+  const { user, profile, isLoading: authLoading } = useAuth();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !user) return;
 
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
@@ -88,11 +97,12 @@ const EmailAssistent = () => {
       };
       setMessages([...newMessages, assistantMessage]);
 
-      // Save conversation to database
+      // Save conversation to database with user_id
       try {
         await supabase.from('email_conversations').insert({
-          session_id: sessionId,
-          user_name: userName || 'Anonym',
+          user_id: user.id,
+          session_id: user.id,
+          user_name: profile?.display_name || user.email || 'Anonym',
           request: userMessage.content,
           response: data.content,
           template_used: lastTemplateUsed
@@ -140,11 +150,49 @@ const EmailAssistent = () => {
     setLastTemplateUsed(template.id);
   };
 
+  const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
+    setMessages([
+      { role: "user", content: item.title },
+      { role: "assistant", content: item.preview.replace("...", "") }
+    ]);
+    setIsHistoryOpen(false);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} showClearButton={true} onClearClick={clearChat} />
+
+      {/* History Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setIsHistoryOpen(true)}
+        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+      >
+        <History className="h-5 w-5" />
+      </Button>
+
+      {/* History Panel */}
+      <HistoryPanel
+        type="email"
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelect={handleHistorySelect}
+      />
 
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">

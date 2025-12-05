@@ -138,9 +138,8 @@ const AppHeader = ({
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all duration-300 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-all duration-300 hover:bg-neutral-800"
             >
-              <User className="h-4 w-4" />
               Logga in
             </button>
           )}

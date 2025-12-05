@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car } from "lucide-react";
+import { ArrowLeft, Car, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,6 +85,20 @@ Annonsen ska vara:
   },
 ];
 
+const EQUIPMENT_OPTIONS = [
+  "Dragkrok",
+  "Navigation",
+  "Läder",
+  "Vinterhjul",
+  "Backkamera",
+  "PDC",
+  "Adaptiv farthållare",
+  "Panoramatak",
+  "El-stolar",
+  "Apple CarPlay",
+  "Android Auto",
+];
+
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
   const [selectedTone, setSelectedTone] = useState<ToneType>("professional");
@@ -124,6 +138,24 @@ const AnnonsGenerator = () => {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleEquipmentChipClick = (item: string) => {
+    const currentEquipment = formData.equipment;
+    if (currentEquipment.includes(item)) {
+      // Remove item
+      const newEquipment = currentEquipment
+        .split(", ")
+        .filter((e) => e !== item)
+        .join(", ");
+      handleInputChange("equipment", newEquipment);
+    } else {
+      // Add item
+      const newEquipment = currentEquipment
+        ? `${currentEquipment}, ${item}`
+        : item;
+      handleInputChange("equipment", newEquipment);
+    }
   };
 
   const handleGenerate = () => {
@@ -171,21 +203,21 @@ const AnnonsGenerator = () => {
           <p className="text-muted-foreground">Skapa professionella annonser på sekunder</p>
         </div>
 
-        {/* Single column layout */}
-        <div className="space-y-6">
+        {/* Single column layout with increased spacing */}
+        <div className="space-y-8">
           {/* Car Information Card */}
           <div 
-            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-fade-in-up"
             style={{ animationDelay: "0.2s" }}
           >
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
-              <Car className="h-5 w-5 text-foreground" />
+            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
+              <Car className="h-6 w-6 text-foreground" />
               Bilinformation
             </h2>
             
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="brand">Märke *</Label>
+                <Label htmlFor="brand" className="text-sm text-muted-foreground">Märke *</Label>
                 <Input
                   id="brand"
                   placeholder="t.ex. Volvo"
@@ -196,7 +228,7 @@ const AnnonsGenerator = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="model">Modell *</Label>
+                <Label htmlFor="model" className="text-sm text-muted-foreground">Modell *</Label>
                 <Input
                   id="model"
                   placeholder="t.ex. XC60"
@@ -207,7 +239,7 @@ const AnnonsGenerator = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="year">Årsmodell</Label>
+                <Label htmlFor="year" className="text-sm text-muted-foreground">Årsmodell</Label>
                 <Input
                   id="year"
                   placeholder="t.ex. 2020"
@@ -218,7 +250,7 @@ const AnnonsGenerator = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="mileage">Miltal</Label>
+                <Label htmlFor="mileage" className="text-sm text-muted-foreground">Miltal</Label>
                 <Input
                   id="mileage"
                   placeholder="t.ex. 45000"
@@ -229,7 +261,7 @@ const AnnonsGenerator = () => {
               </div>
               
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="price">Pris (kr)</Label>
+                <Label htmlFor="price" className="text-sm text-muted-foreground">Pris (kr)</Label>
                 <Input
                   id="price"
                   placeholder="t.ex. 299000"
@@ -243,25 +275,44 @@ const AnnonsGenerator = () => {
 
           {/* Equipment & Condition Card */}
           <div 
-            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-fade-in-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <h2 className="mb-4 text-lg font-semibold text-foreground">Utrustning & Skick</h2>
+            <h2 className="mb-6 text-2xl font-semibold tracking-tight text-foreground">Utrustning & Skick</h2>
             
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="equipment">Utrustning</Label>
+              <div className="space-y-3">
+                <Label htmlFor="equipment" className="text-sm text-muted-foreground">Utrustning</Label>
+                
+                {/* Equipment Chips */}
+                <div className="flex flex-wrap gap-2">
+                  {EQUIPMENT_OPTIONS.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => handleEquipmentChipClick(item)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                        formData.equipment.includes(item)
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-gray-300 bg-white hover:border-gray-400 text-foreground"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+                
                 <Textarea
                   id="equipment"
-                  placeholder="Lista utrustning, t.ex. Navigation, Läderklädsel, Dragkrok..."
+                  placeholder="Lägg till ytterligare utrustning..."
                   value={formData.equipment}
                   onChange={(e) => handleInputChange("equipment", e.target.value)}
-                  className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                  className="min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="condition">Skick</Label>
+                <Label htmlFor="condition" className="text-sm text-muted-foreground">Skick</Label>
                 <Textarea
                   id="condition"
                   placeholder="Beskriv bilens skick..."
@@ -275,20 +326,20 @@ const AnnonsGenerator = () => {
 
           {/* Tone Selection */}
           <div 
-            className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-fade-in-up"
             style={{ animationDelay: "0.4s" }}
           >
-            <h2 className="mb-4 text-lg font-semibold text-foreground">Välj tonläge</h2>
+            <h2 className="mb-6 text-2xl font-semibold tracking-tight text-foreground">Välj tonläge</h2>
             
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {TONE_OPTIONS.map((tone) => (
                 <button
                   key={tone.id}
                   onClick={() => handleToneChange(tone.id)}
-                  className={`group flex flex-col items-center rounded-lg border-2 p-4 transition-all duration-200 ${
+                  className={`group flex flex-col items-center rounded-xl p-4 transition-all duration-200 ${
                     selectedTone === tone.id
-                      ? "border-foreground bg-foreground/10 shadow-[0_0_20px_0_hsl(var(--foreground)/0.2)]"
-                      : "border-border hover:border-foreground/50 hover:bg-secondary"
+                      ? "border-2 border-foreground bg-white shadow-md"
+                      : "border border-gray-200 hover:border-gray-400 bg-white"
                   }`}
                 >
                   <span className="text-2xl mb-2">{tone.icon}</span>
@@ -307,11 +358,10 @@ const AnnonsGenerator = () => {
           <div className="flex justify-center animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
             <Button
               onClick={handleGenerate}
-              className="group relative h-14 px-10 text-lg font-semibold transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--foreground)/0.4)]"
+              className="w-full max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
             >
-              <Car className="mr-2 h-5 w-5" />
+              <Sparkles className="mr-2 h-5 w-5" />
               Generera Annons
-              <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary-foreground transition-all duration-300 group-hover:w-3/4" />
             </Button>
           </div>
         </div>

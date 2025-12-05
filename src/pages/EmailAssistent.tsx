@@ -27,21 +27,21 @@ const emailTemplates: EmailTemplate[] = [
     id: "followup",
     title: "Uppföljning",
     description: "Följ upp med en kund efter visning eller samtal",
-    icon: <MessageSquare className="h-5 w-5" />,
+    icon: <MessageSquare className="h-6 w-6" />,
     prompt: "Skriv ett uppföljningsmail till en kund som nyligen visade intresse för en bil. Fråga mig vilken bil och kundens namn.",
   },
   {
     id: "inquiry",
     title: "Kundfråga",
     description: "Svara på en fråga från en potentiell köpare",
-    icon: <Mail className="h-5 w-5" />,
+    icon: <Mail className="h-6 w-6" />,
     prompt: "Hjälp mig svara på en kundfråga om en bil. Berätta för mig vad kunden frågade och vilken bil det gäller.",
   },
   {
     id: "offer",
     title: "Erbjudande",
     description: "Skicka ett specialerbjudande eller kampanj",
-    icon: <Tag className="h-5 w-5" />,
+    icon: <Tag className="h-6 w-6" />,
     prompt: "Skriv ett e-postmeddelande med ett specialerbjudande. Berätta vilken bil och vad erbjudandet innebär.",
   },
 ];
@@ -141,16 +141,16 @@ const EmailAssistent = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-border animate-fade-in-up">
+      <header className="flex items-center justify-between p-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm animate-fade-in-up">
         <Button
           variant="ghost"
-          size="icon"
           onClick={() => navigate("/")}
-          className="hover:bg-muted"
+          className="gap-2 text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
+          Tillbaka
         </Button>
         <img src={bilgenLogo} alt="BILGEN" className="h-12" />
         <div className="flex items-center gap-2">
@@ -168,33 +168,43 @@ const EmailAssistent = () => {
       </header>
 
       {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in-up">
-            <h2 className="text-2xl font-semibold text-foreground mb-2">
-              Email Assistent
-            </h2>
-            <p className="text-muted-foreground max-w-md mb-8">
+          <div className="flex flex-col items-center pt-16 text-center animate-fade-in-up">
+            <div className="flex items-center gap-3 mb-3">
+              <Mail className="h-10 w-10 text-gray-700" />
+              <h2 className="text-4xl font-bold tracking-tight text-foreground">
+                Email Assistent
+              </h2>
+            </div>
+            <p className="text-lg text-gray-500 max-w-md mb-10">
               Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
             </p>
             
             {/* Template Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
               {emailTemplates.map((template, index) => (
                 <button
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className="group flex flex-col items-center p-4 rounded-xl border border-border bg-card hover:bg-muted hover:border-foreground/30 transition-all duration-300 animate-fade-in-up"
+                  className="group flex flex-col items-center p-6 rounded-xl border border-gray-200 bg-white shadow-sm 
+                             hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 hover:border-gray-300 
+                             transition-all duration-300 animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors duration-300 mb-3">
+                  <div className="p-4 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300 mb-4">
                     {template.icon}
                   </div>
-                  <h3 className="font-semibold text-foreground mb-1">{template.title}</h3>
-                  <p className="text-xs text-muted-foreground text-center">{template.description}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">{template.title}</h3>
+                  <p className="text-sm text-gray-500 text-center">{template.description}</p>
                 </button>
               ))}
             </div>
+
+            {/* Microcopy guide */}
+            <p className="text-sm text-gray-400 mt-10 text-center">
+              Du kan också beskriva fritt vad du behöver i fältet nedan
+            </p>
           </div>
         ) : (
           messages.map((message, index) => (
@@ -205,10 +215,10 @@ const EmailAssistent = () => {
               } animate-fade-in-up`}
             >
               <div
-                className={`max-w-[80%] rounded-xl p-4 ${
+                className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
                   message.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                    : "bg-white text-foreground border border-gray-100"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
@@ -217,7 +227,7 @@ const EmailAssistent = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => copyToClipboard(message.content)}
-                    className="mt-2 h-8 px-2 hover:bg-background/20"
+                    className="mt-2 h-8 px-2 hover:bg-gray-100"
                   >
                     <Copy className="h-4 w-4 mr-1" />
                     Kopiera
@@ -229,28 +239,31 @@ const EmailAssistent = () => {
         )}
         {isLoading && (
           <div className="flex justify-start animate-fade-in-up">
-            <div className="bg-muted rounded-xl p-4">
-              <p className="text-muted-foreground">Skriver e-post...</p>
+            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
+              <p className="text-gray-500">Skriver e-post...</p>
             </div>
           </div>
         )}
       </main>
 
       {/* Input Area */}
-      <footer className="p-4 border-t border-border animate-fade-in-up">
-        <div className="flex gap-2 max-w-4xl mx-auto">
+      <footer className="p-4 border-t border-gray-200/50 bg-white/80 backdrop-blur-sm animate-fade-in-up">
+        <div className="flex gap-2 max-w-3xl mx-auto bg-white rounded-2xl p-3 border border-gray-200 shadow-sm 
+                        hover:shadow-md focus-within:shadow-md focus-within:border-gray-400 
+                        transition-all duration-300">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Beskriv vad du behöver hjälp med..."
-            className="resize-none min-h-[60px]"
+            className="resize-none min-h-[60px] flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
             disabled={isLoading}
           />
           <Button
             onClick={handleSubmit}
             disabled={!input.trim() || isLoading}
-            className="px-4"
+            size="icon"
+            className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300 self-end"
           >
             <Send className="h-5 w-5" />
           </Button>

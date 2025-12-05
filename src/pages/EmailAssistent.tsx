@@ -214,14 +214,14 @@ const EmailAssistent = () => {
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center pt-16 text-center animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-3">
+          <div className="flex flex-col items-center pt-16 text-center">
+            <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
               <Mail className="h-10 w-10 text-gray-700" />
               <h2 className="text-4xl font-bold tracking-tight text-foreground">
                 Email Assistent
               </h2>
             </div>
-            <p className="text-lg text-gray-500 max-w-md mb-10">
+            <p className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
               Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
             </p>
             
@@ -232,8 +232,8 @@ const EmailAssistent = () => {
                 return (
                   <div
                     key={template.id}
-                    className="perspective-1000 h-[200px] animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="perspective-1000 h-[200px] opacity-0 animate-fade-in"
+                    style={{ animationDelay: `${100 + index * 50}ms` }}
                   >
                     <div
                       className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
@@ -293,7 +293,7 @@ const EmailAssistent = () => {
               key={index}
               className={`flex ${
                 message.role === "user" ? "justify-end" : "justify-start"
-              } animate-fade-in-up`}
+              } animate-fade-in`}
             >
               <div
                 className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
@@ -319,7 +319,7 @@ const EmailAssistent = () => {
           ))
         )}
         {isLoading && (
-          <div className="flex justify-start animate-fade-in-up">
+          <div className="flex justify-start animate-fade-in">
             <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
               <p className="text-gray-500">Skriver e-post...</p>
             </div>
@@ -328,7 +328,7 @@ const EmailAssistent = () => {
       </main>
 
       {/* Input Area */}
-      <footer className="p-4 animate-fade-in-up">
+      <footer className="p-4">
         <div className="relative flex items-end max-w-3xl mx-auto rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
           <textarea
             ref={textareaRef}

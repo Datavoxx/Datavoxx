@@ -141,6 +141,7 @@ const AnnonsGenerator = () => {
       state: {
         formData,
         systemPrompt,
+        selectedTone,
       },
     });
   };

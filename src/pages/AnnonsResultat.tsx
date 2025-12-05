@@ -4,7 +4,8 @@ import { ArrowLeft, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import gothiaLogo from "@/assets/gothia-bil-logo.png";
+import { useUserSession } from "@/hooks/useUserSession";
+import bilgenLogo from "@/assets/bilgen-logo.png";
 
 interface FormData {
   brand: string;
@@ -19,11 +20,13 @@ interface FormData {
 interface LocationState {
   formData: FormData;
   systemPrompt: string;
+  selectedTone: string;
 }
 
 const AnnonsResultat = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { sessionId, userName } = useUserSession();
   const state = location.state as LocationState | null;
 
   const [generatedAd, setGeneratedAd] = useState("");
@@ -55,6 +58,25 @@ const AnnonsResultat = () => {
       }
 
       setGeneratedAd(data.generatedAd || "");
+      
+      // Save ad to database
+      try {
+        await supabase.from('ad_generations').insert({
+          session_id: sessionId,
+          user_name: userName || 'Anonym',
+          brand: state.formData.brand,
+          model: state.formData.model,
+          year: state.formData.year || null,
+          mileage: state.formData.mileage || null,
+          price: state.formData.price || null,
+          equipment: state.formData.equipment || null,
+          condition: state.formData.condition || null,
+          tone: state.selectedTone || null,
+          generated_ad: data.generatedAd || null
+        });
+      } catch (saveError) {
+        console.error("Error saving ad:", saveError);
+      }
       
       toast({
         title: "Annons genererad!",
@@ -120,7 +142,7 @@ const AnnonsResultat = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <img src={gothiaLogo} alt="GothiaBil" className="h-10" />
+          <img src={bilgenLogo} alt="BILGEN" className="h-10" />
         </div>
 
         {/* Title */}

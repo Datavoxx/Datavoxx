@@ -8,10 +8,11 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white">
-      {/* Decorative background shapes */}
+      {/* Decorative background shapes - LOCKED DESIGN */}
+      {/* DO NOT change opacity above 0.08 - subtle gray is intentional */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <svg
-          className="absolute top-0 left-0 w-full h-full opacity-[0.03]"
+          className="absolute top-0 left-0 w-full h-full opacity-[0.06]"
           viewBox="0 0 1440 900"
           preserveAspectRatio="xMidYMid slice"
         >

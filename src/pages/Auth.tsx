@@ -139,13 +139,13 @@ const Auth = () => {
         <img 
           src={bilgenLogo} 
           alt="BILGEN" 
-          className="mb-10 h-16 animate-fade-in-up cursor-pointer"
+          className="mb-10 h-16 opacity-0 animate-fade-in cursor-pointer"
           onClick={() => navigate("/")}
         />
         
         {/* Auth Card */}
         <div 
-          className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg animate-fade-in-up"
+          className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg opacity-0 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
         >
           <div className="mb-8 text-center">

@@ -141,7 +141,7 @@ const AnnonsResultat = () => {
       <div className="mx-auto max-w-3xl relative z-10 p-6">
 
         {/* Title */}
-        <div className="mb-10 text-center animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+        <div className="mb-10 text-center opacity-0 animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground mb-2">Din Genererade Annons</h1>
           <p className="text-muted-foreground">
             {state.formData.brand} {state.formData.model} {state.formData.year && `(${state.formData.year})`}
@@ -150,8 +150,8 @@ const AnnonsResultat = () => {
 
         {/* Generated Ad Card */}
         <div 
-          className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] animate-fade-in-up"
-          style={{ animationDelay: "0.2s" }}
+          className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] opacity-0 animate-fade-in"
+          style={{ animationDelay: "100ms" }}
         >
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center py-16">

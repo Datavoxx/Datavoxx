@@ -196,14 +196,14 @@ const BilResearch = () => {
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">
         {!hasMessages ? (
           /* Initial View - Centered */
-          <div className="flex-1 flex flex-col items-center pt-16 animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 flex flex-col items-center pt-16">
+            <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
               <Car className="h-10 w-10 text-gray-700" />
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
                 Vad vill du veta om din bil?
               </h1>
             </div>
-            <p className="text-lg text-gray-500 mb-10 text-center">
+            <p className="text-lg text-gray-500 mb-10 text-center opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
               Välj en mall nedan eller ställ en egen fråga
             </p>
             
@@ -214,8 +214,8 @@ const BilResearch = () => {
                 return (
                   <div
                     key={template.id}
-                    className="perspective-1000 h-[200px] animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="perspective-1000 h-[200px] opacity-0 animate-fade-in"
+                    style={{ animationDelay: `${100 + index * 50}ms` }}
                   >
                     <div
                       className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
@@ -275,7 +275,7 @@ const BilResearch = () => {
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in-up`}
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
               >
                 <div
                   className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
@@ -292,7 +292,7 @@ const BilResearch = () => {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start animate-fade-in-up">
+              <div className="flex justify-start animate-fade-in">
                 <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
                   <p className="text-sm font-medium mb-1 opacity-70">
                     🤖 Bil Research Expert

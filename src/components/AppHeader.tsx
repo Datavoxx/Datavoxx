@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, RotateCcw, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
@@ -61,9 +61,9 @@ const AppHeader = ({
       }`}
     >
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
-        {/* Left side - Back button */}
+        {/* Left side - Back button or Contact */}
         <div className="flex w-32 items-center">
-          {showBackButton && (
+          {showBackButton ? (
             <button
               onClick={handleBack}
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
@@ -71,6 +71,14 @@ const AppHeader = ({
               <ArrowLeft className="h-4 w-4 opacity-70 transition-opacity duration-300 hover:opacity-100" />
               Tillbaka
             </button>
+          ) : (
+            <a
+              href="mailto:kontakt@bilgen.se"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
+            >
+              <Mail className="h-4 w-4" />
+              Kontakta oss
+            </a>
           )}
         </div>
 

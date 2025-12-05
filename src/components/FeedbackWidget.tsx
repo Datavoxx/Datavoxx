@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Check } from "lucide-react";
 
 const SERVICES = [
   { id: "annons", label: "Bilannonsgenerator" },
@@ -9,10 +11,15 @@ const SERVICES = [
 ];
 
 const FeedbackWidget = () => {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
 
   const handleServiceClick = (serviceId: string) => {
-    setSelectedService(prev => prev === serviceId ? null : serviceId);
+    setSelectedServices(prev => 
+      prev.includes(serviceId)
+        ? prev.filter(id => id !== serviceId)
+        : [...prev, serviceId]
+    );
   };
 
   return (
@@ -54,28 +61,42 @@ const FeedbackWidget = () => {
           Vad tycker du om appen?
         </h3>
         
-        {/* Service chips */}
+        {/* Service chips - multi-select */}
         <div className="flex flex-wrap gap-2 mb-3">
-          {SERVICES.map((service) => (
-            <button
-              key={service.id}
-              type="button"
-              onClick={() => handleServiceClick(service.id)}
-              className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                selectedService === service.id
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border bg-background hover:border-foreground/50 text-foreground"
-              }`}
-            >
-              {service.label}
-            </button>
-          ))}
+          {SERVICES.map((service) => {
+            const isSelected = selectedServices.includes(service.id);
+            return (
+              <button
+                key={service.id}
+                type="button"
+                onClick={() => handleServiceClick(service.id)}
+                className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 flex items-center gap-1.5 ${
+                  isSelected
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-background hover:border-foreground/50 text-foreground"
+                }`}
+              >
+                {isSelected && <Check className="h-3.5 w-3.5" />}
+                {service.label}
+              </button>
+            );
+          })}
         </div>
 
         <Textarea
           placeholder="Skriv din feedback här..."
           className="min-h-[100px] mb-3 resize-none bg-white border-border"
         />
+        
+        <Input
+          type="email"
+          placeholder="Din e-postadress *"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-3 bg-white border-border"
+          required
+        />
+        
         <Button className="w-full">
           Skicka feedback
         </Button>

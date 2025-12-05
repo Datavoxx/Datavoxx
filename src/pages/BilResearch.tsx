@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Wrench, Scale, Search } from "lucide-react";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,6 +10,38 @@ interface Message {
   role: "user" | "assistant";
   content: string;
 }
+
+interface ResearchTemplate {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  prompt: string;
+}
+
+const researchTemplates: ResearchTemplate[] = [
+  {
+    id: "problems",
+    title: "Vanliga problem",
+    description: "Lär dig om vanliga fel och problem",
+    icon: <Wrench className="h-5 w-5" />,
+    prompt: "Vilka är de vanligaste problemen med [bilmärke och modell]? Vad bör jag som säljare vara medveten om?",
+  },
+  {
+    id: "compare",
+    title: "Jämför modeller",
+    description: "Jämför två bilar mot varandra",
+    icon: <Scale className="h-5 w-5" />,
+    prompt: "Jämför [bil 1] med [bil 2]. Vilka är fördelarna och nackdelarna med varje?",
+  },
+  {
+    id: "research",
+    title: "Research en bil",
+    description: "Få all info om en specifik bil",
+    icon: <Search className="h-5 w-5" />,
+    prompt: "Berätta allt du vet om [bilmärke och modell]. Vad är fördelarna, nackdelarna, och vad bör jag som säljare veta?",
+  },
+];
 
 const BilResearch = () => {
   const navigate = useNavigate();
@@ -68,6 +100,10 @@ const BilResearch = () => {
     }
   };
 
+  const handleTemplateSelect = (template: ResearchTemplate) => {
+    setInput(template.prompt);
+  };
+
   const hasMessages = messages.length > 0;
 
   return (
@@ -95,8 +131,26 @@ const BilResearch = () => {
               🚗 Vad vill du veta om din bil?
             </h1>
             <p className="text-muted-foreground mb-8 text-center">
-              Ställ frågor om bilmodeller, vanliga problem, fördelar och mer
+              Välj en mall nedan eller ställ en egen fråga
             </p>
+            
+            {/* Template Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+              {researchTemplates.map((template, index) => (
+                <button
+                  key={template.id}
+                  onClick={() => handleTemplateSelect(template)}
+                  className="group flex flex-col items-center p-4 rounded-xl border border-border bg-card hover:bg-muted hover:border-foreground/30 transition-all duration-300 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors duration-300 mb-3">
+                    {template.icon}
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-1">{template.title}</h3>
+                  <p className="text-xs text-muted-foreground text-center">{template.description}</p>
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           /* Chat Messages */

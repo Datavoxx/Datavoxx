@@ -29,14 +29,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-    if (!error && data) {
+      if (error) {
+        console.error("Error fetching profile:", error);
+        // If profile fetch fails, the user might have been deleted
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        return;
+      }
+
+      if (!data) {
+        // Profile doesn't exist - user was likely deleted
+        console.warn("No profile found for user, signing out");
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        return;
+      }
+
       setProfile(data);
+    } catch (err) {
+      console.error("Unexpected error fetching profile:", err);
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
     }
   };
 
@@ -61,7 +87,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("Session error:", error);
+        // Clear invalid session
+        supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
       

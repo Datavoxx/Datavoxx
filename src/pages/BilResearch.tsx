@@ -2,12 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Wrench, Scale, Search, Car } from "lucide-react";
-import bilgenLogo from "@/assets/bilgen-logo.png";
+import { Send, Loader2, Wrench, Scale, Search, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import NameInput from "@/components/NameInput";
 import { useUserSession } from "@/hooks/useUserSession";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import AppHeader from "@/components/AppHeader";
 
 interface Message {
   role: "user" | "assistant";
@@ -126,18 +125,7 @@ const BilResearch = () => {
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Tillbaka
-        </Button>
-        <img src={bilgenLogo} alt="BILGEN" className="h-12" />
-        <NameInput />
-      </header>
+      <AppHeader showBackButton={true} />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">

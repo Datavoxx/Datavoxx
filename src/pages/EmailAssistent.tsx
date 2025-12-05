@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, Copy, RotateCcw, Mail, MessageSquare, Tag } from "lucide-react";
+import { Send, Copy, Mail, MessageSquare, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSession } from "@/hooks/useUserSession";
-import bilgenLogo from "@/assets/bilgen-logo.png";
-import NameInput from "@/components/NameInput";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import AppHeader from "@/components/AppHeader";
 
 interface Message {
   role: "user" | "assistant";
@@ -145,29 +144,7 @@ const EmailAssistent = () => {
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm animate-fade-in-up">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Tillbaka
-        </Button>
-        <img src={bilgenLogo} alt="BILGEN" className="h-12" />
-        <div className="flex items-center gap-2">
-          <NameInput />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={clearChat}
-            className="hover:bg-muted"
-            title="Rensa chatt"
-          >
-            <RotateCcw className="h-5 w-5" />
-          </Button>
-        </div>
-      </header>
+      <AppHeader showBackButton={true} showClearButton={true} onClearClick={clearChat} />
 
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">

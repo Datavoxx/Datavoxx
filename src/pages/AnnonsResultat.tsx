@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
+import { Copy, Check, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSession } from "@/hooks/useUserSession";
-import bilgenLogo from "@/assets/bilgen-logo.png";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import AppHeader from "@/components/AppHeader";
 
 interface FormData {
   brand: string;
@@ -131,21 +131,12 @@ const AnnonsResultat = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-background p-6">
+    <div className="relative min-h-screen bg-background">
       <DecorativeBackground />
-      <div className="mx-auto max-w-3xl relative z-10">
-        {/* Header */}
-        <div className="mb-8 flex items-center gap-4 animate-fade-in-up">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBack}
-            className="hover:bg-secondary"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <img src={bilgenLogo} alt="BILGEN" className="h-10" />
-        </div>
+      {/* Header */}
+      <AppHeader showBackButton={true} onBackClick={handleBack} />
+      
+      <div className="mx-auto max-w-3xl relative z-10 p-6">
 
         {/* Title */}
         <div className="mb-10 text-center animate-fade-in-up" style={{ animationDelay: "0.1s" }}>

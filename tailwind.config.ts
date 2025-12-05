@@ -93,6 +93,10 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-3deg) translateY(0)" },
+          "50%": { transform: "rotate(3deg) translateY(-4px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -100,6 +104,7 @@ export default {
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
         "fade-in": "fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "wiggle": "wiggle 1.5s ease-in-out infinite",
       },
     },
   },

@@ -166,12 +166,8 @@ const AnnonsResultat = () => {
             </div>
           ) : generatedAd ? (
             <>
-              <div className="whitespace-pre-wrap rounded-lg bg-secondary p-6 text-foreground leading-relaxed">
-                {generatedAd}
-              </div>
-              
               {/* Action Buttons */}
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <div className="mb-6 flex flex-wrap justify-center gap-4">
                 <Button
                   variant="outline"
                   onClick={handleCopy}
@@ -207,6 +203,10 @@ const AnnonsResultat = () => {
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Tillbaka till formulär
                 </Button>
+              </div>
+              
+              <div className="whitespace-pre-wrap rounded-lg bg-secondary p-6 text-foreground leading-relaxed">
+                {generatedAd}
               </div>
             </>
           ) : (

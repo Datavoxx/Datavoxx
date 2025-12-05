@@ -17,7 +17,7 @@ const FeedbackWidget = () => {
         {/* Curvy hand-drawn style arrow */}
         <path
           d="M30 5 C25 15, 20 25, 22 35 C24 45, 32 50, 30 60"
-          stroke="#EF4444"
+          stroke="#000000"
           strokeWidth="3"
           strokeLinecap="round"
           fill="none"
@@ -27,7 +27,7 @@ const FeedbackWidget = () => {
         {/* Arrow head */}
         <path
           d="M22 52 L30 65 L38 52"
-          stroke="#EF4444"
+          stroke="#000000"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"

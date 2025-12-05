@@ -274,15 +274,15 @@ const EmailAssistent = () => {
 
       {/* Input Area */}
       <footer className="p-4 animate-fade-in-up">
-        <div className="flex gap-2 max-w-3xl mx-auto items-end">
+        <div className="relative flex items-end max-w-3xl mx-auto rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
           <textarea
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Beskriv vad du behöver hjälp med..."
-            className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white/50 
-                       focus:outline-none focus:border-gray-400 transition-all text-base overflow-hidden resize-none"
+            className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 
+                       focus:outline-none transition-all text-base overflow-hidden resize-none"
             disabled={isLoading}
             rows={1}
           />
@@ -290,7 +290,7 @@ const EmailAssistent = () => {
             onClick={handleSubmit}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300 shrink-0"
+            className="absolute right-2 bottom-2 rounded-xl h-10 w-10 hover:shadow-lg transition-all duration-300"
           >
             <Send className="h-5 w-5" />
           </Button>

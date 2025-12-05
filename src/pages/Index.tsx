@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+import FeedbackWidget from "@/components/FeedbackWidget";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
@@ -10,6 +11,7 @@ const Index = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white animate-fade-in">
       <DecorativeBackground />
+      <FeedbackWidget />
 
       {/* Header */}
       <AppHeader showBackButton={false} />

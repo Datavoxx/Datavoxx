@@ -8,7 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white">
+    <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white animate-fade-in">
       <DecorativeBackground />
 
       {/* Header */}
@@ -21,45 +21,33 @@ const Index = () => {
           <img 
             src={bilgenLogo} 
             alt="BILGEN" 
-            className="h-20 mx-auto mb-10 opacity-0 animate-fade-in"
+            className="h-20 mx-auto mb-10"
           />
-          <h1 
-            className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4 opacity-0 animate-fade-in"
-            style={{ animationDelay: "50ms" }}
-          >
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4">
             Välj verktyg
           </h1>
-          <p 
-            className="text-xl text-muted-foreground max-w-md mx-auto opacity-0 animate-fade-in"
-            style={{ animationDelay: "100ms" }}
-          >
+          <p className="text-xl text-muted-foreground max-w-md mx-auto">
             Vad vill du göra idag?
           </p>
         </div>
 
         {/* Level Cards */}
         <div className="flex flex-col lg:flex-row flex-wrap justify-center gap-8 lg:gap-10 max-w-5xl">
-          <div className="opacity-0 animate-fade-in" style={{ animationDelay: "150ms" }}>
-            <LevelCard
-              title="Bilannonsgenerator"
-              description="Skapa annonser snabbare med en annonsgenerator"
-              onClick={() => navigate("/annons-generator")}
-            />
-          </div>
-          <div className="opacity-0 animate-fade-in" style={{ animationDelay: "200ms" }}>
-            <LevelCard
-              title="Bil Research Expert"
-              description="Lär känna era nya bilar genom att fråga mig om den"
-              onClick={() => navigate("/bil-research")}
-            />
-          </div>
-          <div className="opacity-0 animate-fade-in" style={{ animationDelay: "250ms" }}>
-            <LevelCard
-              title="Email Assistent"
-              description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
-              onClick={() => navigate("/email-assistent")}
-            />
-          </div>
+          <LevelCard
+            title="Bilannonsgenerator"
+            description="Skapa annonser snabbare med en annonsgenerator"
+            onClick={() => navigate("/annons-generator")}
+          />
+          <LevelCard
+            title="Bil Research Expert"
+            description="Lär känna era nya bilar genom att fråga mig om den"
+            onClick={() => navigate("/bil-research")}
+          />
+          <LevelCard
+            title="Email Assistent"
+            description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
+            onClick={() => navigate("/email-assistent")}
+          />
         </div>
       </main>
     </div>

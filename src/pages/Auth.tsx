@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Building, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import bilgenLogo from "@/assets/bilgen-logo.png";
 const emailSchema = z.string().email("Ogiltig e-postadress");
 const passwordSchema = z.string().min(6, "Lösenordet måste vara minst 6 tecken");
 const displayNameSchema = z.string().min(2, "Namnet måste vara minst 2 tecken").optional();
+const companyNameSchema = z.string().min(2, "Företagsnamnet måste vara minst 2 tecken");
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -24,8 +25,9 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string; companyName?: string }>({});
 
   // Redirect if already logged in
   useEffect(() => {
@@ -35,7 +37,7 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; displayName?: string } = {};
+    const newErrors: { email?: string; password?: string; displayName?: string; companyName?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -54,6 +56,13 @@ const Auth = () => {
       }
     }
     
+    if (isSignUp) {
+      const companyResult = companyNameSchema.safeParse(companyName);
+      if (!companyResult.success) {
+        newErrors.companyName = companyResult.error.errors[0].message;
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,7 +76,7 @@ const Auth = () => {
     
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, displayName || undefined);
+        const { error } = await signUp(email, password, displayName || undefined, companyName);
         
         if (error) {
           if (error.message.includes("already registered")) {
@@ -161,26 +170,49 @@ const Auth = () => {
           
           <form onSubmit={handleSubmit} className="space-y-5">
             {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName" className="text-sm font-medium">
-                  Visningsnamn
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="displayName"
-                    type="text"
-                    placeholder="Ditt namn"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="pl-10"
-                    disabled={isLoading}
-                  />
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="displayName" className="text-sm font-medium">
+                    Visningsnamn <span className="text-muted-foreground">(valfritt)</span>
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder="Ditt namn"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="pl-10"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.displayName && (
+                    <p className="text-xs text-red-500">{errors.displayName}</p>
+                  )}
                 </div>
-                {errors.displayName && (
-                  <p className="text-xs text-red-500">{errors.displayName}</p>
-                )}
-              </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="text-sm font-medium">
+                    Företagsnamn <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      id="companyName"
+                      type="text"
+                      placeholder="Ditt företag"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="pl-10"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.companyName && (
+                    <p className="text-xs text-red-500">{errors.companyName}</p>
+                  )}
+                </div>
+              </>
             )}
             
             <div className="space-y-2">
@@ -247,6 +279,7 @@ const Auth = () => {
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setErrors({});
+                setCompanyName("");
               }}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >

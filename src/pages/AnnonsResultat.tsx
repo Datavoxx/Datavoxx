@@ -4,7 +4,7 @@ import { Copy, Check, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserSession } from "@/hooks/useUserSession";
+import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 
@@ -27,15 +27,22 @@ interface LocationState {
 const AnnonsResultat = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { sessionId, userName } = useUserSession();
+  const { user, profile, isLoading: authLoading } = useAuth();
   const state = location.state as LocationState | null;
 
   const [generatedAd, setGeneratedAd] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
   const generateAd = useCallback(async () => {
-    if (!state) return;
+    if (!state || !user) return;
 
     setIsGenerating(true);
     setGeneratedAd("");
@@ -60,11 +67,12 @@ const AnnonsResultat = () => {
 
       setGeneratedAd(data.generatedAd || "");
       
-      // Save ad to database
+      // Save ad to database with user_id
       try {
         await supabase.from('ad_generations').insert({
-          session_id: sessionId,
-          user_name: userName || 'Anonym',
+          user_id: user.id,
+          session_id: user.id,
+          user_name: profile?.display_name || user.email || 'Anonym',
           brand: state.formData.brand,
           model: state.formData.model,
           year: state.formData.year || null,
@@ -93,7 +101,7 @@ const AnnonsResultat = () => {
     } finally {
       setIsGenerating(false);
     }
-  }, [state]);
+  }, [state, user, profile]);
 
   // Generate on mount
   useEffect(() => {
@@ -101,8 +109,10 @@ const AnnonsResultat = () => {
       navigate("/annons-generator");
       return;
     }
-    generateAd();
-  }, [state, navigate, generateAd]);
+    if (user) {
+      generateAd();
+    }
+  }, [state, navigate, generateAd, user]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedAd);
@@ -125,6 +135,18 @@ const AnnonsResultat = () => {
       },
     });
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   if (!state) {
     return null;

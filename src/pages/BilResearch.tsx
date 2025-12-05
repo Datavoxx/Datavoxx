@@ -2,11 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Loader2, Wrench, Scale, Search, Car } from "lucide-react";
+import { Send, Loader2, Wrench, Scale, Search, Car, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserSession } from "@/hooks/useUserSession";
+import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+import HistoryPanel from "@/components/HistoryPanel";
 
 interface Message {
   role: "user" | "assistant";
@@ -47,12 +48,20 @@ const researchTemplates: ResearchTemplate[] = [
 
 const BilResearch = () => {
   const navigate = useNavigate();
-  const { sessionId, userName } = useUserSession();
+  const { user, profile, isLoading: authLoading } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +72,7 @@ const BilResearch = () => {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !user) return;
 
     const userMessage: Message = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
@@ -84,11 +93,12 @@ const BilResearch = () => {
       };
       setMessages([...newMessages, assistantMessage]);
 
-      // Save conversation to database
+      // Save conversation to database with user_id
       try {
         await supabase.from('research_conversations').insert({
-          session_id: sessionId,
-          user_name: userName || 'Anonym',
+          user_id: user.id,
+          session_id: user.id,
+          user_name: profile?.display_name || user.email || 'Anonym',
           question: userMessage.content,
           answer: data.response
         });
@@ -119,13 +129,52 @@ const BilResearch = () => {
     setInput(template.prompt);
   };
 
+  const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
+    // Load the selected conversation
+    setMessages([
+      { role: "user", content: item.title },
+      { role: "assistant", content: item.preview.replace("...", "") }
+    ]);
+    setIsHistoryOpen(false);
+  };
+
   const hasMessages = messages.length > 0;
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} />
+
+      {/* History Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setIsHistoryOpen(true)}
+        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+      >
+        <History className="h-5 w-5" />
+      </Button>
+
+      {/* History Panel */}
+      <HistoryPanel
+        type="research"
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelect={handleHistorySelect}
+      />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">

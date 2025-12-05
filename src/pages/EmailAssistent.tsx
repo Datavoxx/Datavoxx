@@ -4,6 +4,8 @@ import { ArrowLeft, Send, Copy, RotateCcw, Mail, MessageSquare, Tag } from "luci
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserSession } from "@/hooks/useUserSession";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import NameInput from "@/components/NameInput";
 
@@ -47,9 +49,11 @@ const emailTemplates: EmailTemplate[] = [
 const EmailAssistent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sessionId, userName } = useUserSession();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (!input.trim() || isLoading) return;
@@ -83,6 +87,22 @@ const EmailAssistent = () => {
         content: data.content,
       };
       setMessages([...newMessages, assistantMessage]);
+
+      // Save conversation to database
+      try {
+        await supabase.from('email_conversations').insert({
+          session_id: sessionId,
+          user_name: userName || 'Anonym',
+          request: userMessage.content,
+          response: data.content,
+          template_used: lastTemplateUsed
+        });
+      } catch (saveError) {
+        console.error("Error saving email conversation:", saveError);
+      }
+      
+      // Reset template tracking after use
+      setLastTemplateUsed(null);
     } catch (error) {
       console.error("Error:", error);
       toast({
@@ -117,6 +137,7 @@ const EmailAssistent = () => {
 
   const handleTemplateSelect = (template: EmailTemplate) => {
     setInput(template.prompt);
+    setLastTemplateUsed(template.id);
   };
 
   return (

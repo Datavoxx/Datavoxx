@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
 import NameInput from "@/components/NameInput";
+import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
@@ -8,18 +9,7 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white">
-      {/* Decorative background shapes - LOCKED DESIGN */}
-      {/* DO NOT change opacity above 0.08 - subtle gray is intentional */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <svg
-          className="absolute top-0 left-0 w-full h-full opacity-[0.06]"
-          viewBox="0 0 1440 900"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <ellipse cx="200" cy="100" rx="400" ry="300" fill="currentColor" className="text-foreground" />
-          <ellipse cx="1300" cy="700" rx="350" ry="250" fill="currentColor" className="text-foreground" />
-        </svg>
-      </div>
+      <DecorativeBackground />
 
       {/* Floating Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-100">

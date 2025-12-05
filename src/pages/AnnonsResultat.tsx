@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSession } from "@/hooks/useUserSession";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import DecorativeBackground from "@/components/DecorativeBackground";
 
 interface FormData {
   brand: string;
@@ -130,8 +131,9 @@ const AnnonsResultat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-3xl">
+    <div className="relative min-h-screen bg-background p-6">
+      <DecorativeBackground />
+      <div className="mx-auto max-w-3xl relative z-10">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4 animate-fade-in-up">
           <Button

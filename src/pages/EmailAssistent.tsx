@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserSession } from "@/hooks/useUserSession";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import NameInput from "@/components/NameInput";
+import DecorativeBackground from "@/components/DecorativeBackground";
 
 interface Message {
   role: "user" | "assistant";
@@ -141,7 +142,8 @@ const EmailAssistent = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="relative flex min-h-screen flex-col bg-slate-50">
+      <DecorativeBackground />
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm animate-fade-in-up">
         <Button

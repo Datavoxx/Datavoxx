@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import NameInput from "@/components/NameInput";
+import DecorativeBackground from "@/components/DecorativeBackground";
 
 interface FormData {
   brand: string;
@@ -236,8 +237,9 @@ const AnnonsGenerator = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-3xl">
+    <div className="relative min-h-screen bg-background p-6">
+      <DecorativeBackground />
+      <div className="mx-auto max-w-3xl relative z-10">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-4">

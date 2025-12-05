@@ -1,7 +1,20 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+const SERVICES = [
+  { id: "annons", label: "Bilannonsgenerator" },
+  { id: "research", label: "Bil Research Expert" },
+  { id: "email", label: "Email Assistent" },
+];
+
 const FeedbackWidget = () => {
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+
+  const handleServiceClick = (serviceId: string) => {
+    setSelectedService(prev => prev === serviceId ? null : serviceId);
+  };
+
   return (
     <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-end gap-2">
       {/* Hand-drawn curvy arrow pointing down */}
@@ -40,6 +53,25 @@ const FeedbackWidget = () => {
         <h3 className="text-lg font-semibold text-foreground mb-3">
           Vad tycker du om appen?
         </h3>
+        
+        {/* Service chips */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {SERVICES.map((service) => (
+            <button
+              key={service.id}
+              type="button"
+              onClick={() => handleServiceClick(service.id)}
+              className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                selectedService === service.id
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-background hover:border-foreground/50 text-foreground"
+              }`}
+            >
+              {service.label}
+            </button>
+          ))}
+        </div>
+
         <Textarea
           placeholder="Skriv din feedback här..."
           className="min-h-[100px] mb-3 resize-none bg-white border-border"

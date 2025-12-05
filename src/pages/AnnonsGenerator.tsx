@@ -125,13 +125,6 @@ const AnnonsGenerator = () => {
     condition: "",
   });
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
   // Load saved tone from localStorage
   useEffect(() => {
     const savedTone = localStorage.getItem("ad_tone") as ToneType | null;
@@ -255,41 +248,33 @@ const AnnonsGenerator = () => {
     </div>
   );
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="relative min-h-screen bg-background">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} onBackClick={handleBack} />
 
-      {/* History Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setIsHistoryOpen(true)}
-        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
-      >
-        <History className="h-5 w-5" />
-      </Button>
+      {/* History Button - only for logged in users */}
+      {user && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsHistoryOpen(true)}
+          className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+        >
+          <History className="h-5 w-5" />
+        </Button>
+      )}
 
-      {/* History Panel */}
-      <HistoryPanel
-        type="ad"
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        onSelect={handleHistorySelect}
-      />
+      {/* History Panel - only for logged in users */}
+      {user && (
+        <HistoryPanel
+          type="ad"
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          onSelect={handleHistorySelect}
+        />
+      )}
       
       <div className="mx-auto max-w-3xl relative z-10 p-6">
 

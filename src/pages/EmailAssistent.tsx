@@ -57,15 +57,8 @@ const EmailAssistent = () => {
   const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
   const handleSubmit = async () => {
-    if (!input.trim() || isLoading || !user) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
@@ -97,18 +90,20 @@ const EmailAssistent = () => {
       };
       setMessages([...newMessages, assistantMessage]);
 
-      // Save conversation to database with user_id
-      try {
-        await supabase.from('email_conversations').insert({
-          user_id: user.id,
-          session_id: user.id,
-          user_name: profile?.display_name || user.email || 'Anonym',
-          request: userMessage.content,
-          response: data.content,
-          template_used: lastTemplateUsed
-        });
-      } catch (saveError) {
-        console.error("Error saving email conversation:", saveError);
+      // Save conversation to database only if user is logged in
+      if (user) {
+        try {
+          await supabase.from('email_conversations').insert({
+            user_id: user.id,
+            session_id: user.id,
+            user_name: profile?.display_name || user.email || 'Anonym',
+            request: userMessage.content,
+            response: data.content,
+            template_used: lastTemplateUsed
+          });
+        } catch (saveError) {
+          console.error("Error saving email conversation:", saveError);
+        }
       }
       
       // Reset template tracking after use
@@ -158,41 +153,33 @@ const EmailAssistent = () => {
     setIsHistoryOpen(false);
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} showClearButton={true} onClearClick={clearChat} />
 
-      {/* History Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setIsHistoryOpen(true)}
-        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
-      >
-        <History className="h-5 w-5" />
-      </Button>
+      {/* History Button - only for logged in users */}
+      {user && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsHistoryOpen(true)}
+          className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+        >
+          <History className="h-5 w-5" />
+        </Button>
+      )}
 
-      {/* History Panel */}
-      <HistoryPanel
-        type="email"
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        onSelect={handleHistorySelect}
-      />
+      {/* History Panel - only for logged in users */}
+      {user && (
+        <HistoryPanel
+          type="email"
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          onSelect={handleHistorySelect}
+        />
+      )}
 
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">

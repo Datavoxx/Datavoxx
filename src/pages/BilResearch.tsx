@@ -6,6 +6,7 @@ import { ArrowLeft, Send, Loader2, Wrench, Scale, Search } from "lucide-react";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import NameInput from "@/components/NameInput";
+import { useUserSession } from "@/hooks/useUserSession";
 
 interface Message {
   role: "user" | "assistant";
@@ -46,6 +47,7 @@ const researchTemplates: ResearchTemplate[] = [
 
 const BilResearch = () => {
   const navigate = useNavigate();
+  const { sessionId, userName } = useUserSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +83,18 @@ const BilResearch = () => {
         content: data.response,
       };
       setMessages([...newMessages, assistantMessage]);
+
+      // Save conversation to database
+      try {
+        await supabase.from('research_conversations').insert({
+          session_id: sessionId,
+          user_name: userName || 'Anonym',
+          question: userMessage.content,
+          answer: data.response
+        });
+      } catch (saveError) {
+        console.error("Error saving conversation:", saveError);
+      }
     } catch (error) {
       console.error("Error:", error);
       const errorMessage: Message = {

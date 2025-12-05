@@ -25,7 +25,7 @@ const Index = () => {
       </div>
 
       {/* Level Cards */}
-      <div className="flex flex-col sm:flex-row gap-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+      <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
         <LevelCard
           title="Bilannonsgenerator"
           description="Skapa annonser snabbare med en annonsgenerator"
@@ -35,6 +35,11 @@ const Index = () => {
           title="Bil Research Expert"
           description="Lär känna era nya bilar genom att fråga mig om den – kanske lättare att sälja ju mer du vet"
           onClick={handleResearchSelect}
+        />
+        <LevelCard
+          title="Email Assistent"
+          description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
+          onClick={() => navigate("/email-assistent")}
         />
       </div>
     </div>

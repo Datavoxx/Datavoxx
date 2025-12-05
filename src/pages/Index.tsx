@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
-import NameInput from "@/components/NameInput";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import AppHeader from "@/components/AppHeader";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
@@ -11,17 +11,8 @@ const Index = () => {
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white">
       <DecorativeBackground />
 
-      {/* Floating Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <img 
-            src={bilgenLogo} 
-            alt="BILGEN" 
-            className="h-8"
-          />
-          <NameInput />
-        </div>
-      </header>
+      {/* Header */}
+      <AppHeader showBackButton={false} />
 
       {/* Main Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-24 pb-16">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, MessageSquare, Tag, History, Loader2 } from "lucide-react";
+import { Send, Copy, Mail, MessageSquare, Tag, History, Loader2, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ interface EmailTemplate {
   id: string;
   title: string;
   description: string;
+  expandedDescription: string;
   icon: React.ReactNode;
   prompt: string;
 }
@@ -27,6 +28,7 @@ const emailTemplates: EmailTemplate[] = [
     id: "followup",
     title: "Uppföljning",
     description: "Följ upp med en kund efter visning eller samtal",
+    expandedDescription: "Generera ett professionellt uppföljningsmail efter kundkontakt. Perfekt för att hålla kunden varm och öka chansen till affär.",
     icon: <MessageSquare className="h-6 w-6" />,
     prompt: "Skriv ett uppföljningsmail till en kund som nyligen visade intresse för en bil. Fråga mig vilken bil och kundens namn.",
   },
@@ -34,6 +36,7 @@ const emailTemplates: EmailTemplate[] = [
     id: "inquiry",
     title: "Kundfråga",
     description: "Svara på en fråga från en potentiell köpare",
+    expandedDescription: "Få hjälp att formulera ett professionellt och säljande svar på kundens frågor om en specifik bil.",
     icon: <Mail className="h-6 w-6" />,
     prompt: "Hjälp mig svara på en kundfråga om en bil. Berätta för mig vad kunden frågade och vilken bil det gäller.",
   },
@@ -41,6 +44,7 @@ const emailTemplates: EmailTemplate[] = [
     id: "offer",
     title: "Erbjudande",
     description: "Skicka ett specialerbjudande eller kampanj",
+    expandedDescription: "Skapa ett lockande erbjudandemail med rätt ton och tydligt call-to-action för att driva kunden mot köp.",
     icon: <Tag className="h-6 w-6" />,
     prompt: "Skriv ett e-postmeddelande med ett specialerbjudande. Berätta vilken bil och vad erbjudandet innebär.",
   },
@@ -55,7 +59,21 @@ const EmailAssistent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleCardFlip = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFlippedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -209,22 +227,59 @@ const EmailAssistent = () => {
             
             {/* Template Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
-              {emailTemplates.map((template, index) => (
-                <button
-                  key={template.id}
-                  onClick={() => handleTemplateSelect(template)}
-                  className="group flex flex-col items-center p-6 rounded-xl border border-gray-200 bg-white shadow-sm 
-                             hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 hover:border-gray-300 
-                             transition-all duration-300 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="p-4 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300 mb-4">
-                    {template.icon}
+              {emailTemplates.map((template, index) => {
+                const isFlipped = flippedCards.has(template.id);
+                return (
+                  <div
+                    key={template.id}
+                    className="perspective-1000 h-[200px] animate-fade-in-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div
+                      className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
+                        isFlipped ? 'rotate-y-180' : ''
+                      }`}
+                    >
+                      {/* Front of card */}
+                      <button
+                        onClick={() => handleTemplateSelect(template)}
+                        className="absolute inset-0 backface-hidden group flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-white shadow-sm 
+                                   hover:shadow-lg hover:border-gray-300 transition-all duration-300"
+                      >
+                        {/* Info button */}
+                        <button
+                          onClick={(e) => toggleCardFlip(template.id, e)}
+                          className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                        >
+                          <Info className="h-4 w-4 text-gray-500" />
+                        </button>
+                        <div className="p-4 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300 mb-4">
+                          {template.icon}
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-1">{template.title}</h3>
+                        <p className="text-sm text-gray-500 text-center">{template.description}</p>
+                      </button>
+
+                      {/* Back of card */}
+                      <div
+                        className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-gray-50 shadow-sm"
+                      >
+                        {/* Close button */}
+                        <button
+                          onClick={(e) => toggleCardFlip(template.id, e)}
+                          className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                        >
+                          <X className="h-4 w-4 text-gray-600" />
+                        </button>
+                        <h3 className="text-lg font-semibold text-foreground mb-3">{template.title}</h3>
+                        <p className="text-sm text-gray-600 text-center leading-relaxed">
+                          {template.expandedDescription}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">{template.title}</h3>
-                  <p className="text-sm text-gray-500 text-center">{template.description}</p>
-                </button>
-              ))}
+                );
+              })}
             </div>
 
             {/* Microcopy guide */}

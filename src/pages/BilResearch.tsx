@@ -56,13 +56,6 @@ const BilResearch = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -72,7 +65,7 @@ const BilResearch = () => {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || isLoading || !user) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
@@ -93,17 +86,19 @@ const BilResearch = () => {
       };
       setMessages([...newMessages, assistantMessage]);
 
-      // Save conversation to database with user_id
-      try {
-        await supabase.from('research_conversations').insert({
-          user_id: user.id,
-          session_id: user.id,
-          user_name: profile?.display_name || user.email || 'Anonym',
-          question: userMessage.content,
-          answer: data.response
-        });
-      } catch (saveError) {
-        console.error("Error saving conversation:", saveError);
+      // Save conversation to database only if user is logged in
+      if (user) {
+        try {
+          await supabase.from('research_conversations').insert({
+            user_id: user.id,
+            session_id: user.id,
+            user_name: profile?.display_name || user.email || 'Anonym',
+            question: userMessage.content,
+            answer: data.response
+          });
+        } catch (saveError) {
+          console.error("Error saving conversation:", saveError);
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -140,41 +135,33 @@ const BilResearch = () => {
 
   const hasMessages = messages.length > 0;
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
       {/* Header */}
       <AppHeader showBackButton={true} />
 
-      {/* History Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setIsHistoryOpen(true)}
-        className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
-      >
-        <History className="h-5 w-5" />
-      </Button>
+      {/* History Button - only for logged in users */}
+      {user && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsHistoryOpen(true)}
+          className="fixed right-4 top-20 z-40 rounded-full shadow-md hover:shadow-lg transition-all"
+        >
+          <History className="h-5 w-5" />
+        </Button>
+      )}
 
-      {/* History Panel */}
-      <HistoryPanel
-        type="research"
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        onSelect={handleHistorySelect}
-      />
+      {/* History Panel - only for logged in users */}
+      {user && (
+        <HistoryPanel
+          type="research"
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          onSelect={handleHistorySelect}
+        />
+      )}
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">

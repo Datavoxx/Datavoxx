@@ -34,15 +34,8 @@ const AnnonsResultat = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
   const generateAd = useCallback(async () => {
-    if (!state || !user) return;
+    if (!state) return;
 
     setIsGenerating(true);
     setGeneratedAd("");
@@ -67,24 +60,26 @@ const AnnonsResultat = () => {
 
       setGeneratedAd(data.generatedAd || "");
       
-      // Save ad to database with user_id
-      try {
-        await supabase.from('ad_generations').insert({
-          user_id: user.id,
-          session_id: user.id,
-          user_name: profile?.display_name || user.email || 'Anonym',
-          brand: state.formData.brand,
-          model: state.formData.model,
-          year: state.formData.year || null,
-          mileage: state.formData.mileage || null,
-          price: state.formData.price || null,
-          equipment: state.formData.equipment || null,
-          condition: state.formData.condition || null,
-          tone: state.selectedTone || null,
-          generated_ad: data.generatedAd || null
-        });
-      } catch (saveError) {
-        console.error("Error saving ad:", saveError);
+      // Save ad to database only if user is logged in
+      if (user) {
+        try {
+          await supabase.from('ad_generations').insert({
+            user_id: user.id,
+            session_id: user.id,
+            user_name: profile?.display_name || user.email || 'Anonym',
+            brand: state.formData.brand,
+            model: state.formData.model,
+            year: state.formData.year || null,
+            mileage: state.formData.mileage || null,
+            price: state.formData.price || null,
+            equipment: state.formData.equipment || null,
+            condition: state.formData.condition || null,
+            tone: state.selectedTone || null,
+            generated_ad: data.generatedAd || null
+          });
+        } catch (saveError) {
+          console.error("Error saving ad:", saveError);
+        }
       }
       
       toast({
@@ -109,11 +104,8 @@ const AnnonsResultat = () => {
       navigate("/annons-generator");
       return;
     }
-    if (user) {
-      generateAd();
-    }
-  }, [state, navigate, generateAd, user]);
-
+    generateAd();
+  }, [state, navigate, generateAd]);
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedAd);
     setCopied(true);
@@ -135,18 +127,6 @@ const AnnonsResultat = () => {
       },
     });
   };
-
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
 
   if (!state) {
     return null;

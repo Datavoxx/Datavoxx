@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, Copy, Mail, MessageSquare, Tag, History, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,6 +55,19 @@ const EmailAssistent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   const handleSubmit = async () => {
     if (!input.trim() || isLoading) return;
@@ -261,23 +273,24 @@ const EmailAssistent = () => {
       </main>
 
       {/* Input Area */}
-      <footer className="p-4 border-t border-gray-200/50 bg-white/80 backdrop-blur-sm animate-fade-in-up">
-        <div className="flex gap-2 max-w-3xl mx-auto bg-white rounded-2xl p-3 border border-gray-200 shadow-sm 
-                        hover:shadow-md focus-within:shadow-md focus-within:border-gray-400 
-                        transition-all duration-300">
-          <Textarea
+      <footer className="p-4 animate-fade-in-up">
+        <div className="flex gap-2 max-w-3xl mx-auto items-end">
+          <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Beskriv vad du behöver hjälp med..."
-            className="resize-none min-h-[60px] flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
+            className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white/50 
+                       focus:outline-none focus:border-gray-400 transition-all text-base overflow-hidden resize-none"
             disabled={isLoading}
+            rows={1}
           />
           <Button
             onClick={handleSubmit}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300 self-end"
+            className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300 shrink-0"
           >
             <Send className="h-5 w-5" />
           </Button>

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Send, Loader2, Wrench, Scale, Search, Car, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,7 +53,15 @@ const BilResearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,6 +70,10 @@ const BilResearch = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -109,7 +120,7 @@ const BilResearch = () => {
       setMessages([...newMessages, errorMessage]);
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
+      textareaRef.current?.focus();
     }
   };
 
@@ -244,23 +255,23 @@ const BilResearch = () => {
 
         {/* Input Area */}
         <div className={`${!hasMessages ? "max-w-3xl mx-auto w-full" : ""}`}>
-          <div className="flex gap-2 bg-white rounded-2xl p-3 border border-gray-200 shadow-sm 
-                          hover:shadow-md focus-within:shadow-md focus-within:border-gray-400 
-                          transition-all duration-300">
-            <Input
-              ref={inputRef}
+          <div className="flex gap-2 items-end">
+            <textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Fråga vad som helst om bilar..."
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
+              className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white/50 
+                         focus:outline-none focus:border-gray-400 transition-all text-base overflow-hidden resize-none"
               disabled={isLoading}
+              rows={1}
             />
             <Button
               onClick={sendMessage}
               disabled={!input.trim() || isLoading}
               size="icon"
-              className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300"
+              className="rounded-xl h-12 w-12 hover:shadow-lg transition-all duration-300 shrink-0"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

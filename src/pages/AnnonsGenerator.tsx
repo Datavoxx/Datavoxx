@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import NameInput from "@/components/NameInput";
 
 interface FormData {
   brand: string;
@@ -148,16 +149,19 @@ const AnnonsGenerator = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
-        <div className="mb-8 flex items-center gap-4 animate-fade-in-up">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/")}
-            className="hover:bg-secondary"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <img src={bilgenLogo} alt="BILGEN" className="h-10" />
+        <div className="mb-8 flex items-center justify-between animate-fade-in-up">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/")}
+              className="hover:bg-secondary"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <img src={bilgenLogo} alt="BILGEN" className="h-10" />
+          </div>
+          <NameInput />
         </div>
 
         {/* Title */}

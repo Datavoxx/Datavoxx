@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Wrench, Scale, Search } from "lucide-react";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
+import NameInput from "@/components/NameInput";
 
 interface Message {
   role: "user" | "assistant";
@@ -119,7 +120,7 @@ const BilResearch = () => {
           Tillbaka
         </Button>
         <img src={bilgenLogo} alt="BILGEN" className="h-10" />
-        <div className="w-24" /> {/* Spacer for centering */}
+        <NameInput />
       </header>
 
       {/* Main Content */}

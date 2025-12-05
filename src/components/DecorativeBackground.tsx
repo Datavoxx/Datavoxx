@@ -11,8 +11,9 @@ const DecorativeBackground = () => {
         viewBox="0 0 1440 900"
         preserveAspectRatio="xMidYMid slice"
       >
-        <ellipse cx="200" cy="100" rx="400" ry="300" fill="currentColor" className="text-foreground" />
-        <ellipse cx="1300" cy="700" rx="350" ry="250" fill="currentColor" className="text-foreground" />
+        {/* LOCKED: Using explicit gray fill to prevent color inheritance bugs */}
+        <ellipse cx="200" cy="100" rx="400" ry="300" fill="hsl(0 0% 10%)" />
+        <ellipse cx="1300" cy="700" rx="350" ry="250" fill="hsl(0 0% 10%)" />
       </svg>
     </div>
   );

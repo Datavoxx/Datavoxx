@@ -21,7 +21,21 @@ interface FormData {
 interface RequestBody {
   formData: FormData;
   systemPrompt: string;
+  companyName?: string;
+  userName?: string;
 }
+
+// Function to personalize the system prompt if user info is provided
+const personalizePrompt = (basePrompt: string, companyName?: string, userName?: string): string => {
+  if (!companyName || !userName) {
+    return basePrompt;
+  }
+  
+  // Add personalization to the prompt
+  return `${basePrompt}
+
+Denna annons är för ${companyName}. Inkludera företagsnamnet naturligt i annonsen där det passar (t.ex. "Kontakta oss på ${companyName}" eller "Välkommen till ${companyName}").`;
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -30,9 +44,9 @@ serve(async (req) => {
   }
 
   try {
-    const { formData, systemPrompt } = (await req.json()) as RequestBody;
+    const { formData, systemPrompt, companyName, userName } = (await req.json()) as RequestBody;
 
-    console.log("Generating ad for:", formData.brand, formData.model);
+    console.log("Generating ad for:", formData.brand, formData.model, companyName ? `(${companyName})` : "(anonymous)");
 
     if (!openAIApiKey) {
       console.error("OPENAI_API_KEY is not configured");
@@ -41,6 +55,9 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Personalize the system prompt if user info is provided
+    const finalSystemPrompt = personalizePrompt(systemPrompt, companyName, userName);
 
     // Build the user prompt with car information
     const userPrompt = `Skapa en bilannons för följande bil:
@@ -68,7 +85,7 @@ Generera en professionell och säljande annons baserat på denna information.`;
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: finalSystemPrompt },
           { role: "user", content: userPrompt },
         ],
         max_tokens: 1000,

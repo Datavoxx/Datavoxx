@@ -98,6 +98,16 @@ const EmailAssistent = () => {
     setIsLoading(true);
 
     try {
+      // Build request body - include user info only if logged in
+      const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
+        messages: newMessages,
+      };
+      
+      if (user && profile) {
+        if (profile.company_name) requestBody.companyName = profile.company_name;
+        if (profile.display_name) requestBody.userName = profile.display_name;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-assistant`,
         {
@@ -106,7 +116,7 @@ const EmailAssistent = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: newMessages }),
+          body: JSON.stringify(requestBody),
         }
       );
 

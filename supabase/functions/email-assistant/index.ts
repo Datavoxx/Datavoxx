@@ -69,7 +69,7 @@ Hej Anna
 
 Hoppas allt är bra med dig. 
 
-Vi vill gärna vet när bilen med reg nr:hhy364 . 
+Vi vill gärna vet när bilen med reg nr:hhy364 är klar för upphämtning?. 
 
 Meddela gärna när ni har ett datum för upphämning så att vi kan planera korrekt internt
 

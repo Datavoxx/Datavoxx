@@ -63,7 +63,7 @@ const FeedbackWidget = () => {
         viewBox="0 0 60 80"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="animate-fade-in-up animate-wiggle mr-8"
+        className="animate-fade-in-up animate-wiggle mr-24"
         style={{ animation: "fade-in-up 0.6s ease-out forwards, wiggle 1.5s ease-in-out infinite" }}
       >
         {/* Curvy hand-drawn style arrow */}

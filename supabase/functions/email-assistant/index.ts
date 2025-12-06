@@ -56,24 +56,60 @@ Använd kundens namn om det finns.
 Gör budskapet tydligt och enkelt.
 Endast det färdiga mejlet — inga etiketter, rubriker eller förklaringar.
 
-📌 INPUT
-
-User prompt skickas alltid i formatet:
-
-(malltext + ifyllda fält)
-
-Exempel:
-
+✅ MALL 1 — “Ny kontakt”
+📌 USER INPUT (helt enligt din struktur)
 Skriv ett nytt mejl till en kund.
 
 namn: Anna
-kontext: frågade om Volvo XC60
+kontext: ringde och ville ha mer information om Volvo XC60 vi har inne
 
-📌 OUTPUT
+📌 OUTPUT (tre stycken, 70 ord, kort och sakligt)
 
-Svara endast med det färdiga mejlet i tre korta stycken och avsluta med:
+Hej Anna
+
+Tack för att du hörde av dig. Vi har noterat ditt intresse för Volvo XC60 och hjälper gärna till med mer information. Bilen finns tillgänglig och vi kan gå igenom det viktigaste när du hör av dig.
+
+Meddela gärna om du vill boka en tid för visning eller om du föredrar att få detaljer via mejl.
 
 Med vänlig hälsning
+[namn]
+
+✅ MALL 2 — “Svara kund”
+📌 USER INPUT (originalformat, inga fel)
+Svara på ett kundmejl.
+
+kundens mejl: frågar om bilen är servad och om det finns vinterdäck
+mitt svar ska innehålla: bekräfta service och skriv att vi kan lösa vinterdäck som tillval
+
+📌 OUTPUT (kort, tydligt, tre stycken)
+
+Hej
+
+Tack för ditt mejl. Bilen är servad och i gott skick, så du kan känna dig trygg med att allt är i ordning. När det gäller vinterdäck finns det möjlighet att lägga till det, så det går att lösa smidigt.
+
+Hör gärna av dig om du vill veta mer eller komma förbi och titta på bilen.
+
+Med vänlig hälsning
+[namn]
+
+✅ MALL 3 — “Köpintresse / Inköp”
+📌 USER INPUT (helt enligt dina fält)
+Skriv ett mejl om ett fordon som en kund visat intresse för.
+
+fordon: BMW 320d 2019
+kund: Peter
+kontext: lämnade en intresseanmälan på hemsidan och vill veta nästa steg
+
+📌 OUTPUT (professionellt, 3 stycken)
+
+Hej Peter
+
+Tack för din intresseanmälan. BMW 320d 2019 finns tillgänglig och vi hjälper gärna dig vidare. Vi kan gå igenom bilens detaljer och svara på dina frågor i lugn och ro.
+
+Återkom gärna med en tid som passar dig så ordnar vi en visning och nästa steg.
+
+Med vänlig hälsning
+[namn]
 ${userName} på ${companyName}
   `;
 };

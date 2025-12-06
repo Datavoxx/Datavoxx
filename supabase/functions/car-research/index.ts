@@ -57,7 +57,7 @@ serve(async (req) => {
       ? buildPersonalizedPrompt(companyName, userName)
       : genericSystemPrompt;
 
-    console.log("Processing car research query...", companyName ? `for ${companyName}` : "(anonymous)");
+    console.log("Processing car research query with gpt-5-mini...", companyName ? `for ${companyName}` : "(anonymous)");
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -66,13 +66,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini-2025-08-07",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_completion_tokens: 1000,
       }),
     });
 
@@ -93,7 +92,7 @@ serve(async (req) => {
     const data = await response.json();
     const assistantResponse = data.choices[0].message.content;
 
-    console.log("Car research response generated successfully");
+    console.log("Car research response generated successfully with gpt-5-mini");
 
     return new Response(
       JSON.stringify({ response: assistantResponse }),

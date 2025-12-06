@@ -74,7 +74,7 @@ ${formData.condition ? `Skick:\n${formData.condition}` : ""}
 
 Generera en professionell och säljande annons baserat på denna information.`;
 
-    console.log("Calling OpenAI API...");
+    console.log("Calling OpenAI API with gpt-5-mini...");
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -83,13 +83,12 @@ Generera en professionell och säljande annons baserat på denna information.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini-2025-08-07",
         messages: [
           { role: "system", content: finalSystemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_completion_tokens: 1000,
       }),
     });
 
@@ -120,7 +119,7 @@ Generera en professionell och säljande annons baserat på denna information.`;
     const data = await response.json();
     const generatedAd = data.choices?.[0]?.message?.content || "";
 
-    console.log("Ad generated successfully");
+    console.log("Ad generated successfully with gpt-5-mini");
 
     return new Response(
       JSON.stringify({ generatedAd }),

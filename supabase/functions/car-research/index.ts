@@ -90,7 +90,14 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const assistantResponse = data.choices[0].message.content;
+    console.log("OpenAI raw response:", JSON.stringify(data));
+    
+    const assistantResponse = data.choices?.[0]?.message?.content;
+
+    if (!assistantResponse) {
+      console.error("No response content from OpenAI. Full response:", JSON.stringify(data));
+      throw new Error("No response content received from AI");
+    }
 
     console.log("Car research response generated successfully with gpt-5-mini");
 

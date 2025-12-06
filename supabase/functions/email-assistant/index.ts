@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get("OPENAI_API_KEY");
+const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,8 +56,8 @@ serve(async (req) => {
       userName?: string 
     };
     
-    if (!openAIApiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+    if (!lovableApiKey) {
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     // Build system prompt based on whether user info is provided
@@ -65,27 +65,26 @@ serve(async (req) => {
       ? buildPersonalizedPrompt(companyName, userName)
       : genericSystemPrompt;
 
-    console.log("Calling OpenAI API with gpt-5-mini for email generation", companyName ? `for ${companyName}` : "(anonymous)");
+    console.log("Calling Lovable AI for email generation", companyName ? `for ${companyName}` : "(anonymous)");
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${openAIApiKey}`,
+        Authorization: `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5-mini-2025-08-07",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        max_completion_tokens: 1000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("OpenAI API error:", response.status, errorText);
+      console.error("Lovable AI error:", response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -99,14 +98,20 @@ serve(async (req) => {
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Betalning krävs. Lägg till krediter i din Lovable-arbetsyta." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       
-      throw new Error("OpenAI API error");
+      throw new Error("Lovable AI error");
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "Kunde inte generera e-post.";
 
-    console.log("Email generated successfully with gpt-5-mini");
+    console.log("Email generated successfully with Lovable AI");
 
     return new Response(
       JSON.stringify({ content }),

@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get("OPENAI_API_KEY");
+const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,8 +48,8 @@ serve(async (req) => {
 
     console.log("Generating ad for:", formData.brand, formData.model, companyName ? `(${companyName})` : "(anonymous)");
 
-    if (!openAIApiKey) {
-      console.error("OPENAI_API_KEY is not configured");
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
       return new Response(
         JSON.stringify({ error: "API-nyckel är inte konfigurerad på servern" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -74,27 +74,26 @@ ${formData.condition ? `Skick:\n${formData.condition}` : ""}
 
 Generera en professionell och säljande annons baserat på denna information.`;
 
-    console.log("Calling OpenAI API with gpt-5-mini...");
+    console.log("Calling Lovable AI...");
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${openAIApiKey}`,
+        Authorization: `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5-mini-2025-08-07",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: finalSystemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_completion_tokens: 1000,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("OpenAI API error:", response.status, errorData);
+      console.error("Lovable AI error:", response.status, errorData);
       
       if (response.status === 401) {
         return new Response(
@@ -109,6 +108,13 @@ Generera en professionell och säljande annons baserat på denna information.`;
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Betalning krävs. Lägg till krediter i din Lovable-arbetsyta." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       
       return new Response(
         JSON.stringify({ error: "Fel vid anrop till AI-tjänsten" }),
@@ -119,7 +125,7 @@ Generera en professionell och säljande annons baserat på denna information.`;
     const data = await response.json();
     const generatedAd = data.choices?.[0]?.message?.content || "";
 
-    console.log("Ad generated successfully with gpt-5-mini");
+    console.log("Ad generated successfully with Lovable AI");
 
     return new Response(
       JSON.stringify({ generatedAd }),

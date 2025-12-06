@@ -8,7 +8,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const systemPrompt = `Du är en bilexpert som arbetar för Express Bilar. Din uppgift är att hjälpa säljare att lära sig mer om olika bilmodeller så de kan sälja dem bättre.
+// Generic system prompt for anonymous users
+const genericSystemPrompt = `Du är en bilexpert. Din uppgift är att hjälpa säljare att lära sig mer om olika bilmodeller så de kan sälja dem bättre.
 
 Du kan svara på frågor om:
 - Vanliga problem och svagheter med specifika bilmodeller
@@ -20,6 +21,21 @@ Du kan svara på frågor om:
 
 Svara alltid på svenska, var hjälpsam och ge konkreta, användbara svar som hjälper säljaren att förstå bilen bättre. Håll svaren informativa men koncisa.`;
 
+// Personalized system prompt for logged-in users
+const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
+  return `Du är en bilexpert som arbetar för ${companyName}. Din uppgift är att hjälpa ${userName} att lära sig mer om olika bilmodeller så de kan sälja dem bättre.
+
+Du kan svara på frågor om:
+- Vanliga problem och svagheter med specifika bilmodeller
+- Fördelar och styrkor med olika bilar
+- Underhållstips och servicebehov
+- Jämförelser mellan bilmodeller
+- Tekniska specifikationer
+- Kundrecensioner och rykte
+
+Svara alltid på svenska, var hjälpsam och ge konkreta, användbara svar som hjälper ${userName} att förstå bilen bättre. Håll svaren informativa men koncisa.`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -30,13 +46,18 @@ serve(async (req) => {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    const { messages } = await req.json();
+    const { messages, companyName, userName } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error("Messages are required");
     }
 
-    console.log("Processing car research query...");
+    // Build system prompt based on whether user info is provided
+    const systemPrompt = companyName && userName
+      ? buildPersonalizedPrompt(companyName, userName)
+      : genericSystemPrompt;
+
+    console.log("Processing car research query...", companyName ? `for ${companyName}` : "(anonymous)");
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

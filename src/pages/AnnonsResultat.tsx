@@ -41,11 +41,24 @@ const AnnonsResultat = () => {
     setGeneratedAd("");
 
     try {
+      // Build request body - include user info only if logged in
+      const requestBody: { 
+        formData: FormData; 
+        systemPrompt: string; 
+        companyName?: string; 
+        userName?: string 
+      } = {
+        formData: state.formData,
+        systemPrompt: state.systemPrompt,
+      };
+      
+      if (user && profile) {
+        if (profile.company_name) requestBody.companyName = profile.company_name;
+        if (profile.display_name) requestBody.userName = profile.display_name;
+      }
+
       const response = await supabase.functions.invoke("generate-ad", {
-        body: {
-          formData: state.formData,
-          systemPrompt: state.systemPrompt,
-        },
+        body: requestBody,
       });
 
       if (response.error) {

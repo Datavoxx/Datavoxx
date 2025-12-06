@@ -10,20 +10,8 @@ interface Message {
   content: string;
 }
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const { messages } = await req.json() as { messages: Message[] };
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
-    const systemPrompt = `Du är en professionell e-postassistent för bilhandlare i Sverige. Din uppgift är att hjälpa till att skriva professionella, vänliga och effektiva e-postmeddelanden.
+// Generic system prompt for anonymous users
+const genericSystemPrompt = `Du är en professionell e-postassistent för bilhandlare i Sverige. Din uppgift är att hjälpa till att skriva professionella, vänliga och effektiva e-postmeddelanden.
 
 Riktlinjer:
 - Skriv alltid på svenska
@@ -36,7 +24,46 @@ Riktlinjer:
 
 Returnera endast e-postmeddelandet utan extra förklaringar.`;
 
-    console.log("Calling Lovable AI for email generation");
+// Personalized system prompt for logged-in users
+const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
+  return `Du är en professionell e-postassistent för ${companyName}. Din uppgift är att hjälpa ${userName} att skriva professionella, vänliga och effektiva e-postmeddelanden.
+
+Riktlinjer:
+- Skriv alltid på svenska
+- Var professionell men personlig
+- Anpassa tonen efter situationen (uppföljning, kundfrågor, erbjudanden, etc.)
+- Använd "${companyName}" som avsändarens företagsnamn när det passar
+- Inkludera lämpliga hälsningsfraser (signera gärna med ${userName} från ${companyName})
+- Håll e-postmeddelanden koncisa men informativa
+- Om användaren ger specifik information om bilen eller kunden, inkludera det naturligt i e-posten
+- Avsluta med en tydlig uppmaning till handling när det är lämpligt
+
+Returnera endast e-postmeddelandet utan extra förklaringar.`;
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { messages, companyName, userName } = await req.json() as { 
+      messages: Message[]; 
+      companyName?: string; 
+      userName?: string 
+    };
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Build system prompt based on whether user info is provided
+    const systemPrompt = companyName && userName
+      ? buildPersonalizedPrompt(companyName, userName)
+      : genericSystemPrompt;
+
+    console.log("Calling Lovable AI for email generation", companyName ? `for ${companyName}` : "(anonymous)");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

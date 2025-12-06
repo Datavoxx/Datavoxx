@@ -104,8 +104,18 @@ const BilResearch = () => {
     setIsLoading(true);
 
     try {
+      // Build request body - include user info only if logged in
+      const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
+        messages: newMessages,
+      };
+      
+      if (user && profile) {
+        if (profile.company_name) requestBody.companyName = profile.company_name;
+        if (profile.display_name) requestBody.userName = profile.display_name;
+      }
+
       const { data, error } = await supabase.functions.invoke("car-research", {
-        body: { messages: newMessages },
+        body: requestBody,
       });
 
       if (error) throw error;

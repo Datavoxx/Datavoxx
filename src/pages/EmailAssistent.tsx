@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, MessageSquare, Tag, History, Loader2, Info, X } from "lucide-react";
+import { Send, Copy, Mail, Reply, Car, History, Loader2, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,28 +26,28 @@ interface EmailTemplate {
 
 const emailTemplates: EmailTemplate[] = [
   {
-    id: "followup",
-    title: "Uppföljning",
-    description: "Följ upp med en kund efter visning eller samtal",
-    expandedDescription: "Generera ett professionellt uppföljningsmail efter kundkontakt. Perfekt för att hålla kunden varm och öka chansen till affär.",
-    icon: <MessageSquare className="h-6 w-6" />,
-    prompt: "Skriv ett uppföljningsmail till en kund som nyligen visade intresse för en bil. Fråga mig vilken bil och kundens namn.",
-  },
-  {
-    id: "inquiry",
-    title: "Kundfråga",
-    description: "Svara på en fråga från en potentiell köpare",
-    expandedDescription: "Få hjälp att formulera ett professionellt och säljande svar på kundens frågor om en specifik bil.",
+    id: "new-contact",
+    title: "Ny kontakt",
+    description: "Skriv ett nytt utgående mejl till en kund",
+    expandedDescription: "Skapa ett professionellt och vänligt mejl för att inleda kontakt med en ny eller befintlig kund. Perfekt för första kontakt eller proaktiv uppsökande.",
     icon: <Mail className="h-6 w-6" />,
-    prompt: "Hjälp mig svara på en kundfråga om en bil. Berätta för mig vad kunden frågade och vilken bil det gäller.",
+    prompt: "Jag behöver skriva ett nytt mejl till en kund. Hjälp mig att formulera ett professionellt och vänligt mejl.",
   },
   {
-    id: "offer",
-    title: "Erbjudande",
-    description: "Skicka ett specialerbjudande eller kampanj",
-    expandedDescription: "Skapa ett lockande erbjudandemail med rätt ton och tydligt call-to-action för att driva kunden mot köp.",
-    icon: <Tag className="h-6 w-6" />,
-    prompt: "Skriv ett e-postmeddelande med ett specialerbjudande. Berätta vilken bil och vad erbjudandet innebär.",
+    id: "reply-customer",
+    title: "Svara kund",
+    description: "Svara på ett mejl du fått från en kund",
+    expandedDescription: "Få hjälp att formulera ett professionellt och säljande svar på ett kundmejl. Klistra in kundens mejl så hjälper jag dig svara.",
+    icon: <Reply className="h-6 w-6" />,
+    prompt: "Jag behöver svara på ett mejl från en kund. Hjälp mig att formulera ett professionellt svar.",
+  },
+  {
+    id: "purchase-interest",
+    title: "Köpintresse/Inköp",
+    description: "Följ upp intresse för ett specifikt fordon",
+    expandedDescription: "Skapa ett säljande och informativt mejl för att följa upp en kunds intresse för ett specifikt fordon eller förmedla information om ett nytt inköp.",
+    icon: <Car className="h-6 w-6" />,
+    prompt: "Jag behöver skriva ett mejl om ett specifikt fordon som en kund visat intresse för. Hjälp mig att formulera ett säljande och informativt mejl.",
   },
 ];
 

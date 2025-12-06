@@ -120,6 +120,13 @@ const BilResearch = () => {
 
       if (error) throw error;
 
+      console.log("Edge function response:", data);
+
+      if (!data?.response) {
+        console.error("No response from edge function:", data);
+        throw new Error("Inget svar mottaget från AI");
+      }
+
       const assistantMessage: Message = {
         role: "assistant",
         content: data.response,
@@ -127,7 +134,7 @@ const BilResearch = () => {
       setMessages([...newMessages, assistantMessage]);
 
       // Save conversation to database only if user is logged in
-      if (user) {
+      if (user && data.response) {
         try {
           await supabase.from('research_conversations').insert({
             user_id: user.id,

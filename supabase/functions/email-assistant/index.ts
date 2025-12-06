@@ -61,15 +61,17 @@ Endast det färdiga mejlet — inga etiketter, rubriker eller förklaringar.
 Skriv ett nytt mejl till en kund.
 
 namn: Anna
-kontext: ringde och ville ha mer information om Volvo XC60 vi har inne
+kontext: fråga när vi kan hämta bilen med reghhy364
 
 📌 OUTPUT (tre stycken, 70 ord, kort och sakligt)
 
 Hej Anna
 
-Tack för att du hörde av dig. Vi har noterat ditt intresse för Volvo XC60 och hjälper gärna till med mer information. Bilen finns tillgänglig och vi kan gå igenom det viktigaste när du hör av dig.
+Hoppas allt är bra med dig. 
 
-Meddela gärna om du vill boka en tid för visning eller om du föredrar att få detaljer via mejl.
+Vi vill gärna vet när bilen med reg nr:hhy364 . 
+
+Meddela gärna när ni har ett datum för upphämning så att vi kan planera korrekt internt
 
 Med vänlig hälsning
 [namn]

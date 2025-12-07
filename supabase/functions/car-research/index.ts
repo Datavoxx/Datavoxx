@@ -53,9 +53,7 @@ serve(async (req) => {
     }
 
     // Build system prompt based on whether user info is provided
-    const systemPrompt = companyName && userName
-      ? buildPersonalizedPrompt(companyName, userName)
-      : genericSystemPrompt;
+    const systemPrompt = companyName && userName ? buildPersonalizedPrompt(companyName, userName) : genericSystemPrompt;
 
     console.log("Processing car research query with Lovable AI...", companyName ? `for ${companyName}` : "(anonymous)");
 
@@ -67,37 +65,34 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Lovable AI error:", response.status, errorText);
-      
+
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       if (response.status === 402) {
         return new Response(
           JSON.stringify({ error: "Payment required. Please add credits to your Lovable workspace." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
-      
+
       throw new Error(`Lovable AI error: ${response.status}`);
     }
 
     const data = await response.json();
     console.log("Lovable AI raw response:", JSON.stringify(data));
-    
+
     const assistantResponse = data.choices?.[0]?.message?.content;
 
     if (!assistantResponse) {
@@ -107,16 +102,15 @@ serve(async (req) => {
 
     console.log("Car research response generated successfully with Lovable AI");
 
-    return new Response(
-      JSON.stringify({ response: assistantResponse }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ response: assistantResponse }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error in car-research function:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

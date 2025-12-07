@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, Copy, Mail, Reply, Car, History, Loader2, Info, X } from "lucide-react";
-import bilgenLogo from "@/assets/bilgen-logo.png";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -228,18 +227,13 @@ const EmailAssistent = () => {
       <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center pt-16 text-center">
-            <img 
-              src={bilgenLogo} 
-              alt="BILGEN" 
-              className="h-28 mx-auto mb-4 opacity-0 animate-fade-in"
-            />
-            <p className="text-lg font-bold tracking-tight text-foreground mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
-              AI genererar, du kopierar
-            </p>
-            <h2 className="text-3xl font-bold tracking-tight text-foreground mb-3 opacity-0 animate-fade-in" style={{ animationDelay: "100ms" }}>
-              Email Assistent
-            </h2>
-            <p className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in" style={{ animationDelay: "150ms" }}>
+            <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
+              <Mail className="h-10 w-10 text-gray-700" />
+              <h2 className="text-4xl font-bold tracking-tight text-foreground">
+                Email Assistent
+              </h2>
+            </div>
+            <p className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
               Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
             </p>
             

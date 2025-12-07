@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Send, Loader2, Wrench, Scale, Search, Car, History, Info, X } from "lucide-react";
-import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -217,18 +216,13 @@ const BilResearch = () => {
         {!hasMessages ? (
           /* Initial View - Centered */
           <div className="flex-1 flex flex-col items-center pt-16">
-            <img 
-              src={bilgenLogo} 
-              alt="BILGEN" 
-              className="h-28 mx-auto mb-4 opacity-0 animate-fade-in"
-            />
-            <p className="text-lg font-bold tracking-tight text-foreground mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
-              AI genererar, du kopierar
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-3 opacity-0 animate-fade-in" style={{ animationDelay: "100ms" }}>
-              Vad vill du veta om din bil?
-            </h1>
-            <p className="text-lg text-gray-500 mb-10 text-center opacity-0 animate-fade-in" style={{ animationDelay: "150ms" }}>
+            <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
+              <Car className="h-10 w-10 text-gray-700" />
+              <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                Vad vill du veta om din bil?
+              </h1>
+            </div>
+            <p className="text-lg text-gray-500 mb-10 text-center opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
               Välj en mall nedan eller ställ en egen fråga
             </p>
             

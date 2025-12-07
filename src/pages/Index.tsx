@@ -23,11 +23,8 @@ const Index = () => {
           <img 
             src={bilgenLogo} 
             alt="BILGEN" 
-            className="h-28 mx-auto mb-4"
+            className="h-20 mx-auto mb-10"
           />
-          <p className="text-lg font-bold tracking-tight text-foreground mb-10">
-            AI genererar, du kopierar
-          </p>
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4">
             Välj verktyg
           </h1>

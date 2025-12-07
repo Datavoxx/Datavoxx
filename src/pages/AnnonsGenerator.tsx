@@ -193,6 +193,28 @@ Varmt välkomna!
   },
 ];
 
+// Color coding for each focus type
+const FOCUS_COLORS = {
+  financing: {
+    bg: "bg-red-500",
+    bgLight: "bg-red-100",
+    border: "border-red-500",
+    borderLight: "border-red-200",
+  },
+  equipment: {
+    bg: "bg-green-500",
+    bgLight: "bg-green-100",
+    border: "border-green-500",
+    borderLight: "border-green-200",
+  },
+  mixed: {
+    bg: "bg-yellow-500",
+    bgLight: "bg-yellow-100",
+    border: "border-yellow-500",
+    borderLight: "border-yellow-200",
+  },
+};
+
 const EQUIPMENT_OPTIONS = [
   "Dragkrok",
   "Navigation",
@@ -359,13 +381,13 @@ const AnnonsGenerator = () => {
     </div>
   );
 
-  // Visual Preview Component for Focus Step
+  // Visual Preview Component for Focus Step - Color-coded blocks without text
   const FocusPreview = () => {
     const sections = [
-      { id: "financing", label: "Finansiering & Försäkring", short: "💰 Ränta, kampanj, försäkring" },
-      { id: "car", label: "Bilinfo", short: "🚗 Märke, modell, miltal" },
-      { id: "equipment", label: "Utrustning & Skick", short: "🔧 Utrustning, skick, service" },
-      { id: "other", label: "Övrigt", short: "📋 Kontakt, garanti, avslut" },
+      { id: "financing", color: FOCUS_COLORS.financing.bg },
+      { id: "car", color: "bg-gray-400" },
+      { id: "equipment", color: FOCUS_COLORS.equipment.bg },
+      { id: "other", color: "bg-gray-400" },
     ];
 
     // Determine order based on selected focus
@@ -375,50 +397,42 @@ const AnnonsGenerator = () => {
       } else if (selectedFocus === "equipment") {
         return [sections[2], sections[1], sections[0], sections[3]];
       } else {
-        // mixed
+        // mixed - balanced, show car first then equipment
         return [sections[1], sections[2], sections[0], sections[3]];
       }
     };
 
     const orderedSections = getOrderedSections();
-    const highlightId = selectedFocus === "financing" ? "financing" : selectedFocus === "equipment" ? "equipment" : null;
+
+    // Determine which section should be highlighted based on focus
+    const getHighlightColor = () => {
+      if (selectedFocus === "financing") return FOCUS_COLORS.financing.bg;
+      if (selectedFocus === "equipment") return FOCUS_COLORS.equipment.bg;
+      return FOCUS_COLORS.mixed.bg; // yellow for balanced
+    };
 
     return (
-      <div className="rounded-xl border border-border bg-card/50 p-4">
-        <p className="text-xs text-muted-foreground mb-3 text-center font-medium">
+      <div className="rounded-xl border border-border bg-card/50 p-5">
+        <p className="text-xs text-muted-foreground mb-4 text-center font-medium">
           Förhandsgranskning av annonsstruktur
         </p>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {orderedSections.map((section, index) => {
-            const isHighlighted = section.id === highlightId;
             const isFirst = index === 0;
+            // First block gets the focus color, others are muted gray
+            const blockColor = isFirst ? getHighlightColor() : "bg-gray-200";
+            const blockHeight = isFirst ? "h-14" : "h-9";
             
             return (
               <div
                 key={section.id}
-                className={`rounded-lg px-3 py-2.5 transition-all duration-500 ease-out ${
-                  isHighlighted
-                    ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
-                    : isFirst && selectedFocus === "mixed"
-                    ? "bg-primary/80 text-primary-foreground"
-                    : "bg-muted/50 text-muted-foreground"
+                className={`rounded-lg transition-all duration-500 ease-out ${blockColor} ${blockHeight} ${
+                  isFirst ? "shadow-md scale-[1.02]" : ""
                 }`}
                 style={{
-                  transform: `translateY(${index * 0}px)`,
-                  transitionDelay: `${index * 50}ms`,
+                  transitionDelay: `${index * 75}ms`,
                 }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm font-medium ${isHighlighted || (isFirst && selectedFocus === "mixed") ? "" : "opacity-70"}`}>
-                    {section.short}
-                  </span>
-                  {(isHighlighted || (isFirst && selectedFocus === "mixed")) && (
-                    <span className="text-xs bg-background/20 px-2 py-0.5 rounded-full">
-                      Lyfts upp
-                    </span>
-                  )}
-                </div>
-              </div>
+              />
             );
           })}
         </div>
@@ -757,30 +771,41 @@ const AnnonsGenerator = () => {
                 <div className="grid gap-6 lg:grid-cols-2">
                   {/* Focus Options */}
                   <div className="space-y-3">
-                    {FOCUS_OPTIONS.map((focus) => (
-                      <button
-                        key={focus.id}
-                        onClick={() => handleFocusChange(focus.id)}
-                        className={`w-full group flex items-center gap-4 rounded-xl p-4 text-left transition-all duration-200 ${
-                          selectedFocus === focus.id
-                            ? "border-2 border-foreground bg-card shadow-md"
-                            : "border border-border hover:border-foreground/50 bg-card"
-                        }`}
-                      >
-                        <span className="text-3xl">{focus.icon}</span>
-                        <div className="flex-1">
-                          <span className="block text-base font-medium text-foreground">
-                            {focus.label}
-                          </span>
-                          <span className="block text-sm text-muted-foreground mt-0.5">
-                            {focus.description}
-                          </span>
-                        </div>
-                        {selectedFocus === focus.id && (
-                          <Check className="h-5 w-5 text-foreground" />
-                        )}
-                      </button>
-                    ))}
+                    {FOCUS_OPTIONS.map((focus) => {
+                      const colors = FOCUS_COLORS[focus.id];
+                      const isSelected = selectedFocus === focus.id;
+                      
+                      return (
+                        <button
+                          key={focus.id}
+                          onClick={() => handleFocusChange(focus.id)}
+                          className={`relative w-full group flex items-center gap-4 rounded-xl p-4 text-left transition-all duration-300 border-l-4 ${colors.border} ${
+                            isSelected
+                              ? `border-2 ${colors.border} bg-card shadow-md`
+                              : "border border-border hover:border-foreground/50 bg-card"
+                          }`}
+                        >
+                          {/* Populärt val badge for financing */}
+                          {focus.id === "financing" && (
+                            <span className="absolute -top-2 right-3 bg-red-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full shadow-sm">
+                              ⭐ Populärt val
+                            </span>
+                          )}
+                          <span className="text-3xl">{focus.icon}</span>
+                          <div className="flex-1">
+                            <span className="block text-base font-medium text-foreground">
+                              {focus.label}
+                            </span>
+                            <span className="block text-sm text-muted-foreground mt-0.5">
+                              {focus.description}
+                            </span>
+                          </div>
+                          {isSelected && (
+                            <Check className={`h-5 w-5 ${colors.border.replace('border-', 'text-')}`} />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {/* Visual Preview */}

@@ -8,6 +8,3 @@ verify_jwt = false
 
 [functions.email-assistant]
 verify_jwt = false
-
-[functions.send-pdf-guide]
-verify_jwt = false

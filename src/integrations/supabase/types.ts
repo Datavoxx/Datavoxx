@@ -122,6 +122,30 @@ export type Database = {
         }
         Relationships: []
       }
+      help_requests: {
+        Row: {
+          created_at: string
+          email: string
+          help_topic: string
+          id: string
+          wants_pdf: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          help_topic: string
+          id?: string
+          wants_pdf?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          help_topic?: string
+          id?: string
+          wants_pdf?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

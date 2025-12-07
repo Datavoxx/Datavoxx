@@ -125,6 +125,7 @@ export type Database = {
       help_requests: {
         Row: {
           created_at: string
+          description: string | null
           email: string
           help_topic: string
           id: string
@@ -132,6 +133,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           email: string
           help_topic: string
           id?: string
@@ -139,6 +141,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           email?: string
           help_topic?: string
           id?: string

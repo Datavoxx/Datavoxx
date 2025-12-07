@@ -62,13 +62,27 @@ const FeedbackWidget = () => {
 
     setIsSubmitting(true);
     
+    const payload = {
+      email: email.trim(),
+      services: selectedServices,
+      message: message.trim()
+    };
+
+    // Save to database
     const { error } = await supabase
       .from("feedback")
-      .insert({
-        email: email.trim(),
-        services: selectedServices,
-        message: message.trim()
+      .insert(payload);
+
+    // Send to n8n webhook
+    try {
+      await fetch("https://datavox.app.n8n.cloud/webhook-test/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+    } catch (webhookError) {
+      console.error("Webhook error:", webhookError);
+    }
 
     if (error) {
       toast.error("Kunde inte skicka feedback");

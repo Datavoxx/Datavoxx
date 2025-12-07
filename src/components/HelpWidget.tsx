@@ -56,14 +56,28 @@ const HelpWidget = () => {
 
     setIsSubmitting(true);
     
+    const payload = {
+      email: email.trim(),
+      help_topic: selectedTopic,
+      description: description.trim() || null,
+      wants_pdf: wantsPdf
+    };
+
+    // Save to database
     const { error } = await supabase
       .from("help_requests")
-      .insert({
-        email: email.trim(),
-        help_topic: selectedTopic,
-        description: description.trim() || null,
-        wants_pdf: wantsPdf
+      .insert(payload);
+
+    // Send to n8n webhook
+    try {
+      await fetch("https://datavox.app.n8n.cloud/webhook-test/hjalp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+    } catch (webhookError) {
+      console.error("Webhook error:", webhookError);
+    }
 
     if (error) {
       toast.error("Kunde inte skicka förfrågan");

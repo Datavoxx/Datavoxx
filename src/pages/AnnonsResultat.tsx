@@ -16,12 +16,18 @@ interface FormData {
   price: string;
   equipment: string;
   condition: string;
+  // Nya finansieringsfält
+  interestRate: string;
+  campaign: string;
+  insuranceOffer: string;
+  financing: string;
+  warranty: string;
 }
 
 interface LocationState {
   formData: FormData;
   systemPrompt: string;
-  selectedTone: string;
+  selectedFocus: string;
 }
 
 const AnnonsResultat = () => {
@@ -87,7 +93,7 @@ const AnnonsResultat = () => {
             price: state.formData.price || null,
             equipment: state.formData.equipment || null,
             condition: state.formData.condition || null,
-            tone: state.selectedTone || null,
+            tone: state.selectedFocus || null,
             generated_ad: data.generatedAd || null
           });
         } catch (saveError) {

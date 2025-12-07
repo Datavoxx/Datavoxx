@@ -16,6 +16,12 @@ interface FormData {
   price: string;
   equipment: string;
   condition: string;
+  // Nya finansieringsfält
+  interestRate: string;
+  campaign: string;
+  insuranceOffer: string;
+  financing: string;
+  warranty: string;
 }
 
 interface RequestBody {
@@ -59,7 +65,7 @@ serve(async (req) => {
     // Personalize the system prompt if user info is provided
     const finalSystemPrompt = personalizePrompt(systemPrompt, companyName, userName);
 
-    // Build the user prompt with car information
+    // Build the user prompt with car information including financing
     const userPrompt = `Skapa en bilannons för följande bil:
 
 Märke: ${formData.brand}
@@ -72,7 +78,16 @@ ${formData.equipment ? `Utrustning:\n${formData.equipment}` : ""}
 
 ${formData.condition ? `Skick:\n${formData.condition}` : ""}
 
-Generera en professionell och säljande annons baserat på denna information.`;
+${formData.interestRate || formData.campaign || formData.insuranceOffer || formData.financing || formData.warranty ? `
+FINANSIERING & FÖRSÄKRING:
+${formData.interestRate ? `Ränta: ${formData.interestRate}` : ""}
+${formData.campaign ? `Kampanj: ${formData.campaign}` : ""}
+${formData.insuranceOffer ? `Försäkringserbjudande: ${formData.insuranceOffer}` : ""}
+${formData.financing ? `Finansieringsinfo: ${formData.financing}` : ""}
+${formData.warranty ? `Garanti: ${formData.warranty}` : ""}
+` : ""}
+
+Generera en professionell och säljande annons baserat på denna information. Följ strukturen i systempromten exakt.`;
 
     console.log("Calling Lovable AI...");
 

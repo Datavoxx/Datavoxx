@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Settings, Sparkles, Wrench, History, Loader2 } from "lucide-react";
+import { ArrowLeft, Car, Check, Sparkles, Wrench, History, CreditCard, Focus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,71 +19,89 @@ interface FormData {
   price: string;
   equipment: string;
   condition: string;
+  // Nya finansieringsfält
+  interestRate: string;
+  campaign: string;
+  insuranceOffer: string;
+  financing: string;
+  warranty: string;
 }
 
-type ToneType = "professional" | "casual" | "luxury" | "urgent";
+type FocusType = "financing" | "equipment" | "mixed";
 
-interface ToneOption {
-  id: ToneType;
+interface FocusOption {
+  id: FocusType;
   label: string;
   icon: string;
   description: string;
   prompt: string;
 }
 
-const TONE_OPTIONS: ToneOption[] = [
+const FOCUS_OPTIONS: FocusOption[] = [
   {
-    id: "professional",
-    label: "Professionell",
-    icon: "💼",
-    description: "Formell och seriös ton",
+    id: "financing",
+    label: "Finansiering & Försäkring",
+    icon: "🏦",
+    description: "Ränta, trygghetspaket och försäkring lyfts upp först",
     prompt: `Du är en expert på att skriva professionella bilannonser på svenska.
-Skapa en formell och seriös annons baserat på bilinformationen.
-Annonsen ska vara:
-- Tydlig och välstrukturerad
-- Professionell och trovärdig
-- Faktabaserad med tekniska detaljer
-- Inkludera en professionell uppmaning att kontakta säljaren`,
+
+VIKTIG STRUKTUR - Följ denna ordning EXAKT:
+1. FÖRST: Kampanj/ränta-hook (om det finns kampanj eller ränta)
+2. Företagsinfo och omdömen
+3. Kort bilintro (märke, modell, miltal)
+4. Utrustning (lista)
+5. Service/besiktning (om angivet)
+6. Kontaktinfo/hemsida
+7. Försäkringserbjudande (om angivet)
+8. Trygghetspaket och garantier
+9. Betalnings- och leveransinfo
+10. Avslut
+
+Fokus: Lyft fram FINANSIERING, RÄNTA och FÖRSÄKRING mest i annonsen.
+Dessa ska vara mest framträdande och placeras tidigt i texten.
+Bilens utrustning och skick är sekundärt och kommer senare.`,
   },
   {
-    id: "casual",
-    label: "Avslappnad",
-    icon: "😊",
-    description: "Vänlig och lättsam ton",
-    prompt: `Du är en vänlig bilsäljare som skriver avslappnade annonser på svenska.
-Skapa en lättsam och personlig annons baserat på bilinformationen.
-Annonsen ska vara:
-- Vänlig och inbjudande
-- Personlig med emojis
-- Enkel att läsa
-- Avsluta med en trevlig uppmaning att höra av sig`,
+    id: "equipment",
+    label: "Skick & Utrustning",
+    icon: "🔧",
+    description: "Bilens egenskaper och kvalitet lyfts upp först",
+    prompt: `Du är en expert på att skriva professionella bilannonser på svenska.
+
+VIKTIG STRUKTUR - Följ denna ordning EXAKT:
+1. FÖRST: Bilens utrustning och skick som hook
+2. Detaljerad beskrivning av utrustning och features
+3. Skick och servicehistorik
+4. Företagsinfo och omdömen
+5. Kontaktinfo/hemsida
+6. Finansiering och ränta (om angivet)
+7. Försäkringserbjudande (om angivet)
+8. Garantier
+9. Avslut
+
+Fokus: Lyft fram BILENS SKICK, UTRUSTNING och KVALITET mest i annonsen.
+Dessa ska vara mest framträdande och placeras tidigt i texten.
+Finansiering och försäkring nämns senare i texten.`,
   },
   {
-    id: "luxury",
-    label: "Lyxig",
-    icon: "✨",
-    description: "Exklusiv och premium ton",
-    prompt: `Du är en expert på lyxbilar och skriver exklusiva annonser på svenska.
-Skapa en premium och sofistikerad annons baserat på bilinformationen.
-Annonsen ska vara:
-- Elegant och exklusiv i tonen
-- Betona kvalitet och komfort
-- Använda raffinerat språk
-- Skapa en känsla av lyx och prestige`,
-  },
-  {
-    id: "urgent",
-    label: "Brådskande",
-    icon: "🔥",
-    description: "Snabb försäljning",
-    prompt: `Du är en säljare som behöver sälja bilar snabbt och skriver på svenska.
-Skapa en brådskande och säljande annons baserat på bilinformationen.
-Annonsen ska vara:
-- Energisk med känsla av brådska
-- Betona bra pris och värde
-- Använda action-ord och emojis
-- Skapa FOMO (fear of missing out)
-- Uppmana till snabb kontakt`,
+    id: "mixed",
+    label: "Balanserad mix",
+    icon: "⚖️",
+    description: "Jämn fördelning mellan alla delar",
+    prompt: `Du är en expert på att skriva professionella bilannonser på svenska.
+
+VIKTIG STRUKTUR - Följ denna ordning:
+1. Kort kampanj-hook om det finns
+2. Bilinfo och utrustning
+3. Skick och service
+4. Finansiering och ränta
+5. Försäkring och garantier
+6. Företagsinfo
+7. Kontakt och avslut
+
+Fokus: Ge en BALANSERAD mix av all information.
+Både bilens egenskaper och finansieringsalternativ ska presenteras jämnt.
+Ingen del ska dominera över de andra.`,
   },
 ];
 
@@ -104,16 +122,17 @@ const EQUIPMENT_OPTIONS = [
 const STEPS = [
   { num: 1, label: "Bilinfo", icon: Car },
   { num: 2, label: "Utrustning", icon: Wrench },
-  { num: 3, label: "Tonläge", icon: Settings },
+  { num: 3, label: "Finansiering", icon: CreditCard },
+  { num: 4, label: "Fokus", icon: Focus },
 ];
 
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
-  const [selectedTone, setSelectedTone] = useState<ToneType>("professional");
-  const [systemPrompt, setSystemPrompt] = useState(TONE_OPTIONS[0].prompt);
+  const totalSteps = 4;
+  const [selectedFocus, setSelectedFocus] = useState<FocusType>("mixed");
+  const [systemPrompt, setSystemPrompt] = useState(FOCUS_OPTIONS[2].prompt);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     brand: "",
@@ -123,28 +142,33 @@ const AnnonsGenerator = () => {
     price: "",
     equipment: "",
     condition: "",
+    interestRate: "",
+    campaign: "",
+    insuranceOffer: "",
+    financing: "",
+    warranty: "",
   });
 
-  // Load saved tone from localStorage
+  // Load saved focus from localStorage
   useEffect(() => {
-    const savedTone = localStorage.getItem("ad_tone") as ToneType | null;
+    const savedFocus = localStorage.getItem("ad_focus") as FocusType | null;
     
-    if (savedTone && TONE_OPTIONS.find(t => t.id === savedTone)) {
-      setSelectedTone(savedTone);
-      const toneOption = TONE_OPTIONS.find(t => t.id === savedTone);
-      if (toneOption) {
-        setSystemPrompt(toneOption.prompt);
+    if (savedFocus && FOCUS_OPTIONS.find(f => f.id === savedFocus)) {
+      setSelectedFocus(savedFocus);
+      const focusOption = FOCUS_OPTIONS.find(f => f.id === savedFocus);
+      if (focusOption) {
+        setSystemPrompt(focusOption.prompt);
       }
     }
   }, []);
 
-  // Handle tone change
-  const handleToneChange = (tone: ToneType) => {
-    setSelectedTone(tone);
-    localStorage.setItem("ad_tone", tone);
-    const toneOption = TONE_OPTIONS.find(t => t.id === tone);
-    if (toneOption) {
-      setSystemPrompt(toneOption.prompt);
+  // Handle focus change
+  const handleFocusChange = (focus: FocusType) => {
+    setSelectedFocus(focus);
+    localStorage.setItem("ad_focus", focus);
+    const focusOption = FOCUS_OPTIONS.find(f => f.id === focus);
+    if (focusOption) {
+      setSystemPrompt(focusOption.prompt);
     }
   };
 
@@ -193,13 +217,12 @@ const AnnonsGenerator = () => {
       state: {
         formData,
         systemPrompt,
-        selectedTone,
+        selectedFocus,
       },
     });
   };
 
   const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
-    // For ad history, we show the generated ad
     toast({
       title: item.title,
       description: "Tidigare annons visas",
@@ -238,7 +261,7 @@ const AnnonsGenerator = () => {
           </div>
           {index < STEPS.length - 1 && (
             <div
-              className={`w-12 h-0.5 mb-6 transition-all duration-300 ${
+              className={`w-8 h-0.5 mb-6 transition-all duration-300 ${
                 step.num < currentStep ? "bg-foreground" : "bg-muted-foreground/30"
               }`}
             />
@@ -247,6 +270,73 @@ const AnnonsGenerator = () => {
       ))}
     </div>
   );
+
+  // Visual Preview Component for Focus Step
+  const FocusPreview = () => {
+    const sections = [
+      { id: "financing", label: "Finansiering & Försäkring", short: "💰 Ränta, kampanj, försäkring" },
+      { id: "car", label: "Bilinfo", short: "🚗 Märke, modell, miltal" },
+      { id: "equipment", label: "Utrustning & Skick", short: "🔧 Utrustning, skick, service" },
+      { id: "other", label: "Övrigt", short: "📋 Kontakt, garanti, avslut" },
+    ];
+
+    // Determine order based on selected focus
+    const getOrderedSections = () => {
+      if (selectedFocus === "financing") {
+        return [sections[0], sections[1], sections[2], sections[3]];
+      } else if (selectedFocus === "equipment") {
+        return [sections[2], sections[1], sections[0], sections[3]];
+      } else {
+        // mixed
+        return [sections[1], sections[2], sections[0], sections[3]];
+      }
+    };
+
+    const orderedSections = getOrderedSections();
+    const highlightId = selectedFocus === "financing" ? "financing" : selectedFocus === "equipment" ? "equipment" : null;
+
+    return (
+      <div className="rounded-xl border border-border bg-card/50 p-4">
+        <p className="text-xs text-muted-foreground mb-3 text-center font-medium">
+          Förhandsgranskning av annonsstruktur
+        </p>
+        <div className="space-y-2">
+          {orderedSections.map((section, index) => {
+            const isHighlighted = section.id === highlightId;
+            const isFirst = index === 0;
+            
+            return (
+              <div
+                key={section.id}
+                className={`rounded-lg px-3 py-2.5 transition-all duration-500 ease-out ${
+                  isHighlighted
+                    ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
+                    : isFirst && selectedFocus === "mixed"
+                    ? "bg-primary/80 text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground"
+                }`}
+                style={{
+                  transform: `translateY(${index * 0}px)`,
+                  transitionDelay: `${index * 50}ms`,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm font-medium ${isHighlighted || (isFirst && selectedFocus === "mixed") ? "" : "opacity-70"}`}>
+                    {section.short}
+                  </span>
+                  {(isHighlighted || (isFirst && selectedFocus === "mixed")) && (
+                    <span className="text-xs bg-background/20 px-2 py-0.5 rounded-full">
+                      Lyfts upp
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -463,38 +553,152 @@ const AnnonsGenerator = () => {
             </div>
           )}
 
-          {/* Step 3: Tone Selection */}
+          {/* Step 3: Financing & Insurance */}
           {currentStep === 3 && (
             <div className="animate-fade-in">
               <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
                 <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-                  <Settings className="h-6 w-6 text-foreground" />
-                  Välj tonläge
+                  <CreditCard className="h-6 w-6 text-foreground" />
+                  Finansiering & Försäkring
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                  Välj den stil som passar din annons bäst
+                  Lägg till information om ränta, kampanjer och försäkringserbjudanden
                 </p>
                 
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {TONE_OPTIONS.map((tone) => (
-                    <button
-                      key={tone.id}
-                      onClick={() => handleToneChange(tone.id)}
-                      className={`group flex flex-col items-center rounded-xl p-4 transition-all duration-200 ${
-                        selectedTone === tone.id
-                          ? "border-2 border-foreground bg-card shadow-md"
-                          : "border border-border hover:border-foreground/50 bg-card"
-                      }`}
-                    >
-                      <span className="text-2xl mb-2">{tone.icon}</span>
-                      <span className="text-sm font-medium text-foreground">
-                        {tone.label}
-                      </span>
-                      <span className="text-xs text-muted-foreground text-center mt-1">
-                        {tone.description}
-                      </span>
-                    </button>
-                  ))}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="interestRate" className="text-sm text-muted-foreground">
+                      Ränta <span className="text-muted-foreground/60">(valfritt)</span>
+                    </Label>
+                    <Input
+                      id="interestRate"
+                      placeholder="t.ex. 3,95%"
+                      value={formData.interestRate}
+                      onChange={(e) => handleInputChange("interestRate", e.target.value)}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="campaign" className="text-sm text-muted-foreground">
+                      Kampanj <span className="text-muted-foreground/60">(valfritt)</span>
+                    </Label>
+                    <Input
+                      id="campaign"
+                      placeholder="t.ex. Decemberkampanj"
+                      value={formData.campaign}
+                      onChange={(e) => handleInputChange("campaign", e.target.value)}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="insuranceOffer" className="text-sm text-muted-foreground">
+                      Försäkringserbjudande <span className="text-muted-foreground/60">(valfritt)</span>
+                    </Label>
+                    <Input
+                      id="insuranceOffer"
+                      placeholder="t.ex. 1 månads helförsäkring gratis"
+                      value={formData.insuranceOffer}
+                      onChange={(e) => handleInputChange("insuranceOffer", e.target.value)}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="financing" className="text-sm text-muted-foreground">
+                      Finansieringsinfo <span className="text-muted-foreground/60">(valfritt)</span>
+                    </Label>
+                    <Textarea
+                      id="financing"
+                      placeholder="t.ex. Trygghetspaket, DNB Finans, Santander..."
+                      value={formData.financing}
+                      onChange={(e) => handleInputChange("financing", e.target.value)}
+                      className="min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="warranty" className="text-sm text-muted-foreground">
+                      Garanti <span className="text-muted-foreground/60">(valfritt)</span>
+                    </Label>
+                    <Input
+                      id="warranty"
+                      placeholder="t.ex. MRF-garanti, upp till 36 månader"
+                      value={formData.warranty}
+                      onChange={(e) => handleInputChange("warranty", e.target.value)}
+                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex justify-between mt-6 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  className="py-6 px-8 text-lg font-semibold rounded-xl transition-all duration-300"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Tillbaka
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  className="flex-1 max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
+                >
+                  Nästa
+                  <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Focus Selection with Visual Preview */}
+          {currentStep === 4 && (
+            <div className="animate-fade-in">
+              <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
+                  <Focus className="h-6 w-6 text-foreground" />
+                  Vad vill du lyfta upp mest?
+                </h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Välj vad som ska synas först och mest i din annons
+                </p>
+                
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {/* Focus Options */}
+                  <div className="space-y-3">
+                    {FOCUS_OPTIONS.map((focus) => (
+                      <button
+                        key={focus.id}
+                        onClick={() => handleFocusChange(focus.id)}
+                        className={`w-full group flex items-center gap-4 rounded-xl p-4 text-left transition-all duration-200 ${
+                          selectedFocus === focus.id
+                            ? "border-2 border-foreground bg-card shadow-md"
+                            : "border border-border hover:border-foreground/50 bg-card"
+                        }`}
+                      >
+                        <span className="text-3xl">{focus.icon}</span>
+                        <div className="flex-1">
+                          <span className="block text-base font-medium text-foreground">
+                            {focus.label}
+                          </span>
+                          <span className="block text-sm text-muted-foreground mt-0.5">
+                            {focus.description}
+                          </span>
+                        </div>
+                        {selectedFocus === focus.id && (
+                          <Check className="h-5 w-5 text-foreground" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Visual Preview */}
+                  <div className="lg:sticky lg:top-4">
+                    <FocusPreview />
+                  </div>
                 </div>
               </div>
 

@@ -44,6 +44,11 @@ const HelpWidget = () => {
     return true;
   };
 
+  const getTopicLabel = (topicId: string): string => {
+    const topic = HELP_TOPICS.find(t => t.id === topicId);
+    return topic?.label || topicId;
+  };
+
   const handleSubmit = async () => {
     if (!selectedTopic) {
       toast.error("Välj ett ämne");
@@ -67,16 +72,39 @@ const HelpWidget = () => {
 
     if (error) {
       toast.error("Kunde inte skicka förfrågan");
-    } else {
-      toast.success(wantsPdf 
-        ? "Tack! Vi skickar PDF-guiden till din email." 
-        : "Tack! Vi kontaktar dig snart.");
-      setEmail("");
-      setDescription("");
-      setSelectedTopic(null);
-      setWantsPdf(false);
+      setIsSubmitting(false);
+      return;
     }
-    
+
+    // Send PDF guide if requested
+    if (wantsPdf) {
+      try {
+        const { error: pdfError } = await supabase.functions.invoke("send-pdf-guide", {
+          body: {
+            email: email.trim(),
+            helpTopic: getTopicLabel(selectedTopic),
+            description: description.trim() || undefined
+          }
+        });
+
+        if (pdfError) {
+          console.error("PDF send error:", pdfError);
+          toast.error("Förfrågan sparad, men kunde inte skicka PDF-guiden.");
+        } else {
+          toast.success("Tack! PDF-guiden har skickats till din email.");
+        }
+      } catch (err) {
+        console.error("PDF send error:", err);
+        toast.error("Förfrågan sparad, men kunde inte skicka PDF-guiden.");
+      }
+    } else {
+      toast.success("Tack! Vi kontaktar dig snart.");
+    }
+
+    setEmail("");
+    setDescription("");
+    setSelectedTopic(null);
+    setWantsPdf(false);
     setIsSubmitting(false);
   };
 

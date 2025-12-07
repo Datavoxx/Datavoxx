@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Copy, Check, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ const AnnonsResultat = () => {
   const [generatedAd, setGeneratedAd] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const hasGeneratedRef = useRef(false);
 
   const generateAd = useCallback(async () => {
     if (!state) return;
@@ -117,14 +118,20 @@ const AnnonsResultat = () => {
     }
   }, [state, user, profile]);
 
-  // Generate on mount
+  // Redirect if no state
   useEffect(() => {
     if (!state) {
       navigate("/annons-generator");
-      return;
     }
+  }, [state, navigate]);
+
+  // Generate on mount - only once
+  useEffect(() => {
+    if (!state || hasGeneratedRef.current) return;
+    hasGeneratedRef.current = true;
     generateAd();
-  }, [state, navigate, generateAd]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedAd);
     setCopied(true);

@@ -98,7 +98,7 @@ Generera en professionell och säljande annons baserat på denna information. F�
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5-mini",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: finalSystemPrompt },
           { role: "user", content: userPrompt },

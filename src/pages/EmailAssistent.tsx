@@ -26,20 +26,12 @@ interface EmailTemplate {
 
 const emailTemplates: EmailTemplate[] = [
   {
-    id: "send-quote",
-    title: "Skicka offert",
-    description: "Skicka ett professionellt prisförslag till kund",
-    expandedDescription: "Ange fordon, pris och eventuella kampanjer. Jag skapar ett säljande offertmejl.",
+    id: "purchase",
+    title: "Inköp",
+    description: "Skicka ett inköpsbud på en bil du vill köpa in",
+    expandedDescription: "Ange säljarens bil och ditt inköpspris. Jag skapar ett professionellt inköpserbjudande.",
     icon: <FileText className="h-6 w-6" />,
-    prompt: "Skriv ett offertmejl till en kund.\n\nfordon (märke/modell/år):\npris:\nkund (namn):\neventuell kampanj/rabatt:",
-  },
-  {
-    id: "follow-up",
-    title: "Följ upp kund",
-    description: "Följ upp en kund som visat intresse eller besökt",
-    expandedDescription: "Berätta om kundens tidigare kontakt så skapar jag ett naturligt uppföljningsmejl.",
-    icon: <Reply className="h-6 w-6" />,
-    prompt: "Skriv ett uppföljningsmejl till en kund.\n\nkund (namn):\nsenaste kontakt (t.ex. \"provkörde en V60 förra veckan\"):\nvad vill du uppnå:",
+    prompt: "Skriv ett inköpsmejl till en säljare vars bil du vill köpa in.\n\nsäljarens bil (märke/modell/år/mil):\nditt inköpspris:\nsäljarens namn:\neventuella villkor (t.ex. besiktning, leverans):",
   },
   {
     id: "inquiry-response",
@@ -238,7 +230,7 @@ const EmailAssistent = () => {
             </p>
             
             {/* Template Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
               {emailTemplates.map((template, index) => {
                 const isFlipped = flippedCards.has(template.id);
                 return (

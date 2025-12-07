@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,7 @@ const emailSchema = z.string()
 const HelpWidget = () => {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [description, setDescription] = useState("");
   const [wantsPdf, setWantsPdf] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -59,6 +61,7 @@ const HelpWidget = () => {
       .insert({
         email: email.trim(),
         help_topic: selectedTopic,
+        description: description.trim() || null,
         wants_pdf: wantsPdf
       });
 
@@ -69,6 +72,7 @@ const HelpWidget = () => {
         ? "Tack! Vi skickar PDF-guiden till din email." 
         : "Tack! Vi kontaktar dig snart.");
       setEmail("");
+      setDescription("");
       setSelectedTopic(null);
       setWantsPdf(false);
     }
@@ -139,6 +143,13 @@ const HelpWidget = () => {
             );
           })}
         </div>
+
+        <Textarea
+          placeholder="Beskriv vad du behöver hjälp med..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="min-h-[80px] mb-3 resize-none bg-background border-border"
+        />
 
         <div className="space-y-1 mb-3">
           <Input

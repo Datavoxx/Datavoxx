@@ -1,6 +1,7 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Car, Check, Sparkles, Wrench, History, CreditCard, Focus } from "lucide-react";
+import bilgenLogo from "@/assets/bilgen-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -458,8 +459,14 @@ const AnnonsGenerator = () => {
 
         {/* Title */}
         <div className="mb-6 text-center animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Bilannonsgenerator</h1>
-          <p className="text-muted-foreground mb-6">Skapa professionella annonser på sekunder</p>
+          <img 
+            src={bilgenLogo} 
+            alt="BILGEN" 
+            className="h-28 mx-auto mb-4"
+          />
+          <p className="text-lg font-bold tracking-tight text-foreground mb-6">
+            AI genererar, du kopierar
+          </p>
           
           {/* Step Indicator */}
           <StepIndicator />

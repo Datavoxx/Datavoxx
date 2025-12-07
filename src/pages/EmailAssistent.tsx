@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, Reply, Car, History, Loader2, Info, X } from "lucide-react";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,28 +26,28 @@ interface EmailTemplate {
 
 const emailTemplates: EmailTemplate[] = [
   {
-    id: "new-contact",
-    title: "Ny kontakt",
-    description: "Skriv ett nytt utgående mejl till en kund",
-    expandedDescription: "Berätta vem kunden är och varför du kontaktar dem. Jag hjälper dig formulera ett professionellt första mejl.",
-    icon: <Mail className="h-6 w-6" />,
-    prompt: "Skriv ett nytt mejl till en kund.\n\nnamn:\nkontext:",
+    id: "send-quote",
+    title: "Skicka offert",
+    description: "Skicka ett professionellt prisförslag till kund",
+    expandedDescription: "Ange fordon, pris och eventuella kampanjer. Jag skapar ett säljande offertmejl.",
+    icon: <FileText className="h-6 w-6" />,
+    prompt: "Skriv ett offertmejl till en kund.\n\nfordon (märke/modell/år):\npris:\nkund (namn):\neventuell kampanj/rabatt:",
   },
   {
-    id: "reply-customer",
-    title: "Svara kund",
-    description: "Svara på ett mejl du fått från en kund",
-    expandedDescription: "Klistra in kundens mejl så hjälper jag dig skriva ett bra svar. Berätta gärna vad svaret ska innehålla.",
+    id: "follow-up",
+    title: "Följ upp kund",
+    description: "Följ upp en kund som visat intresse eller besökt",
+    expandedDescription: "Berätta om kundens tidigare kontakt så skapar jag ett naturligt uppföljningsmejl.",
     icon: <Reply className="h-6 w-6" />,
-    prompt: "Svara på ett kundmejl.\n\nkundens mejl:\nmitt svar ska innehålla:",
+    prompt: "Skriv ett uppföljningsmejl till en kund.\n\nkund (namn):\nsenaste kontakt (t.ex. \"provkörde en V60 förra veckan\"):\nvad vill du uppnå:",
   },
   {
-    id: "purchase-interest",
-    title: "Köpintresse/Inköp",
-    description: "Följ upp intresse för ett specifikt fordon",
-    expandedDescription: "Ange vilket fordon det gäller och kundens namn. Jag skapar ett säljande uppföljningsmejl.",
-    icon: <Car className="h-6 w-6" />,
-    prompt: "Skriv ett mejl om ett fordon som en kund visat intresse för.\n\nfordon:\nkund:\nkontext:",
+    id: "inquiry-response",
+    title: "Svar på förfrågan",
+    description: "Svara på en förfrågan från en potentiell kund",
+    expandedDescription: "Klistra in kundens förfrågan så hjälper jag dig formulera ett snabbt och professionellt svar.",
+    icon: <Mail className="h-6 w-6" />,
+    prompt: "Svara på en kundförfrågan.\n\nkundens förfrågan:\nfordon det gäller (om känt):\nmitt svar ska innehålla:",
   },
 ];
 

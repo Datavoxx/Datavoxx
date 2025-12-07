@@ -381,58 +381,63 @@ const AnnonsGenerator = () => {
     </div>
   );
 
-  // Visual Preview Component for Focus Step - Color-coded blocks without text
+  // Visual Preview Component for Focus Step - All sections keep their colors, smooth reorder animation
   const FocusPreview = () => {
-    const sections = [
-      { id: "financing", color: FOCUS_COLORS.financing.bg },
-      { id: "car", color: "bg-gray-400" },
-      { id: "equipment", color: FOCUS_COLORS.equipment.bg },
-      { id: "other", color: "bg-gray-400" },
-    ];
+    // Define all sections with their permanent colors
+    const allSections = {
+      financing: { id: "financing", label: "Finansiering", color: FOCUS_COLORS.financing.bg },
+      car: { id: "car", label: "Bilinfo", color: "bg-gray-400" },
+      equipment: { id: "equipment", label: "Utrustning", color: FOCUS_COLORS.equipment.bg },
+      contact: { id: "contact", label: "Kontakt", color: "bg-gray-400" },
+      mixed: { id: "mixed", label: "Balanserad", color: FOCUS_COLORS.mixed.bg },
+    };
 
-    // Determine order based on selected focus
+    // Determine order based on selected focus - focused item moves to top
     const getOrderedSections = () => {
       if (selectedFocus === "financing") {
-        return [sections[0], sections[1], sections[2], sections[3]];
+        return [allSections.financing, allSections.car, allSections.equipment, allSections.contact];
       } else if (selectedFocus === "equipment") {
-        return [sections[2], sections[1], sections[0], sections[3]];
+        return [allSections.equipment, allSections.car, allSections.financing, allSections.contact];
       } else {
-        // mixed - balanced, show car first then equipment
-        return [sections[1], sections[2], sections[0], sections[3]];
+        // mixed - balanced, show mix block first
+        return [allSections.mixed, allSections.financing, allSections.equipment, allSections.contact];
       }
     };
 
     const orderedSections = getOrderedSections();
-
-    // Determine which section should be highlighted based on focus
-    const getHighlightColor = () => {
-      if (selectedFocus === "financing") return FOCUS_COLORS.financing.bg;
-      if (selectedFocus === "equipment") return FOCUS_COLORS.equipment.bg;
-      return FOCUS_COLORS.mixed.bg; // yellow for balanced
-    };
 
     return (
       <div className="rounded-xl border border-border bg-card/50 p-5">
         <p className="text-xs text-muted-foreground mb-4 text-center font-medium">
           Förhandsgranskning av annonsstruktur
         </p>
-        <div className="space-y-2.5">
+        <div className="relative flex flex-col gap-2.5">
           {orderedSections.map((section, index) => {
-            const isFirst = index === 0;
-            // First block gets the focus color, others are muted gray
-            const blockColor = isFirst ? getHighlightColor() : "bg-gray-200";
-            const blockHeight = isFirst ? "h-14" : "h-9";
+            const isSelected = 
+              (selectedFocus === "financing" && section.id === "financing") ||
+              (selectedFocus === "equipment" && section.id === "equipment") ||
+              (selectedFocus === "mixed" && section.id === "mixed");
             
             return (
               <div
                 key={section.id}
-                className={`rounded-lg transition-all duration-500 ease-out ${blockColor} ${blockHeight} ${
-                  isFirst ? "shadow-md scale-[1.02]" : ""
+                className={`rounded-lg transition-all duration-500 ease-out ${section.color} ${
+                  isSelected 
+                    ? "h-14 shadow-lg scale-[1.02] ring-2 ring-foreground/10" 
+                    : "h-9 opacity-70"
                 }`}
                 style={{
                   transitionDelay: `${index * 75}ms`,
                 }}
-              />
+              >
+                <span className={`flex items-center justify-center h-full text-xs font-medium ${
+                  section.id === "car" || section.id === "contact" 
+                    ? "text-gray-600" 
+                    : "text-white"
+                }`}>
+                  {section.label}
+                </span>
+              </div>
             );
           })}
         </div>

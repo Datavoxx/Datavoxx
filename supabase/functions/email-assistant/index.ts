@@ -56,6 +56,18 @@ Använd kundens namn om det finns.
 Gör budskapet tydligt och enkelt.
 Endast det färdiga mejlet — inga etiketter, rubriker eller förklaringar.
 
+📌 MALLAR
+
+- ny kontakt: Skriv ett nytt mejl till en kund.
+
+namn: 
+kontext: 
+
+* detta innebär att vi skriver ett helt nytt mejl så läs av avsikten som finns i "kontext" det kan handla om allt!!!
+
+
+
+
 ✅ MALL 1 — “Ny kontakt”
 📌 USER INPUT (helt enligt din struktur)
 Skriv ett nytt mejl till en kund.

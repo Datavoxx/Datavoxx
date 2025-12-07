@@ -423,11 +423,18 @@ const AnnonsGenerator = () => {
                 key={section.id}
                 className={`rounded-lg transition-all duration-500 ease-out ${section.color} ${
                   isSelected 
-                    ? "h-14 shadow-lg scale-[1.02] ring-2 ring-foreground/10" 
+                    ? "h-14 scale-[1.02] ring-2 ring-foreground/10 animate-subtle-pulse" 
                     : "h-9 opacity-70"
                 }`}
                 style={{
                   transitionDelay: `${index * 75}ms`,
+                  color: isSelected 
+                    ? selectedFocus === "financing" 
+                      ? "hsl(0 84% 60%)" 
+                      : selectedFocus === "equipment" 
+                        ? "hsl(142 76% 36%)" 
+                        : "hsl(45 93% 47%)"
+                    : undefined,
                 }}
               >
                 <span className={`flex items-center justify-center h-full text-xs font-medium ${

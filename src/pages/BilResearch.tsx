@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, Wrench, Scale, Search, Car, History, Info, X } from "lucide-react";
+import { Send, Loader2, Wrench, Search, Car, History, Info, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -31,14 +31,6 @@ const researchTemplates: ResearchTemplate[] = [
     expandedDescription: "Denna mall hjälper dig att fråga om vanliga problem, fel och svagheter hos en specifik bilmodell. Perfekt att använda innan du ska sälja en bil för att vara förberedd på kundfrågor.",
     icon: <Wrench className="h-6 w-6" />,
     prompt: "Vilka är de vanligaste problemen med [bilmärke och modell]? Vad bör jag som säljare vara medveten om?",
-  },
-  {
-    id: "compare",
-    title: "Jämför modeller",
-    description: "Jämför två bilar mot varandra",
-    expandedDescription: "Jämför två bilmodeller sida vid sida. Du får fördelar och nackdelar med varje bil, samt rekommendationer för vilken som passar olika kundbehov bäst.",
-    icon: <Scale className="h-6 w-6" />,
-    prompt: "Jämför [bil 1] med [bil 2]. Vilka är fördelarna och nackdelarna med varje?",
   },
   {
     id: "research",
@@ -219,7 +211,7 @@ const BilResearch = () => {
             <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
               <Car className="h-10 w-10 text-gray-700" />
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                Vad vill du veta om din bil?
+                Vad vill du kolla upp?
               </h1>
             </div>
             <p className="text-lg text-gray-500 mb-10 text-center opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
@@ -227,7 +219,7 @@ const BilResearch = () => {
             </p>
             
             {/* Template Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
               {researchTemplates.map((template, index) => {
                 const isFlipped = flippedCards.has(template.id);
                 return (

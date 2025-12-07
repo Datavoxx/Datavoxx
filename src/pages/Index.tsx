@@ -28,10 +28,10 @@ const Index = () => {
             className="h-20 mx-auto mb-10"
           />
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4">
-            Välj verktyg
+            Redo att börja?
           </h1>
           <p className="text-xl text-muted-foreground max-w-md mx-auto">
-            Vad vill du göra idag?
+            Skriva <span className="font-semibold text-foreground">annons</span>, göra <span className="font-semibold text-foreground">bilresearch</span> eller hantera <span className="font-semibold text-foreground">mail</span>.
           </p>
         </div>
 

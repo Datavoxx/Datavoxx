@@ -14,17 +14,21 @@ const HELP_TOPICS = [
   { id: "email", label: "Skriva emails" },
 ];
 
-const emailSchema = z.string()
+const emailSchema = z
+  .string()
   .trim()
   .min(5, { message: "E-postadress är för kort" })
   .max(255, { message: "E-postadress är för lång" })
   .email({ message: "Ogiltig e-postadress" })
-  .refine((email) => {
-    const parts = email.split('@');
-    if (parts.length !== 2) return false;
-    const domain = parts[1];
-    return domain.includes('.') && domain.length >= 4;
-  }, { message: "Ogiltig domän" });
+  .refine(
+    (email) => {
+      const parts = email.split("@");
+      if (parts.length !== 2) return false;
+      const domain = parts[1];
+      return domain.includes(".") && domain.length >= 4;
+    },
+    { message: "Ogiltig domän" },
+  );
 
 const HelpWidget = () => {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
@@ -55,25 +59,23 @@ const HelpWidget = () => {
     }
 
     setIsSubmitting(true);
-    
+
     const payload = {
       email: email.trim(),
       help_topic: selectedTopic,
       description: description.trim() || null,
-      wants_pdf: wantsPdf
+      wants_pdf: wantsPdf,
     };
 
     // Save to database
-    const { error } = await supabase
-      .from("help_requests")
-      .insert(payload);
+    const { error } = await supabase.from("help_requests").insert(payload);
 
     // Send to n8n webhook
     try {
-      await fetch("https://datavox.app.n8n.cloud/webhook-test/hjalp", {
+      await fetch("https://datavox.app.n8n.cloud/webhook/hjalp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
     } catch (webhookError) {
       console.error("Webhook error:", webhookError);
@@ -82,15 +84,13 @@ const HelpWidget = () => {
     if (error) {
       toast.error("Kunde inte skicka förfrågan");
     } else {
-      toast.success(wantsPdf 
-        ? "Tack! Vi skickar PDF-guiden till din email." 
-        : "Tack! Vi kontaktar dig snart.");
+      toast.success(wantsPdf ? "Tack! Vi skickar PDF-guiden till din email." : "Tack! Vi kontaktar dig snart.");
       setEmail("");
       setDescription("");
       setSelectedTopic(null);
       setWantsPdf(false);
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -128,10 +128,8 @@ const HelpWidget = () => {
 
       {/* Help box */}
       <div className="max-w-[340px] rounded-xl bg-background/90 backdrop-blur-sm shadow-md border border-border p-5 animate-fade-in-up">
-        <h3 className="text-lg font-semibold text-foreground mb-3">
-          Behöver du hjälp?
-        </h3>
-        
+        <h3 className="text-lg font-semibold text-foreground mb-3">Behöver du hjälp?</h3>
+
         {/* Topic selection - single select radio style */}
         <div className="flex flex-col gap-2 mb-4">
           {HELP_TOPICS.map((topic) => {
@@ -147,9 +145,11 @@ const HelpWidget = () => {
                     : "border-border bg-background hover:border-foreground/50 text-foreground"
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  isSelected ? "border-background" : "border-muted-foreground"
-                }`}>
+                <span
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    isSelected ? "border-background" : "border-muted-foreground"
+                  }`}
+                >
                   {isSelected && <span className="w-2 h-2 rounded-full bg-background" />}
                 </span>
                 {topic.label}
@@ -178,25 +178,16 @@ const HelpWidget = () => {
             className={`bg-background border-border ${emailError ? "border-destructive" : ""}`}
             required
           />
-          {emailError && (
-            <p className="text-xs text-destructive">{emailError}</p>
-          )}
+          {emailError && <p className="text-xs text-destructive">{emailError}</p>}
         </div>
 
         <div className="flex items-center space-x-2 mb-4">
-          <Checkbox
-            id="wants-pdf"
-            checked={wantsPdf}
-            onCheckedChange={(checked) => setWantsPdf(checked === true)}
-          />
-          <label
-            htmlFor="wants-pdf"
-            className="text-sm text-muted-foreground cursor-pointer"
-          >
+          <Checkbox id="wants-pdf" checked={wantsPdf} onCheckedChange={(checked) => setWantsPdf(checked === true)} />
+          <label htmlFor="wants-pdf" className="text-sm text-muted-foreground cursor-pointer">
             Skicka mig en PDF-guide till min email
           </label>
         </div>
-        
+
         <Button className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Skicka"}
         </Button>

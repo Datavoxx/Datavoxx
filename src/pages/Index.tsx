@@ -33,6 +33,14 @@ const Index = () => {
           <p className="text-xl text-muted-foreground max-w-md mx-auto">
             Skriva <span className="font-semibold text-foreground">annons</span>, göra <span className="font-semibold text-foreground">bilresearch</span> eller hantera <span className="font-semibold text-foreground">mail</span>.
           </p>
+          
+          {/* Speed tagline - catchy gradient pill */}
+          <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-foreground to-accent text-primary-foreground shadow-lg">
+            <span className="text-lg">⚡</span>
+            <span className="text-sm font-medium tracking-wide">
+              <span className="text-xl font-bold">2-3X</span> snabbare än manuellt
+            </span>
+          </div>
         </div>
 
         {/* Level Cards */}

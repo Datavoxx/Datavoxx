@@ -39,7 +39,10 @@ const AnnonsResultat = () => {
   const [generatedAd, setGeneratedAd] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [regenerateCount, setRegenerateCount] = useState(0);
   const hasGeneratedRef = useRef(false);
+  
+  const MAX_REGENERATIONS = 3;
 
   const generateAd = useCallback(async () => {
     if (!state) return;
@@ -143,6 +146,15 @@ const AnnonsResultat = () => {
   };
 
   const handleRegenerate = () => {
+    if (regenerateCount >= MAX_REGENERATIONS) {
+      toast({
+        title: "Max antal regenereringar nått",
+        description: "Prova att ändra något i formuläret för att få ett bättre resultat",
+        variant: "destructive",
+      });
+      return;
+    }
+    setRegenerateCount(prev => prev + 1);
     generateAd();
   };
 
@@ -187,6 +199,15 @@ const AnnonsResultat = () => {
             </div>
           ) : generatedAd ? (
             <>
+              {/* Limit reached message */}
+              {regenerateCount >= MAX_REGENERATIONS && (
+                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-center">
+                  <p className="text-orange-700 font-medium">
+                    Du har regenererat 3 gånger – prova att ändra något i formuläret för ett bättre resultat!
+                  </p>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="mb-6 flex flex-wrap justify-center gap-4">
                 <Button
@@ -206,13 +227,24 @@ const AnnonsResultat = () => {
                   )}
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  onClick={handleRegenerate}
-                >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Regenerera
-                </Button>
+                {regenerateCount >= MAX_REGENERATIONS ? (
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Ändra något i formuläret
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleRegenerate}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Regenerera ({MAX_REGENERATIONS - regenerateCount}/{MAX_REGENERATIONS} kvar)
+                  </Button>
+                )}
                 
                 <Button
                   variant="ghost"

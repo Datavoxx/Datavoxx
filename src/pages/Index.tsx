@@ -35,7 +35,7 @@ const Index = () => {
           </p>
           
           {/* Speed tagline - catchy gradient pill */}
-          <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-foreground to-accent text-primary-foreground shadow-lg">
+          <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-foreground to-accent text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default">
             <span className="text-lg">⚡</span>
             <span className="text-sm font-medium tracking-wide">
               <span className="text-xl font-bold">2-3X</span> snabbare än manuellt

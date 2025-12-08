@@ -25,7 +25,7 @@ const Index = () => {
           <img 
             src={bilgenLogo} 
             alt="BILGEN" 
-            className="h-20 mx-auto mb-10"
+            className="h-32 mx-auto mb-10"
           />
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4">
             Redo att börja?

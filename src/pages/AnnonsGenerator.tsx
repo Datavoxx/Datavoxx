@@ -544,32 +544,6 @@ const AnnonsGenerator = () => {
                       className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="mileage" className="text-sm text-muted-foreground">
-                      Miltal <span className="text-muted-foreground/60">(valfritt)</span>
-                    </Label>
-                    <Input
-                      id="mileage"
-                      placeholder="t.ex. 45000"
-                      value={formData.mileage}
-                      onChange={(e) => handleInputChange("mileage", e.target.value)}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="price" className="text-sm text-muted-foreground">
-                      Pris (kr) <span className="text-muted-foreground/60">(valfritt)</span>
-                    </Label>
-                    <Input
-                      id="price"
-                      placeholder="t.ex. 299000"
-                      value={formData.price}
-                      onChange={(e) => handleInputChange("price", e.target.value)}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
-                  </div>
                 </div>
               </div>
 

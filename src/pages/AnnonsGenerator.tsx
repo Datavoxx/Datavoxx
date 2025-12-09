@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Sparkles, Wrench, History, CreditCard, Focus } from "lucide-react";
+import { ArrowLeft, Car, Check, Sparkles, Wrench, History, CreditCard, Focus, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,8 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
+  registrationNumber: string;
   brand: string;
   model: string;
   year: string;
@@ -244,7 +246,10 @@ const AnnonsGenerator = () => {
   const [selectedFocus, setSelectedFocus] = useState<FocusType>("mixed");
   const [systemPrompt, setSystemPrompt] = useState(FOCUS_OPTIONS[2].prompt);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [carLookupSuccess, setCarLookupSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
+    registrationNumber: "",
     brand: "",
     model: "",
     year: "",
@@ -302,11 +307,86 @@ const AnnonsGenerator = () => {
     }
   };
 
+  // Format registration number as user types (ABC 123 or ABC 12D)
+  const formatRegNumber = (value: string): string => {
+    const cleaned = value.replace(/\s/g, '').toUpperCase();
+    if (cleaned.length <= 3) {
+      return cleaned;
+    }
+    return cleaned.slice(0, 3) + ' ' + cleaned.slice(3, 6);
+  };
+
+  const handleRegNumberChange = (value: string) => {
+    const formatted = formatRegNumber(value);
+    if (formatted.replace(/\s/g, '').length <= 6) {
+      handleInputChange("registrationNumber", formatted);
+      setCarLookupSuccess(false);
+    }
+  };
+
+  const handleCarLookup = async () => {
+    const regNumber = formData.registrationNumber.replace(/\s/g, '');
+    
+    if (regNumber.length !== 6) {
+      toast({
+        title: "Ogiltigt registreringsnummer",
+        description: "Ange ett komplett svenskt registreringsnummer (6 tecken)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLookingUp(true);
+    setCarLookupSuccess(false);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('car-lookup', {
+        body: { registrationNumber: regNumber },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        toast({
+          title: "Kunde inte hitta bilen",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.carData) {
+        setFormData(prev => ({
+          ...prev,
+          brand: data.carData.brand || prev.brand,
+          model: data.carData.model || prev.model,
+          year: data.carData.year || prev.year,
+        }));
+        setCarLookupSuccess(true);
+        toast({
+          title: "Bilinfo hämtad!",
+          description: `${data.carData.brand} ${data.carData.model} ${data.carData.year}`,
+        });
+      }
+    } catch (error) {
+      console.error("Car lookup error:", error);
+      toast({
+        title: "Fel vid hämtning",
+        description: "Kunde inte hämta bilinfo. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
   const handleNext = () => {
     if (currentStep === 1 && (!formData.brand.trim() || !formData.model.trim())) {
       toast({
         title: "Fyll i obligatoriska fält",
-        description: "Märke och modell måste anges för att fortsätta",
+        description: "Hämta bilinfo med registreringsnummer eller ange märke och modell manuellt",
         variant: "destructive",
       });
       return;
@@ -505,44 +585,110 @@ const AnnonsGenerator = () => {
                   Bilinformation
                 </h2>
                 
-                <div className="grid gap-4 sm:grid-cols-2">
+                {/* Swedish License Plate Input */}
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="brand" className="text-sm text-muted-foreground">
-                      Märke <span className="text-red-500">*</span>
+                    <Label htmlFor="regNumber" className="text-sm text-muted-foreground">
+                      Registreringsnummer
                     </Label>
-                    <Input
-                      id="brand"
-                      placeholder="t.ex. Volvo"
-                      value={formData.brand}
-                      onChange={(e) => handleInputChange("brand", e.target.value)}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
+                    <div className="flex gap-3 items-stretch">
+                      {/* Swedish license plate styled input */}
+                      <div className="flex-1 flex rounded-lg overflow-hidden border-2 border-foreground/20 bg-white shadow-sm hover:border-foreground/40 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/20">
+                        {/* EU Blue stripe with Swedish flag */}
+                        <div className="w-10 bg-[#003399] flex flex-col items-center justify-center gap-0.5 py-2">
+                          {/* EU stars circle */}
+                          <div className="text-[8px] text-yellow-400 leading-none">★★★</div>
+                          <div className="text-[8px] text-yellow-400 leading-none">★ ★</div>
+                          <div className="text-[8px] text-yellow-400 leading-none">★★★</div>
+                          {/* S letter */}
+                          <span className="text-white font-bold text-sm mt-0.5">S</span>
+                        </div>
+                        {/* Registration number input */}
+                        <input
+                          id="regNumber"
+                          type="text"
+                          placeholder="ABC 123"
+                          value={formData.registrationNumber}
+                          onChange={(e) => handleRegNumberChange(e.target.value)}
+                          className="flex-1 px-4 py-3 text-2xl font-bold tracking-widest text-center bg-white text-foreground placeholder:text-muted-foreground/40 focus:outline-none uppercase"
+                          style={{ fontFamily: "'DIN Alternate', 'Arial Black', sans-serif" }}
+                          maxLength={7}
+                        />
+                      </div>
+                      {/* Lookup button */}
+                      <Button
+                        type="button"
+                        onClick={handleCarLookup}
+                        disabled={isLookingUp || formData.registrationNumber.replace(/\s/g, '').length !== 6}
+                        className="px-6 h-auto"
+                      >
+                        {isLookingUp ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Search className="h-5 w-5 mr-2" />
+                            Hämta bilinfo
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="model" className="text-sm text-muted-foreground">
-                      Modell <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="model"
-                      placeholder="t.ex. XC60"
-                      value={formData.model}
-                      onChange={(e) => handleInputChange("model", e.target.value)}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="year" className="text-sm text-muted-foreground">
-                      Årsmodell <span className="text-muted-foreground/60">(valfritt)</span>
-                    </Label>
-                    <Input
-                      id="year"
-                      placeholder="t.ex. 2020"
-                      value={formData.year}
-                      onChange={(e) => handleInputChange("year", e.target.value)}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
+
+                  {/* Car info display after successful lookup */}
+                  {carLookupSuccess && formData.brand && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800">
+                      <Check className="h-5 w-5 text-green-600" />
+                      <span className="font-medium">
+                        {formData.brand} {formData.model} {formData.year && `(${formData.year})`}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Manual input fallback - collapsed by default, shown if lookup failed or user wants to edit */}
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Eller ange manuellt:
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="brand" className="text-sm text-muted-foreground">
+                          Märke <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="brand"
+                          placeholder="t.ex. Volvo"
+                          value={formData.brand}
+                          onChange={(e) => handleInputChange("brand", e.target.value)}
+                          className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="model" className="text-sm text-muted-foreground">
+                          Modell <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="model"
+                          placeholder="t.ex. XC60"
+                          value={formData.model}
+                          onChange={(e) => handleInputChange("model", e.target.value)}
+                          className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="year" className="text-sm text-muted-foreground">
+                          Årsmodell
+                        </Label>
+                        <Input
+                          id="year"
+                          placeholder="t.ex. 2020"
+                          value={formData.year}
+                          onChange={(e) => handleInputChange("year", e.target.value)}
+                          className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

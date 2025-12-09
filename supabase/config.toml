@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.email-assistant]
 verify_jwt = false
+
+[functions.car-lookup]
+verify_jwt = false

@@ -31,15 +31,17 @@ const emailTemplates: EmailTemplate[] = [
     description: "Skicka ett inköpsbud på en bil du vill köpa in",
     expandedDescription: "Ange säljarens bil och ditt inköpspris. Jag skapar ett professionellt inköpserbjudande.",
     icon: <FileText className="h-6 w-6" />,
-    prompt: "Skriv ett inköpsmejl till en säljare vars bil du vill köpa in.\n\nsäljarens bil (märke/modell/år/mil):\nditt inköpspris:\nsäljarens namn:\neventuella villkor (t.ex. besiktning, leverans):",
+    prompt:
+      "Skriv ett inköpsmejl till en säljare vars bil du vill köpa in.\n\nsäljarens bil (märke/modell/år/mil):\nditt inköpspris:\nsäljarens namn:\neventuella villkor (t.ex. besiktning, leverans):",
   },
   {
     id: "inquiry-response",
     title: "Svar på förfrågan",
     description: "Svara på en förfrågan från en potentiell kund",
-    expandedDescription: "Klistra in kundens förfrågan så hjälper jag dig formulera ett snabbt och professionellt svar.",
+    expandedDescription:
+      "Klistra in kundens förfrågan så hjälper jag dig formulera ett snabbt och professionellt svar.",
     icon: <Mail className="h-6 w-6" />,
-    prompt: "Svara på en kundförfrågan.\n\nkundens förfrågan:\nfordon det gäller (om känt):\nmitt svar ska innehålla:",
+    prompt: "Svara på en kundförfrågan.\n\nkundens förfrågan:\nmitt svar ska innehålla:",
   },
 ];
 
@@ -57,7 +59,7 @@ const EmailAssistent = () => {
 
   const toggleCardFlip = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFlippedCards(prev => {
+    setFlippedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -71,7 +73,7 @@ const EmailAssistent = () => {
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
-      textarea.style.height = 'auto';
+      textarea.style.height = "auto";
       textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
     }
   };
@@ -94,23 +96,20 @@ const EmailAssistent = () => {
       const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
         messages: newMessages,
       };
-      
+
       if (user && profile) {
         if (profile.company_name) requestBody.companyName = profile.company_name;
         if (profile.display_name) requestBody.userName = profile.display_name;
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-assistant`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-assistant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
 
       if (!response.ok) {
         throw new Error("Kunde inte generera e-post");
@@ -126,19 +125,19 @@ const EmailAssistent = () => {
       // Save conversation to database only if user is logged in
       if (user) {
         try {
-          await supabase.from('email_conversations').insert({
+          await supabase.from("email_conversations").insert({
             user_id: user.id,
             session_id: user.id,
-            user_name: profile?.display_name || user.email || 'Anonym',
+            user_name: profile?.display_name || user.email || "Anonym",
             request: userMessage.content,
             response: data.content,
-            template_used: lastTemplateUsed
+            template_used: lastTemplateUsed,
           });
         } catch (saveError) {
           console.error("Error saving email conversation:", saveError);
         }
       }
-      
+
       // Reset template tracking after use
       setLastTemplateUsed(null);
     } catch (error) {
@@ -181,7 +180,7 @@ const EmailAssistent = () => {
   const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
     setMessages([
       { role: "user", content: item.title },
-      { role: "assistant", content: item.preview.replace("...", "") }
+      { role: "assistant", content: item.preview.replace("...", "") },
     ]);
     setIsHistoryOpen(false);
   };
@@ -221,14 +220,15 @@ const EmailAssistent = () => {
           <div className="flex flex-col items-center pt-16 text-center">
             <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
               <Mail className="h-10 w-10 text-gray-700" />
-              <h2 className="text-4xl font-bold tracking-tight text-foreground">
-                Email Assistent
-              </h2>
+              <h2 className="text-4xl font-bold tracking-tight text-foreground">Email Assistent</h2>
             </div>
-            <p className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
+            <p
+              className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in"
+              style={{ animationDelay: "50ms" }}
+            >
               Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
             </p>
-            
+
             {/* Template Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
               {emailTemplates.map((template, index) => {
@@ -241,7 +241,7 @@ const EmailAssistent = () => {
                   >
                     <div
                       className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
-                        isFlipped ? 'rotate-y-180' : ''
+                        isFlipped ? "rotate-y-180" : ""
                       }`}
                     >
                       {/* Front of card */}
@@ -265,9 +265,7 @@ const EmailAssistent = () => {
                       </button>
 
                       {/* Back of card */}
-                      <div
-                        className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-gray-50 shadow-sm"
-                      >
+                      <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-gray-50 shadow-sm">
                         {/* Close button */}
                         <button
                           onClick={(e) => toggleCardFlip(template.id, e)}
@@ -295,9 +293,7 @@ const EmailAssistent = () => {
           messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              } animate-fade-in`}
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
             >
               <div
                 className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${

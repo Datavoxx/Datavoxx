@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, Wrench, Search, Car, History, Info, X } from "lucide-react";
+import { Send, Loader2, Wrench, Search, Car, History, Info, X, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -50,6 +50,7 @@ const BilResearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
+  const [isFromTemplate, setIsFromTemplate] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -161,6 +162,7 @@ const BilResearch = () => {
 
   const handleTemplateSelect = (template: ResearchTemplate) => {
     setInput(template.prompt);
+    setIsFromTemplate(true);
   };
 
   const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
@@ -321,11 +323,21 @@ const BilResearch = () => {
 
         {/* Input Area */}
         <div className={`${!hasMessages ? "max-w-3xl mx-auto w-full" : ""}`}>
+          {/* Template instruction banner */}
+          {isFromTemplate && (
+            <div className="flex items-center gap-2 px-4 py-2.5 mb-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm animate-fade-in">
+              <Pencil className="h-4 w-4 flex-shrink-0" />
+              <span>Fyll i de markerade fälten <span className="font-medium">[bilmärke och modell]</span> innan du skickar</span>
+            </div>
+          )}
           <div className="relative flex items-end rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
             <textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                if (isFromTemplate) setIsFromTemplate(false);
+              }}
               onKeyDown={handleKeyPress}
               placeholder="Fråga vad som helst om bilar..."
               className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 

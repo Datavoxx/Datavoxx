@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X } from "lucide-react";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +55,7 @@ const EmailAssistent = () => {
   const [lastTemplateUsed, setLastTemplateUsed] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
+  const [isFromTemplate, setIsFromTemplate] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleCardFlip = (id: string, e: React.MouseEvent) => {
@@ -175,6 +176,7 @@ const EmailAssistent = () => {
   const handleTemplateSelect = (template: EmailTemplate) => {
     setInput(template.prompt);
     setLastTemplateUsed(template.id);
+    setIsFromTemplate(true);
   };
 
   const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
@@ -329,18 +331,29 @@ const EmailAssistent = () => {
 
       {/* Input Area */}
       <footer className="p-4">
-        <div className="relative flex items-end max-w-3xl mx-auto rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Beskriv vad du behöver hjälp med..."
-            className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 
-                       focus:outline-none transition-all text-base overflow-hidden resize-none"
-            disabled={isLoading}
-            rows={1}
-          />
+        <div className="max-w-3xl mx-auto">
+          {/* Template instruction banner */}
+          {isFromTemplate && (
+            <div className="flex items-center gap-2 px-4 py-2.5 mb-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm animate-fade-in">
+              <Pencil className="h-4 w-4 flex-shrink-0" />
+              <span>Fyll i fälten efter kolontecknen <span className="font-medium">(:)</span> innan du skickar</span>
+            </div>
+          )}
+          <div className="relative flex items-end rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                if (isFromTemplate) setIsFromTemplate(false);
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Beskriv vad du behöver hjälp med..."
+              className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 
+                         focus:outline-none transition-all text-base overflow-hidden resize-none"
+              disabled={isLoading}
+              rows={1}
+            />
           <Button
             onClick={handleSubmit}
             disabled={!input.trim() || isLoading}
@@ -348,7 +361,8 @@ const EmailAssistent = () => {
             className="absolute right-2 bottom-2 rounded-xl h-10 w-10 hover:shadow-lg transition-all duration-300"
           >
             <Send className="h-5 w-5" />
-          </Button>
+            </Button>
+          </div>
         </div>
       </footer>
     </div>

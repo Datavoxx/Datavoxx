@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, Wrench, Search, Car, History, Info, X, Pencil } from "lucide-react";
+import { Send, Loader2, Wrench, Search, Car, History, Info, X, Pencil, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -247,9 +247,10 @@ const BilResearch = () => {
                       >
                         {/* Selected badge */}
                         {selectedTemplateId === template.id && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium animate-pulse">
                             <Pencil className="h-3 w-3" />
                             Redigera fälten
+                            <ArrowDown className="h-3 w-3" />
                           </div>
                         )}
                         {/* Info button */}

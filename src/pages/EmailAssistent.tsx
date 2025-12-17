@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil } from "lucide-react";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -258,9 +258,10 @@ const EmailAssistent = () => {
                       >
                         {/* Selected badge */}
                         {selectedTemplateId === template.id && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium animate-pulse">
                             <Pencil className="h-3 w-3" />
                             Redigera fälten
+                            <ArrowDown className="h-3 w-3" />
                           </div>
                         )}
                         {/* Info button */}

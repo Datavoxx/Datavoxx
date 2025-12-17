@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Mail, Lock, User, Building, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Building, Loader2, ArrowRight, FileText, Search, Mail as MailIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 // Validation schemas
@@ -134,27 +133,95 @@ const Auth = () => {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
+  const tools = [
+    { icon: FileText, title: "Bilannonsgenerator" },
+    { icon: Search, title: "Bil Research Expert" },
+    { icon: MailIcon, title: "Email Assistent" },
+  ];
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white">
-      <DecorativeBackground />
+    <div className="flex min-h-screen">
+      {/* Left Side - Decorative Background */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-gray-100 via-gray-50 to-white overflow-hidden">
+        {/* Decorative SVG shapes */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 800 1000"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <ellipse cx="200" cy="300" rx="350" ry="350" fill="hsl(0 0% 10%)" opacity="0.04" />
+          <ellipse cx="600" cy="700" rx="300" ry="300" fill="hsl(0 0% 10%)" opacity="0.03" />
+        </svg>
+        
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12">
+          <img 
+            src={bilgenLogo} 
+            alt="BILGEN" 
+            className="h-20 mb-12 opacity-0 animate-fade-in cursor-pointer"
+            onClick={() => navigate("/")}
+          />
+          
+          <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            AI-verktyg för bilhandlare
+          </h2>
+          <p className="text-lg text-muted-foreground text-center max-w-md mb-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+            Spara tid och jobba smartare med våra AI-drivna verktyg.
+          </p>
+          
+          {/* Tool badges */}
+          <div className="flex flex-col gap-3 opacity-0 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            {tools.map((tool, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 px-5 py-3 rounded-full bg-white/80 border border-gray-200 shadow-sm"
+              >
+                <tool.icon className="h-5 w-5 text-foreground" />
+                <span className="text-sm font-medium text-foreground">{tool.title}</span>
+              </div>
+            ))}
+          </div>
+          
+          {/* Speed tagline */}
+          <div 
+            className="mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-foreground to-accent text-primary-foreground opacity-0 animate-fade-in"
+            style={{ animationDelay: "0.25s" }}
+          >
+            <span className="text-sm">⚡</span>
+            <span className="font-semibold">2-3X</span>
+            <span className="text-sm">snabbare än manuellt</span>
+          </div>
+        </div>
+      </div>
       
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-12">
-        {/* Logo */}
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 bg-white">
+        {/* Mobile logo - only visible on smaller screens */}
         <img 
           src={bilgenLogo} 
           alt="BILGEN" 
-          className="mb-10 h-16 opacity-0 animate-fade-in cursor-pointer"
+          className="lg:hidden mb-10 h-16 opacity-0 animate-fade-in cursor-pointer"
           onClick={() => navigate("/")}
         />
         
-        {/* Auth Card */}
+        {/* Desktop logo */}
+        <img 
+          src={bilgenLogo} 
+          alt="BILGEN" 
+          className="hidden lg:block mb-10 h-14 opacity-0 animate-fade-in cursor-pointer"
+          onClick={() => navigate("/")}
+        />
+        
+        {/* Auth Form */}
         <div 
-          className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg opacity-0 animate-fade-in"
+          className="w-full max-w-sm opacity-0 animate-fade-in"
           style={{ animationDelay: "0.1s" }}
         >
           <div className="mb-8 text-center">
@@ -164,11 +231,11 @@ const Auth = () => {
             <p className="mt-2 text-sm text-muted-foreground">
               {isSignUp 
                 ? "Fyll i dina uppgifter för att komma igång" 
-                : "Välkommen tillbaka! Logga in för att fortsätta"}
+                : "Välkommen tillbaka!"}
             </p>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <>
                 <div className="space-y-2">
@@ -176,7 +243,7 @@ const Auth = () => {
                     Visningsnamn <span className="text-muted-foreground">(valfritt)</span>
                   </Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="displayName"
                       type="text"
@@ -197,7 +264,7 @@ const Auth = () => {
                     Företagsnamn <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="companyName"
                       type="text"
@@ -220,7 +287,7 @@ const Auth = () => {
                 E-postadress
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -241,7 +308,7 @@ const Auth = () => {
                 Lösenord
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
@@ -259,7 +326,7 @@ const Auth = () => {
             
             <Button
               type="submit"
-              className="w-full py-6 text-base font-semibold transition-all duration-300 hover:shadow-lg"
+              className="w-full py-6 text-base font-semibold transition-all duration-300 hover:shadow-lg mt-6"
               disabled={isLoading}
             >
               {isLoading ? (

@@ -50,7 +50,7 @@ const BilResearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
-  const [isFromTemplate, setIsFromTemplate] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -162,7 +162,7 @@ const BilResearch = () => {
 
   const handleTemplateSelect = (template: ResearchTemplate) => {
     setInput(template.prompt);
-    setIsFromTemplate(true);
+    setSelectedTemplateId(template.id);
   };
 
   const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
@@ -238,9 +238,20 @@ const BilResearch = () => {
                       {/* Front of card */}
                       <button
                         onClick={() => handleTemplateSelect(template)}
-                        className="absolute inset-0 backface-hidden group flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-white shadow-sm 
-                                   hover:shadow-lg hover:border-gray-300 transition-all duration-300"
+                        className={`absolute inset-0 backface-hidden group flex flex-col items-center justify-center p-6 rounded-xl border bg-white shadow-sm 
+                                   hover:shadow-lg transition-all duration-300 ${
+                                     selectedTemplateId === template.id 
+                                       ? "border-primary ring-2 ring-primary/20" 
+                                       : "border-gray-200 hover:border-gray-300"
+                                   }`}
                       >
+                        {/* Selected badge */}
+                        {selectedTemplateId === template.id && (
+                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                            <Pencil className="h-3 w-3" />
+                            Redigera fälten
+                          </div>
+                        )}
                         {/* Info button */}
                         <button
                           onClick={(e) => toggleCardFlip(template.id, e)}
@@ -323,20 +334,13 @@ const BilResearch = () => {
 
         {/* Input Area */}
         <div className={`${!hasMessages ? "max-w-3xl mx-auto w-full" : ""}`}>
-          {/* Template instruction banner */}
-          {isFromTemplate && (
-            <div className="flex items-center gap-2 px-4 py-2.5 mb-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm animate-fade-in">
-              <Pencil className="h-4 w-4 flex-shrink-0" />
-              <span>Fyll i de markerade fälten <span className="font-medium">[bilmärke och modell]</span> innan du skickar</span>
-            </div>
-          )}
           <div className="relative flex items-end rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
-                if (isFromTemplate) setIsFromTemplate(false);
+                if (selectedTemplateId) setSelectedTemplateId(null);
               }}
               onKeyDown={handleKeyPress}
               placeholder="Fråga vad som helst om bilar..."

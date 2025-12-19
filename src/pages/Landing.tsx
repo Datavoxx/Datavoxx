@@ -40,17 +40,20 @@ Rekommenderat service: var 2 000 mil`
     {
       icon: Zap,
       title: "Sälj bilar snabbare",
-      description: "Färdiga bilannonser på 10 sekunder. Slå in regnummer – få säljande text direkt."
+      description: "Färdiga bilannonser på 10 sekunder istället för 15 minuter. Slå in regnummer – få säljande text direkt.",
+      timeSaved: "Spara 15 min per annons"
     },
     {
       icon: Search,
       title: "Få svar direkt",
-      description: "Slipp googla. Fråga om vanliga problem, service och teknisk info för vilken bil som helst."
+      description: "Slipp 10 minuters googlande. Fråga om vanliga problem, service och teknisk info för vilken bil som helst.",
+      timeSaved: "Spara 10 min per fråga"
     },
     {
       icon: Mail,
       title: "Svara kunder professionellt",
-      description: "Generera mejlsvar automatiskt. Rätt ton, rätt innehåll – utan att skriva själv."
+      description: "Generera mejlsvar på 5 sekunder. Rätt ton, rätt innehåll – utan att skriva själv.",
+      timeSaved: "Spara 5 min per mejl"
     }
   ];
 
@@ -96,15 +99,15 @@ Rekommenderat service: var 2 000 mil`
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <CheckCircle className="h-4 w-4 text-green-600" />
-              Ingen installation
+              Ingen installation krävs
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle className="h-4 w-4 text-green-600" />
-              Gratis att testa
+              Fungerar direkt i webbläsaren
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-green-600" />
-              2-3× snabbare
+              Spara 30+ min per dag
             </span>
           </div>
         </div>
@@ -155,7 +158,7 @@ Rekommenderat service: var 2 000 mil`
             {benefits.map((benefit, index) => (
               <div
                 key={index}
-                className="text-center p-6"
+                className="text-center p-6 rounded-xl border border-border bg-card"
               >
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-foreground/5 mb-5">
                   <benefit.icon className="h-7 w-7 text-foreground" />
@@ -163,9 +166,12 @@ Rekommenderat service: var 2 000 mil`
                 <h3 className="text-xl font-semibold text-foreground mb-3">
                   {benefit.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed mb-4">
                   {benefit.description}
                 </p>
+                <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700">
+                  {benefit.timeSaved}
+                </span>
               </div>
             ))}
           </div>
@@ -195,27 +201,41 @@ Rekommenderat service: var 2 000 mil`
       {/* Trust & Simplicity Section */}
       <section className="relative px-6 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
-            Enkelt att komma igång
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Börja använda på 30 sekunder
           </h2>
+          <p className="text-lg text-muted-foreground mb-12">
+            Inga nedladdningar. Ingen teknisk kunskap krävs. Öppna och kör.
+          </p>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mb-10">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-12">
             {steps.map((step, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-foreground text-background mb-4">
-                  <step.icon className="h-7 w-7" />
+              <div key={index} className="flex flex-col items-center relative">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-foreground text-background mb-4 font-bold text-xl">
+                  {index + 1}
                 </div>
                 <span className="text-foreground font-medium">{step.text}</span>
                 {index < steps.length - 1 && (
-                  <ArrowRight className="hidden md:block absolute h-5 w-5 text-muted-foreground" style={{ marginLeft: '200px' }} />
+                  <ArrowRight className="hidden md:block absolute top-6 -right-10 h-5 w-5 text-muted-foreground" />
                 )}
               </div>
             ))}
           </div>
 
-          <p className="text-muted-foreground">
-            Ingen installation. Inga krångliga inställningar.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 justify-center text-muted-foreground">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span>Fungerar i alla webbläsare</span>
+            </div>
+            <div className="flex items-center gap-2 justify-center text-muted-foreground">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span>Ingen installation</span>
+            </div>
+            <div className="flex items-center gap-2 justify-center text-muted-foreground">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span>Ingen inlärningskurva</span>
+            </div>
+          </div>
         </div>
       </section>
 

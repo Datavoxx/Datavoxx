@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown } from "lucide-react";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
-
+import EmailInbox, { EmailMessage } from "@/components/EmailInbox";
+import EmailReplyPanel from "@/components/EmailReplyPanel";
 
 interface Message {
   role: "user" | "assistant";
@@ -45,10 +45,13 @@ const emailTemplates: EmailTemplate[] = [
   },
 ];
 
+type ViewMode = "templates" | "inbox";
+
 const EmailAssistent = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, isLoading: authLoading } = useAuth();
+  
+  // Template/chat mode state
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +60,126 @@ const EmailAssistent = () => {
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Inbox mode state
+  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
+  const [emails, setEmails] = useState<EmailMessage[]>([]);
+  const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [isGeneratingReply, setIsGeneratingReply] = useState(false);
+
+  // Fetch emails on mount
+  useEffect(() => {
+    if (viewMode === "inbox") {
+      fetchEmails();
+    }
+  }, [viewMode]);
+
+  const fetchEmails = async () => {
+    setIsLoadingEmails(true);
+    setEmailError(null);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-emails`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ limit: 30 }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kunde inte hämta mejl");
+      }
+
+      setEmails(data.emails || []);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      setEmailError(error instanceof Error ? error.message : "Kunde inte hämta mejl");
+    } finally {
+      setIsLoadingEmails(false);
+    }
+  };
+
+  const handleGenerateReply = async (directive: string): Promise<string> => {
+    if (!selectedEmail) throw new Error("Inget mejl valt");
+
+    setIsGeneratingReply(true);
+
+    try {
+      const requestBody: {
+        emailContext: {
+          from: string;
+          fromName: string;
+          subject: string;
+          body: string;
+        };
+        directive: string;
+        companyName?: string;
+        userName?: string;
+      } = {
+        emailContext: {
+          from: selectedEmail.from,
+          fromName: selectedEmail.fromName,
+          subject: selectedEmail.subject,
+          body: selectedEmail.body || selectedEmail.preview,
+        },
+        directive,
+      };
+
+      if (user && profile) {
+        if (profile.company_name) requestBody.companyName = profile.company_name;
+        if (profile.display_name) requestBody.userName = profile.display_name;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-assistant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kunde inte generera svar");
+      }
+
+      // Save conversation to database if user is logged in
+      if (user) {
+        try {
+          await supabase.from("email_conversations").insert({
+            user_id: user.id,
+            session_id: user.id,
+            user_name: profile?.display_name || user.email || "Anonym",
+            request: `Svar på mejl från ${selectedEmail.fromName}: ${directive}`,
+            response: data.content,
+            template_used: "inbox-reply",
+          });
+        } catch (saveError) {
+          console.error("Error saving email conversation:", saveError);
+        }
+      }
+
+      return data.content;
+    } catch (error) {
+      console.error("Error generating reply:", error);
+      toast({
+        title: "Fel",
+        description: error instanceof Error ? error.message : "Kunde inte generera svar",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsGeneratingReply(false);
+    }
+  };
 
   const toggleCardFlip = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,7 +216,6 @@ const EmailAssistent = () => {
     setIsLoading(true);
 
     try {
-      // Build request body - include user info only if logged in
       const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
         messages: newMessages,
       };
@@ -123,7 +245,6 @@ const EmailAssistent = () => {
       };
       setMessages([...newMessages, assistantMessage]);
 
-      // Save conversation to database only if user is logged in
       if (user) {
         try {
           await supabase.from("email_conversations").insert({
@@ -139,7 +260,6 @@ const EmailAssistent = () => {
         }
       }
 
-      // Reset template tracking after use
       setLastTemplateUsed(null);
     } catch (error) {
       console.error("Error:", error);
@@ -164,6 +284,7 @@ const EmailAssistent = () => {
   const clearChat = () => {
     setMessages([]);
     setInput("");
+    setSelectedEmail(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -185,6 +306,7 @@ const EmailAssistent = () => {
       { role: "assistant", content: item.preview.replace("...", "") },
     ]);
     setIsHistoryOpen(false);
+    setViewMode("templates");
   };
 
   return (
@@ -193,6 +315,30 @@ const EmailAssistent = () => {
       
       {/* Header */}
       <AppHeader showBackButton={true} showClearButton={true} onClearClick={clearChat} />
+
+      {/* View Mode Toggle */}
+      <div className="relative z-10 max-w-6xl mx-auto w-full px-4 pt-4">
+        <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm rounded-lg p-1 w-fit border border-gray-200">
+          <Button
+            variant={viewMode === "inbox" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("inbox")}
+            className="gap-2"
+          >
+            <Inbox className="h-4 w-4" />
+            Inkorg
+          </Button>
+          <Button
+            variant={viewMode === "templates" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("templates")}
+            className="gap-2"
+          >
+            <Mail className="h-4 w-4" />
+            Mallar
+          </Button>
+        </div>
+      </div>
 
       {/* History Button - only for logged in users */}
       {user && (
@@ -216,160 +362,199 @@ const EmailAssistent = () => {
         />
       )}
 
-      {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center pt-16 text-center">
-            <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
-              <Mail className="h-10 w-10 text-gray-700" />
-              <h2 className="text-4xl font-bold tracking-tight text-foreground">Email Assistent</h2>
-            </div>
-            <p
-              className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in"
-              style={{ animationDelay: "50ms" }}
-            >
-              Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
-            </p>
+      {/* Main Content */}
+      {viewMode === "inbox" ? (
+        <main className="flex-1 overflow-hidden p-4 max-w-6xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
+            {/* Inbox Panel */}
+            <EmailInbox
+              emails={emails}
+              selectedEmail={selectedEmail}
+              onSelectEmail={setSelectedEmail}
+              onRefresh={fetchEmails}
+              isLoading={isLoadingEmails}
+              error={emailError}
+            />
 
-            {/* Template Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
-              {emailTemplates.map((template, index) => {
-                const isFlipped = flippedCards.has(template.id);
-                return (
-                  <div
-                    key={template.id}
-                    className="perspective-1000 h-[200px] opacity-0 animate-fade-in"
-                    style={{ animationDelay: `${100 + index * 50}ms` }}
-                  >
-                    <div
-                      className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
-                        isFlipped ? "rotate-y-180" : ""
-                      }`}
-                    >
-                      {/* Front of card */}
-                      <button
-                        onClick={() => handleTemplateSelect(template)}
-                        className={`absolute inset-0 backface-hidden group flex flex-col items-center justify-center p-6 rounded-xl border bg-white shadow-sm 
-                                   hover:shadow-lg transition-all duration-300 ${
-                                     selectedTemplateId === template.id 
-                                       ? "border-primary ring-2 ring-primary/20" 
-                                       : "border-gray-200 hover:border-gray-300"
-                                   }`}
-                      >
-                        {/* Selected badge */}
-                        {selectedTemplateId === template.id && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium animate-pulse">
-                            <Pencil className="h-3 w-3" />
-                            Redigera fälten
-                            <ArrowDown className="h-3 w-3" />
-                          </div>
-                        )}
-                        {/* Info button */}
-                        <button
-                          onClick={(e) => toggleCardFlip(template.id, e)}
-                          className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                        >
-                          <Info className="h-4 w-4 text-gray-500" />
-                        </button>
-                        <div className="p-4 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300 mb-4">
-                          {template.icon}
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-1">{template.title}</h3>
-                        <p className="text-sm text-gray-500 text-center">{template.description}</p>
-                      </button>
-
-                      {/* Back of card */}
-                      <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-gray-50 shadow-sm">
-                        {/* Close button */}
-                        <button
-                          onClick={(e) => toggleCardFlip(template.id, e)}
-                          className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
-                        >
-                          <X className="h-4 w-4 text-gray-600" />
-                        </button>
-                        <h3 className="text-lg font-semibold text-foreground mb-3">{template.title}</h3>
-                        <p className="text-sm text-gray-600 text-center leading-relaxed">
-                          {template.expandedDescription}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Microcopy guide */}
-            <p className="text-sm text-gray-400 mt-10 text-center">
-              Du kan också beskriva fritt vad du behöver i fältet nedan
-            </p>
+            {/* Reply Panel */}
+            {selectedEmail ? (
+              <EmailReplyPanel
+                email={selectedEmail}
+                onBack={() => setSelectedEmail(null)}
+                onGenerateReply={handleGenerateReply}
+                isGenerating={isGeneratingReply}
+                companyName={profile?.company_name || undefined}
+                userName={profile?.display_name || undefined}
+              />
+            ) : (
+              <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
+                <Reply className="h-12 w-12 text-gray-300 mb-4" />
+                <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
+                <p className="text-sm text-gray-400 text-center">
+                  Klicka på ett mejl i inkorgen för att generera ett svar
+                </p>
+              </div>
+            )}
           </div>
-        ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
-            >
-              <div
-                className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-white text-foreground border border-gray-100"
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-                {message.role === "assistant" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(message.content)}
-                    className="mt-2 h-8 px-2 hover:bg-gray-100"
+        </main>
+      ) : (
+        <>
+          {/* Template/Chat View */}
+          <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center pt-16 text-center">
+                <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
+                  <Mail className="h-10 w-10 text-gray-700" />
+                  <h2 className="text-4xl font-bold tracking-tight text-foreground">Email Assistent</h2>
+                </div>
+                <p
+                  className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in"
+                  style={{ animationDelay: "50ms" }}
+                >
+                  Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
+                </p>
+
+                {/* Template Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
+                  {emailTemplates.map((template, index) => {
+                    const isFlipped = flippedCards.has(template.id);
+                    return (
+                      <div
+                        key={template.id}
+                        className="perspective-1000 h-[200px] opacity-0 animate-fade-in"
+                        style={{ animationDelay: `${100 + index * 50}ms` }}
+                      >
+                        <div
+                          className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${
+                            isFlipped ? "rotate-y-180" : ""
+                          }`}
+                        >
+                          {/* Front of card */}
+                          <button
+                            onClick={() => handleTemplateSelect(template)}
+                            className={`absolute inset-0 backface-hidden group flex flex-col items-center justify-center p-6 rounded-xl border bg-white shadow-sm 
+                                       hover:shadow-lg transition-all duration-300 ${
+                                         selectedTemplateId === template.id 
+                                           ? "border-primary ring-2 ring-primary/20" 
+                                           : "border-gray-200 hover:border-gray-300"
+                                       }`}
+                          >
+                            {/* Selected badge */}
+                            {selectedTemplateId === template.id && (
+                              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium animate-pulse">
+                                <Pencil className="h-3 w-3" />
+                                Redigera fälten
+                                <ArrowDown className="h-3 w-3" />
+                              </div>
+                            )}
+                            {/* Info button */}
+                            <button
+                              onClick={(e) => toggleCardFlip(template.id, e)}
+                              className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                            >
+                              <Info className="h-4 w-4 text-gray-500" />
+                            </button>
+                            <div className="p-4 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300 mb-4">
+                              {template.icon}
+                            </div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">{template.title}</h3>
+                            <p className="text-sm text-gray-500 text-center">{template.description}</p>
+                          </button>
+
+                          {/* Back of card */}
+                          <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 bg-gray-50 shadow-sm">
+                            {/* Close button */}
+                            <button
+                              onClick={(e) => toggleCardFlip(template.id, e)}
+                              className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                            >
+                              <X className="h-4 w-4 text-gray-600" />
+                            </button>
+                            <h3 className="text-lg font-semibold text-foreground mb-3">{template.title}</h3>
+                            <p className="text-sm text-gray-600 text-center leading-relaxed">
+                              {template.expandedDescription}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Microcopy guide */}
+                <p className="text-sm text-gray-400 mt-10 text-center">
+                  Du kan också beskriva fritt vad du behöver i fältet nedan
+                </p>
+              </div>
+            ) : (
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-white text-foreground border border-gray-100"
+                    }`}
                   >
-                    <Copy className="h-4 w-4 mr-1" />
-                    Kopiera
-                  </Button>
-                )}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.role === "assistant" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(message.content)}
+                        className="mt-2 h-8 px-2 hover:bg-gray-100"
+                      >
+                        <Copy className="h-4 w-4 mr-1" />
+                        Kopiera
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+            {isLoading && (
+              <div className="flex justify-start animate-fade-in">
+                <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
+                  <p className="text-gray-500">Skriver e-post...</p>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Input Area for Template Mode */}
+          <footer className="p-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="relative flex items-end rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    if (selectedTemplateId) setSelectedTemplateId(null);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Beskriv vad du behöver hjälp med..."
+                  className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 
+                             focus:outline-none transition-all text-base overflow-hidden resize-none"
+                  disabled={isLoading}
+                  rows={1}
+                />
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!input.trim() || isLoading}
+                  size="icon"
+                  className="absolute right-2 bottom-2 rounded-xl h-10 w-10 hover:shadow-lg transition-all duration-300"
+                >
+                  <Send className="h-5 w-5" />
+                </Button>
               </div>
             </div>
-          ))
-        )}
-        {isLoading && (
-          <div className="flex justify-start animate-fade-in">
-            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
-              <p className="text-gray-500">Skriver e-post...</p>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Input Area */}
-      <footer className="p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative flex items-end rounded-2xl border border-gray-200 bg-white/50 focus-within:border-gray-400 transition-all">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                if (selectedTemplateId) setSelectedTemplateId(null);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Beskriv vad du behöver hjälp med..."
-              className="min-h-[48px] max-h-[200px] flex-1 px-4 py-3 pr-14 bg-transparent border-none 
-                         focus:outline-none transition-all text-base overflow-hidden resize-none"
-              disabled={isLoading}
-              rows={1}
-            />
-          <Button
-            onClick={handleSubmit}
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className="absolute right-2 bottom-2 rounded-xl h-10 w-10 hover:shadow-lg transition-all duration-300"
-          >
-            <Send className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </footer>
+          </footer>
+        </>
+      )}
     </div>
   );
 };

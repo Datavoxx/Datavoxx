@@ -13,6 +13,13 @@ interface Message {
   content: string;
 }
 
+interface EmailContext {
+  from: string;
+  fromName: string;
+  subject: string;
+  body: string;
+}
+
 // Generic system prompt for anonymous users
 const genericSystemPrompt = `SYSTEMPROMPT (optimerad):
 
@@ -33,7 +40,7 @@ Skriv endast själva mejlet, inga förklaringar.
 
 Använd endast information som finns i input. Inga antaganden.
 
-Omsätt formuleringar som börjar med “skriv att …” till färdig text i mejlet.
+Omsätt formuleringar som börjar med "skriv att …" till färdig text i mejlet.
 
 Mejlen ska vara korta, raka och utan extra detaljer.
 
@@ -43,7 +50,7 @@ Om input saknar information: skriv kort att uppgiften inte är känd ännu.
 
 Skriv aldrig längre än nödvändigt och lägg aldrig till något oönskat innehåll.
 
-Returnera endast det färdiga mejlet.;
+Returnera endast det färdiga mejlet.`;
 
 // Personalized system prompt for logged-in users
 const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
@@ -100,26 +107,76 @@ Med vänlig hälsning
 ${userName} på ${companyName}`;
 };
 
+// Context-aware prompt for replying to emails
+const buildReplyPrompt = (emailContext: EmailContext, companyName?: string, userName?: string): string => {
+  const signature = companyName && userName 
+    ? `\n\nMed vänlig hälsning\n${userName} på ${companyName}` 
+    : "";
+  
+  return `📌 ROLL
+
+Du är en professionell e-postassistent för bilhandlare i Sverige. Du hjälper till att skriva korta, tydliga och professionella svar på inkommande mejl.
+
+📌 INKOMMANDE MEJL SOM SKA BESVARAS
+
+Från: ${emailContext.fromName} <${emailContext.from}>
+Ämne: ${emailContext.subject}
+
+Innehåll:
+${emailContext.body}
+
+📌 DITT UPPDRAG
+
+Användaren kommer ge ett kort direktiv om vad svaret ska innehålla. Baserat på kontexten ovan och direktivet, skriv ett professionellt svar på svenska.
+
+📌 REGLER
+
+- Skriv alltid på svenska
+- Skriv endast själva mejlet, inga förklaringar eller rubriker
+- Håll det kort och professionellt (50-90 ord)
+- Anpassa tonen till bilbranschen
+- Svara på kundens frågor om sådana finns
+- Var hjälpsam och serviceinriktad
+- Avsluta med en tydlig CTA om lämpligt${signature}`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, companyName, userName } = (await req.json()) as {
-      messages: Message[];
+    const { messages, companyName, userName, emailContext, directive } = (await req.json()) as {
+      messages?: Message[];
       companyName?: string;
       userName?: string;
+      emailContext?: EmailContext;
+      directive?: string;
     };
 
     if (!lovableApiKey) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Build system prompt based on whether user info is provided
-    const systemPrompt = companyName && userName ? buildPersonalizedPrompt(companyName, userName) : genericSystemPrompt;
+    let systemPrompt: string;
+    let chatMessages: { role: string; content: string }[];
 
-    console.log("Calling Lovable AI for email generation", companyName ? `for ${companyName}` : "(anonymous)");
+    // Check if this is a reply-to-email request
+    if (emailContext && directive) {
+      systemPrompt = buildReplyPrompt(emailContext, companyName, userName);
+      chatMessages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Direktiv: ${directive}` }
+      ];
+      console.log("Generating email reply", companyName ? `for ${companyName}` : "(anonymous)");
+    } else if (messages) {
+      // Regular template/freeform mode
+      systemPrompt = companyName && userName ? buildPersonalizedPrompt(companyName, userName) : genericSystemPrompt;
+      chatMessages = [{ role: "system", content: systemPrompt }, ...messages];
+      console.log("Calling Lovable AI for email generation", companyName ? `for ${companyName}` : "(anonymous)");
+    } else {
+      throw new Error("Missing required parameters: messages or (emailContext + directive)");
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -128,8 +185,8 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5-mini",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        model: "google/gemini-2.5-flash",
+        messages: chatMessages,
       }),
     });
 

@@ -231,37 +231,160 @@ Med vänliga hälsningar`
         </div>
       </section>
 
-      {/* Final CTA Section */}
+      {/* Final CTA Section - Premium */}
       <section className="relative px-6 py-24 md:py-32">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden">
-            {/* Gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent opacity-95" />
+            {/* Gradient background with more depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-[hsl(280,75%,50%)] to-accent" />
             
             {/* Content */}
-            <div className="relative text-center px-8 py-16 md:px-16 md:py-20">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+            <div className="relative text-center px-8 py-16 md:px-16 md:py-24">
+              <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">
                 Redo att spara tid?
               </h2>
-              <p className="text-lg text-primary-foreground/80 mb-10">
-                Testa Bilgen gratis och se skillnaden direkt
+              <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-xl mx-auto">
+                Sluta skriva annonser manuellt. Testa Bilgen gratis och se skillnaden på 30 sekunder.
               </p>
               
-              <button
-                onClick={() => navigate("/start")}
-                className="group inline-flex items-center gap-2 px-10 py-4 rounded-full bg-background text-foreground font-semibold text-lg shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
-              >
-                Kom igång nu – det är gratis
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </button>
+              {/* Two CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button
+                  onClick={() => navigate("/start")}
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-background text-foreground font-semibold text-lg shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  Kom igång gratis
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </button>
+                <button
+                  onClick={() => navigate("/start")}
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-transparent border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-lg transition-all duration-300 hover:bg-primary-foreground/10 hover:border-primary-foreground/50 cursor-pointer"
+                >
+                  <Mail className="h-5 w-5" />
+                  Boka demo
+                </button>
+              </div>
               
-              <p className="mt-6 text-sm text-primary-foreground/60">
-                Inget kreditkort krävs
-              </p>
+              {/* Trust indicators */}
+              <div className="flex flex-wrap justify-center gap-6 text-sm text-primary-foreground/70">
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Inget kreditkort
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Svensk support
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Redo på minuter
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Professional SaaS Footer */}
+      <footer className="relative bg-neutral-900 border-t border-neutral-800">
+        {/* Main Footer Content */}
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
+            
+            {/* Brand column */}
+            <div className="col-span-2 md:col-span-1">
+              <img src={bilgenLogo} alt="BILGEN" className="h-8 mb-4 brightness-0 invert" />
+              <p className="text-neutral-400 text-sm leading-relaxed">
+                AI-verktyg för svenska bilhandlare. Spara tid på administration, fokusera på försäljning.
+              </p>
+            </div>
+            
+            {/* Produkt */}
+            <div>
+              <h4 className="font-semibold text-neutral-200 mb-4 text-sm uppercase tracking-wider">Produkt</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Bilannonsgenerator</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Email-assistent</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Bil Research</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors inline-flex items-center gap-2">
+                    CRM
+                    <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">Kommer snart</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Resurser */}
+            <div>
+              <h4 className="font-semibold text-neutral-200 mb-4 text-sm uppercase tracking-wider">Resurser</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Support</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">FAQ</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Guider</a>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Företag */}
+            <div>
+              <h4 className="font-semibold text-neutral-200 mb-4 text-sm uppercase tracking-wider">Företag</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Om oss</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Kontakt</a>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Juridik */}
+            <div>
+              <h4 className="font-semibold text-neutral-200 mb-4 text-sm uppercase tracking-wider">Juridik</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Integritetspolicy</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Villkor</a>
+                </li>
+                <li>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Cookies</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom bar */}
+        <div className="border-t border-neutral-800">
+          <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-neutral-500">
+              © 2025 Bilgen. Alla rättigheter förbehållna.
+            </p>
+            <div className="flex items-center gap-6 text-sm text-neutral-500">
+              <a href="#" className="hover:text-neutral-300 transition-colors">Integritetspolicy</a>
+              <a href="#" className="hover:text-neutral-300 transition-colors">Villkor</a>
+              <span className="flex items-center gap-2">
+                🇸🇪 Sverige
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

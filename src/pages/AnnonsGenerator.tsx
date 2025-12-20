@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Sparkles, Wrench, History, CreditCard, Focus, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Car, Check, Sparkles, History, CreditCard, Focus, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,32 +216,17 @@ const FOCUS_COLORS = {
   },
 };
 
-const EQUIPMENT_OPTIONS = [
-  "Dragkrok",
-  "Navigation",
-  "Läder",
-  "Vinterhjul",
-  "Backkamera",
-  "PDC",
-  "Adaptiv farthållare",
-  "Panoramatak",
-  "El-stolar",
-  "Apple CarPlay",
-  "Android Auto",
-];
-
 const STEPS = [
   { num: 1, label: "Bilinfo", icon: Car },
-  { num: 2, label: "Utrustning", icon: Wrench },
-  { num: 3, label: "Finansiering", icon: CreditCard },
-  { num: 4, label: "Fokus", icon: Focus },
+  { num: 2, label: "Finansiering", icon: CreditCard },
+  { num: 3, label: "Fokus", icon: Focus },
 ];
 
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
   const [selectedFocus, setSelectedFocus] = useState<FocusType>("mixed");
   const [systemPrompt, setSystemPrompt] = useState(FOCUS_OPTIONS[2].prompt);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -289,21 +274,6 @@ const AnnonsGenerator = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleEquipmentChipClick = (item: string) => {
-    const currentEquipment = formData.equipment;
-    if (currentEquipment.includes(item)) {
-      const newEquipment = currentEquipment
-        .split(", ")
-        .filter((e) => e !== item)
-        .join(", ");
-      handleInputChange("equipment", newEquipment);
-    } else {
-      const newEquipment = currentEquipment
-        ? `${currentEquipment}, ${item}`
-        : item;
-      handleInputChange("equipment", newEquipment);
-    }
-  };
 
   // Format registration number as user types (ABC 123 or ABC 12D)
   const formatRegNumber = (value: string): string => {
@@ -366,6 +336,11 @@ const AnnonsGenerator = () => {
           title: "Bilinfo hämtad!",
           description: `${data.carData.description} ${data.carData.year}`,
         });
+        
+        // Auto-slide till Finansiering efter kort fördröjning
+        setTimeout(() => {
+          setCurrentStep(2);
+        }, 800);
       }
     } catch (error) {
       console.error("Car lookup error:", error);
@@ -690,89 +665,8 @@ const AnnonsGenerator = () => {
             </div>
           )}
 
-          {/* Step 2: Equipment & Condition */}
+          {/* Step 2: Financing & Insurance */}
           {currentStep === 2 && (
-            <div className="animate-fade-in">
-              <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-                <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-                  <Wrench className="h-6 w-6 text-foreground" />
-                  Utrustning & Skick
-                </h2>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Du kan hoppa över detta om du vill – vi fyller ändå i en bra grundtext
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="space-y-3">
-                    <Label htmlFor="equipment" className="text-sm text-muted-foreground">
-                      Utrustning <span className="text-muted-foreground/60">(valfritt)</span>
-                    </Label>
-                    
-                    {/* Equipment Chips */}
-                    <div className="flex flex-wrap gap-2">
-                      {EQUIPMENT_OPTIONS.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => handleEquipmentChipClick(item)}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                            formData.equipment.includes(item)
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-border bg-background hover:border-foreground/50 text-foreground"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                    
-                    <Textarea
-                      id="equipment"
-                      placeholder="Lägg till ytterligare utrustning..."
-                      value={formData.equipment}
-                      onChange={(e) => handleInputChange("equipment", e.target.value)}
-                      className="min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="condition" className="text-sm text-muted-foreground">
-                      Skick <span className="text-muted-foreground/60">(valfritt)</span>
-                    </Label>
-                    <Textarea
-                      id="condition"
-                      placeholder="Beskriv bilens skick..."
-                      value={formData.condition}
-                      onChange={(e) => handleInputChange("condition", e.target.value)}
-                      className="min-h-[100px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <div className="flex justify-between mt-6 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="py-6 px-8 text-lg font-semibold rounded-xl transition-all duration-300"
-                >
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Tillbaka
-                </Button>
-                <Button
-                  onClick={handleNext}
-                  className="flex-1 max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
-                >
-                  Nästa
-                  <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Financing & Insurance */}
-          {currentStep === 3 && (
             <div className="animate-fade-in">
               <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
                 <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
@@ -872,8 +766,8 @@ const AnnonsGenerator = () => {
             </div>
           )}
 
-          {/* Step 4: Focus Selection with Visual Preview */}
-          {currentStep === 4 && (
+          {/* Step 3: Focus Selection with Visual Preview */}
+          {currentStep === 3 && (
             <div className="animate-fade-in">
               <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
                 <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">

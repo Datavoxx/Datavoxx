@@ -39,14 +39,21 @@ const TerminalDemo = () => {
         setCurrentStep((prev) => prev + 1);
       }, delay);
       return () => clearTimeout(timer);
-    } else {
+    } else if (!showReveal) {
       // Show reveal after all steps complete
       const revealTimer = setTimeout(() => {
         setShowReveal(true);
       }, 400);
       return () => clearTimeout(revealTimer);
+    } else {
+      // Reset and loop after showing reveal for a while
+      const resetTimer = setTimeout(() => {
+        setShowReveal(false);
+        setCurrentStep(0);
+      }, 2500);
+      return () => clearTimeout(resetTimer);
     }
-  }, [currentStep, steps.length]);
+  }, [currentStep, steps.length, showReveal]);
 
   const progressPercentage = (currentStep / steps.length) * 100;
 

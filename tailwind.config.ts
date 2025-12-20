@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        'brush': ['Pacifico', 'cursive'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'mono': ['JetBrains Mono', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -66,6 +67,11 @@ export default {
           border: "hsl(var(--level-card-border))",
           glow: "hsl(var(--level-card-glow))",
         },
+        gradient: {
+          start: "hsl(var(--gradient-start))",
+          mid: "hsl(var(--gradient-mid))",
+          end: "hsl(var(--gradient-end))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -97,6 +103,18 @@ export default {
           "0%, 100%": { transform: "rotate(-3deg) translateY(0)" },
           "50%": { transform: "rotate(3deg) translateY(-4px)" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-20px) rotate(3deg)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "slide-up": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +123,9 @@ export default {
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
         "fade-in": "fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "wiggle": "wiggle 1.5s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "shimmer": "shimmer 2s linear infinite",
+        "slide-up": "slide-up 0.5s ease-out forwards",
       },
     },
   },

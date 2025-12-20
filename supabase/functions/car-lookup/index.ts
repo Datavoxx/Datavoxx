@@ -7,8 +7,7 @@ const corsHeaders = {
 };
 
 interface CarData {
-  brand: string;
-  model: string;
+  description: string;
   year: string;
   fuelType?: string;
   transmission?: string;
@@ -36,21 +35,19 @@ const parseXmlResponse = (xmlText: string): CarData | null => {
       return '';
     };
 
-    const brand = getNestedValue('CarMake') || getValue('MakeDescription');
-    const model = getNestedValue('CarModel') || getValue('ModelDescription');
+    const description = getValue('Description');
     const year = getValue('RegistrationYear') || getValue('ModelYear') || '';
     const fuelType = getNestedValue('FuelType') || getValue('FuelDescription') || '';
     const transmission = getNestedValue('Transmission') || '';
     const color = getNestedValue('Colour') || getValue('ColourDescription') || '';
 
-    if (!brand && !model) {
+    if (!description) {
       console.log("No car data found in XML response");
       return null;
     }
 
     return {
-      brand,
-      model,
+      description,
       year,
       fuelType,
       transmission,

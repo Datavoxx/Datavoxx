@@ -14,8 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   registrationNumber: string;
-  brand: string;
-  model: string;
+  car: string;
   year: string;
   mileage: string;
   price: string;
@@ -71,7 +70,7 @@ SIST: Garanti, kontaktinfo och välkomnande avslutning
 
 <available_variables>
 Använd dessa variabler när de har värden:
-- Märke, Modell (alltid)
+- Bilen (alltid)
 - Årsmodell, Miltal, Pris (om angivna)
 - Utrustning, Skick (om angivna)
 - Ränta, Kampanj, Försäkringserbjudande, Finansieringsinfo, Garanti (om angivna)
@@ -123,7 +122,7 @@ SIST: Garanti, kontaktinfo och välkomnande avslutning
 
 <available_variables>
 Använd dessa variabler när de har värden:
-- Märke, Modell (alltid)
+- Bilen (alltid)
 - Årsmodell, Miltal, Pris (om angivna)
 - Utrustning, Skick (om angivna)
 - Ränta, Kampanj, Försäkringserbjudande, Finansieringsinfo, Garanti (om angivna)
@@ -174,7 +173,7 @@ SIST: Garanti, kontaktinfo och välkomnande avslutning
 
 <available_variables>
 Använd dessa variabler när de har värden:
-- Märke, Modell (alltid)
+- Bilen (alltid)
 - Årsmodell, Miltal, Pris (om angivna)
 - Utrustning, Skick (om angivna)
 - Ränta, Kampanj, Försäkringserbjudande, Finansieringsinfo, Garanti (om angivna)
@@ -250,8 +249,7 @@ const AnnonsGenerator = () => {
   const [carLookupSuccess, setCarLookupSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     registrationNumber: "",
-    brand: "",
-    model: "",
+    car: "",
     year: "",
     mileage: "",
     price: "",
@@ -360,14 +358,13 @@ const AnnonsGenerator = () => {
       if (data.carData) {
         setFormData(prev => ({
           ...prev,
-          brand: data.carData.brand || prev.brand,
-          model: data.carData.model || prev.model,
+          car: data.carData.description || prev.car,
           year: data.carData.year || prev.year,
         }));
         setCarLookupSuccess(true);
         toast({
           title: "Bilinfo hämtad!",
-          description: `${data.carData.brand} ${data.carData.model} ${data.carData.year}`,
+          description: `${data.carData.description} ${data.carData.year}`,
         });
       }
     } catch (error) {
@@ -383,10 +380,10 @@ const AnnonsGenerator = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 1 && (!formData.brand.trim() || !formData.model.trim())) {
+    if (currentStep === 1 && !formData.car.trim()) {
       toast({
         title: "Fyll i obligatoriska fält",
-        description: "Hämta bilinfo med registreringsnummer eller ange märke och modell manuellt",
+        description: "Hämta bilinfo med registreringsnummer eller ange bilen manuellt",
         variant: "destructive",
       });
       return;
@@ -635,11 +632,11 @@ const AnnonsGenerator = () => {
                   </div>
 
                   {/* Car info display after successful lookup */}
-                  {carLookupSuccess && formData.brand && (
+                  {carLookupSuccess && formData.car && (
                     <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800">
                       <Check className="h-5 w-5 text-green-600" />
                       <span className="font-medium">
-                        {formData.brand} {formData.model} {formData.year && `(${formData.year})`}
+                        {formData.car} {formData.year && `(${formData.year})`}
                       </span>
                     </div>
                   )}
@@ -649,29 +646,16 @@ const AnnonsGenerator = () => {
                     <p className="text-xs text-muted-foreground mb-3">
                       Eller ange manuellt:
                     </p>
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="brand" className="text-sm text-muted-foreground">
-                          Märke <span className="text-red-500">*</span>
+                        <Label htmlFor="car" className="text-sm text-muted-foreground">
+                          Bilen <span className="text-red-500">*</span>
                         </Label>
                         <Input
-                          id="brand"
-                          placeholder="t.ex. Volvo"
-                          value={formData.brand}
-                          onChange={(e) => handleInputChange("brand", e.target.value)}
-                          className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="model" className="text-sm text-muted-foreground">
-                          Modell <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                          id="model"
-                          placeholder="t.ex. XC60"
-                          value={formData.model}
-                          onChange={(e) => handleInputChange("model", e.target.value)}
+                          id="car"
+                          placeholder="t.ex. Volvo XC60"
+                          value={formData.car}
+                          onChange={(e) => handleInputChange("car", e.target.value)}
                           className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                         />
                       </div>

@@ -9,8 +9,7 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 
 interface FormData {
-  brand: string;
-  model: string;
+  car: string;
   year: string;
   mileage: string;
   price: string;
@@ -90,8 +89,8 @@ const AnnonsResultat = () => {
             user_id: user.id,
             session_id: user.id,
             user_name: profile?.display_name || user.email || 'Anonym',
-            brand: state.formData.brand,
-            model: state.formData.model,
+            brand: state.formData.car.split(' ')[0] || '',
+            model: state.formData.car.split(' ').slice(1).join(' ') || '',
             year: state.formData.year || null,
             mileage: state.formData.mileage || null,
             price: state.formData.price || null,
@@ -182,7 +181,7 @@ const AnnonsResultat = () => {
         <div className="mb-10 text-center opacity-0 animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground mb-2">Din Genererade Annons</h1>
           <p className="text-muted-foreground">
-            {state.formData.brand} {state.formData.model} {state.formData.year && `(${state.formData.year})`}
+            {state.formData.car} {state.formData.year && `(${state.formData.year})`}
           </p>
         </div>
 

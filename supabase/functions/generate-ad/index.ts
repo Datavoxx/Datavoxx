@@ -9,8 +9,7 @@ const corsHeaders = {
 };
 
 interface FormData {
-  brand: string;
-  model: string;
+  car: string;
   year: string;
   mileage: string;
   price: string;
@@ -52,7 +51,7 @@ serve(async (req) => {
   try {
     const { formData, systemPrompt, companyName, userName } = (await req.json()) as RequestBody;
 
-    console.log("Generating ad for:", formData.brand, formData.model, companyName ? `(${companyName})` : "(anonymous)");
+    console.log("Generating ad for:", formData.car, companyName ? `(${companyName})` : "(anonymous)");
 
     if (!lovableApiKey) {
       console.error("LOVABLE_API_KEY is not configured");
@@ -68,8 +67,7 @@ serve(async (req) => {
     // Build the user prompt with car information including financing
     const userPrompt = `Skapa en bilannons för följande bil:
 
-Märke: ${formData.brand}
-Modell: ${formData.model}
+Bilen: ${formData.car}
 ${formData.year ? `Årsmodell: ${formData.year}` : ""}
 ${formData.mileage ? `Miltal: ${formData.mileage} mil` : ""}
 ${formData.price ? `Pris: ${formData.price} kr` : ""}

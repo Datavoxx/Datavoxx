@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import TerminalDemo from "@/components/TerminalDemo";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Users, Settings } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -9,30 +10,31 @@ const Landing = () => {
   const outputExamples = [
     {
       title: "Bilannons",
-      label: "Genererad på 10 sek",
+      label: "10 sek",
+      icon: "📝",
       content: `VOLVO XC60 D4 AWD 2019
-Välskött familjebil med dragkrok och panoramatak. Servad hos märkesverkstad. Ägare: 2. Ny kamrem vid 16 000 mil. Vinterdäck ingår.
+Välskött familjebil med dragkrok och panoramatak. Servad hos märkesverkstad.
 
 Pris: 289 000 kr`
     },
     {
       title: "Kundmejl",
-      label: "Professionellt svar",
+      label: "5 sek",
+      icon: "✉️",
       content: `Hej Anders,
 
-Tack för ditt intresse för BMW X5:an! Bilen finns tillgänglig för visning. Passar det på torsdag kl 14 eller fredag förmiddag?
+Tack för ditt intresse för BMW X5:an! Bilen finns tillgänglig för visning.
 
 Med vänliga hälsningar`
     },
     {
       title: "Bil Research",
-      label: "Expertkunskap direkt",
-      content: `Vanliga problem Volvo XC60 D4:
+      label: "Direkt",
+      icon: "🔍",
+      content: `Vanliga problem XC60 D4:
 • Injektorproblem vid 15 000+ mil
 • Stötdämpare bak slits snabbt
-• Kontrollera AdBlue-system
-
-Rekommenderat service: var 2 000 mil`
+• Kontrollera AdBlue-system`
     }
   ];
 
@@ -40,104 +42,123 @@ Rekommenderat service: var 2 000 mil`
     {
       icon: Zap,
       title: "Sälj bilar snabbare",
-      description: "Färdiga bilannonser på 10 sekunder istället för 15 minuter. Slå in regnummer – få säljande text direkt.",
-      timeSaved: "Spara 15 min per annons"
+      description: "Färdiga bilannonser på 10 sekunder istället för 15 minuter.",
+      timeSaved: "15 min/annons"
     },
     {
       icon: Search,
       title: "Få svar direkt",
-      description: "Slipp 10 minuters googlande. Fråga om vanliga problem, service och teknisk info för vilken bil som helst.",
-      timeSaved: "Spara 10 min per fråga"
+      description: "Slipp googla. Fråga om problem, service och teknisk info.",
+      timeSaved: "10 min/fråga"
     },
     {
       icon: Mail,
-      title: "Svara kunder professionellt",
-      description: "Generera mejlsvar på 5 sekunder. Rätt ton, rätt innehåll – utan att skriva själv.",
-      timeSaved: "Spara 5 min per mejl"
+      title: "Svara professionellt",
+      description: "Generera mejlsvar på sekunder. Rätt ton, rätt innehåll.",
+      timeSaved: "5 min/mejl"
     }
   ];
 
-  const targetAudience = [
-    "Små och medelstora bilhandlare",
-    "Handlare med många kundförfrågningar",
-    "Företag som vill jobba smartare utan att anställa"
-  ];
-
-  const steps = [
-    { icon: Users, text: "Skapa konto på 30 sekunder" },
-    { icon: Settings, text: "Välj verktyg" },
-    { icon: Zap, text: "Få resultat direkt" }
-  ];
-
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
       <DecorativeBackground />
 
       {/* Hero Section */}
-      <section className="relative px-6 pt-16 pb-20 md:pt-24 md:pb-28">
-        <div className="max-w-4xl mx-auto text-center">
-          <img 
-            src={bilgenLogo} 
-            alt="BILGEN" 
-            className="h-20 md:h-24 mx-auto mb-8"
-          />
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-tight">
-            Slipp skriva bilannonser, mejl och googla bilproblem
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Bilgen skapar färdiga texter på sekunder – anpassat för svenska bilhandlare
-          </p>
-          
-          <button
-            onClick={() => navigate("/start")}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-foreground text-background font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer mb-6"
-          >
-            Skapa din första bilannons
-            <ArrowRight className="h-5 w-5" />
-          </button>
+      <section className="relative px-6 pt-20 pb-24 md:pt-28 md:pb-32">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            {/* Logo */}
+            <div className="inline-flex items-center gap-2 mb-8">
+              <img 
+                src={bilgenLogo} 
+                alt="BILGEN" 
+                className="h-12 md:h-14"
+              />
+            </div>
 
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              Ingen installation krävs
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              Fungerar direkt i webbläsaren
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-green-600" />
-              Spara 30+ min per dag
-            </span>
+            {/* Headline with gradient */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+              <span className="text-foreground">Slipp skriva </span>
+              <span className="gradient-text">bilannonser</span>
+              <span className="text-foreground">, </span>
+              <br className="hidden md:block" />
+              <span className="gradient-text">mejl</span>
+              <span className="text-foreground"> och googla </span>
+              <span className="gradient-text">bilproblem</span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              Bilgen skapar färdiga texter på sekunder – anpassat för svenska bilhandlare
+            </p>
+            
+            {/* CTA Button with glow */}
+            <button
+              onClick={() => navigate("/start")}
+              className="group relative inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/25 cursor-pointer mb-8"
+            >
+              <Sparkles className="h-5 w-5" />
+              Skapa din första bilannons
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </button>
+
+            {/* Trust indicators */}
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Ingen installation
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Fungerar direkt
+              </span>
+              <span className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-green-500" />
+                Spara 30+ min/dag
+              </span>
+            </div>
           </div>
+
+          {/* Terminal Demo */}
+          <TerminalDemo />
         </div>
       </section>
 
       {/* Output Examples Section */}
-      <section className="relative px-6 py-16 md:py-24 bg-muted/40">
+      <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">
-            Se vad du får
-          </h2>
-          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Konkreta exempel på vad Bilgen skapar åt dig – på sekunder
-          </p>
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
+              Exempel
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Se vad du får
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Konkreta exempel på vad Bilgen skapar åt dig
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {outputExamples.map((example, index) => (
               <div
                 key={index}
-                className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-foreground">{example.title}</h3>
-                  <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{example.icon}</span>
+                    <h3 className="font-semibold text-foreground">{example.title}</h3>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
                     {example.label}
                   </span>
                 </div>
-                <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans leading-relaxed">
-                  {example.content}
-                </pre>
+                
+                {/* Code-style content */}
+                <div className="font-mono text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-4 border border-border/30">
+                  <pre className="whitespace-pre-wrap">{example.content}</pre>
+                </div>
               </div>
             ))}
           </div>
@@ -145,32 +166,37 @@ Rekommenderat service: var 2 000 mil`
       </section>
 
       {/* Benefits Section */}
-      <section className="relative px-6 py-16 md:py-24">
+      <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">
-            Resultat – inte funktioner
-          </h2>
-          <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Fokusera på att sälja bilar. Låt Bilgen ta hand om skrivandet.
-          </p>
+          <div className="text-center mb-14">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
+              Fördelar
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Resultat – inte funktioner
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Fokusera på att sälja bilar. Låt Bilgen ta hand om skrivandet.
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
               <div
                 key={index}
-                className="text-center p-6 rounded-xl border border-border bg-card"
+                className="group text-center p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-card/60"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-foreground/5 mb-5">
-                  <benefit.icon className="h-7 w-7 text-foreground" />
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6 transition-transform group-hover:scale-110">
+                  <benefit.icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3">
                   {benefit.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
+                <p className="text-muted-foreground leading-relaxed mb-5">
                   {benefit.description}
                 </p>
-                <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700">
-                  {benefit.timeSaved}
+                <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-green-500/10 text-green-600">
+                  Spara {benefit.timeSaved}
                 </span>
               </div>
             ))}
@@ -179,18 +205,25 @@ Rekommenderat service: var 2 000 mil`
       </section>
 
       {/* Target Audience Section */}
-      <section className="relative px-6 py-16 md:py-24 bg-muted/40">
+      <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
+            Målgrupp
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10">
             Byggd för svenska bilhandlare
           </h2>
-          <div className="space-y-4">
-            {targetAudience.map((item, index) => (
+          <div className="flex flex-col gap-4">
+            {[
+              "Små och medelstora bilhandlare",
+              "Handlare med många kundförfrågningar",
+              "Företag som vill jobba smartare"
+            ].map((item, index) => (
               <div
                 key={index}
-                className="inline-flex items-center gap-3 bg-card rounded-full px-6 py-3 shadow-sm border border-border mx-2"
+                className="inline-flex items-center gap-3 bg-card/50 backdrop-blur-sm rounded-full px-6 py-4 border border-border/50 mx-auto transition-all duration-300 hover:border-primary/30"
               >
-                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                 <span className="text-foreground font-medium">{item}</span>
               </div>
             ))}
@@ -198,68 +231,35 @@ Rekommenderat service: var 2 000 mil`
         </div>
       </section>
 
-      {/* Trust & Simplicity Section */}
-      <section className="relative px-6 py-16 md:py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Börja använda på 30 sekunder
-          </h2>
-          <p className="text-lg text-muted-foreground mb-12">
-            Inga nedladdningar. Ingen teknisk kunskap krävs. Öppna och kör.
-          </p>
-
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-12">
-            {steps.map((step, index) => (
-              <div key={index} className="flex flex-col items-center relative">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-foreground text-background mb-4 font-bold text-xl">
-                  {index + 1}
-                </div>
-                <span className="text-foreground font-medium">{step.text}</span>
-                {index < steps.length - 1 && (
-                  <ArrowRight className="hidden md:block absolute top-6 -right-10 h-5 w-5 text-muted-foreground" />
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 justify-center text-muted-foreground">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span>Fungerar i alla webbläsare</span>
-            </div>
-            <div className="flex items-center gap-2 justify-center text-muted-foreground">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span>Ingen installation</span>
-            </div>
-            <div className="flex items-center gap-2 justify-center text-muted-foreground">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span>Ingen inlärningskurva</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA Section */}
-      <section className="relative px-6 py-20 md:py-28 bg-foreground text-background">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Redo att spara tid?
-          </h2>
-          <p className="text-lg opacity-80 mb-8">
-            Testa Bilgen gratis och se skillnaden direkt
-          </p>
-          
-          <button
-            onClick={() => navigate("/start")}
-            className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-background text-foreground font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-          >
-            Kom igång nu – det är gratis
-            <ArrowRight className="h-5 w-5" />
-          </button>
-          
-          <p className="mt-4 text-sm opacity-60">
-            Inget kreditkort krävs
-          </p>
+      <section className="relative px-6 py-24 md:py-32">
+        <div className="max-w-3xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden">
+            {/* Gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent opacity-95" />
+            
+            {/* Content */}
+            <div className="relative text-center px-8 py-16 md:px-16 md:py-20">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+                Redo att spara tid?
+              </h2>
+              <p className="text-lg text-primary-foreground/80 mb-10">
+                Testa Bilgen gratis och se skillnaden direkt
+              </p>
+              
+              <button
+                onClick={() => navigate("/start")}
+                className="group inline-flex items-center gap-2 px-10 py-4 rounded-full bg-background text-foreground font-semibold text-lg shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
+              >
+                Kom igång nu – det är gratis
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </button>
+              
+              <p className="mt-6 text-sm text-primary-foreground/60">
+                Inget kreditkort krävs
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

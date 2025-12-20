@@ -31,7 +31,7 @@ const Index = () => {
             Redo att börja?
           </h1>
           <p className="text-xl text-muted-foreground max-w-md mx-auto">
-            Skriva <span className="font-semibold text-foreground">annons</span>, göra <span className="font-semibold text-foreground">bilresearch</span> eller hantera <span className="font-semibold text-foreground">mail</span>.
+            Skriva <span className="gradient-text font-semibold">annons</span>, göra <span className="gradient-text font-semibold">bilresearch</span> eller hantera <span className="gradient-text font-semibold">mail</span>.
           </p>
           
           {/* Speed tagline - catchy gradient pill */}

@@ -23,23 +23,54 @@ interface FormData {
   warranty: string;
 }
 
+type AdLength = "short" | "long";
+
 interface RequestBody {
   formData: FormData;
   systemPrompt: string;
   companyName?: string;
   userName?: string;
+  length?: AdLength;
 }
 
-// Function to personalize the system prompt if user info is provided
-const personalizePrompt = (basePrompt: string, companyName?: string, userName?: string): string => {
-  if (!companyName || !userName) {
-    return basePrompt;
+// Function to get length instructions
+const getLengthInstructions = (length: AdLength): string => {
+  if (length === "short") {
+    return `
+VIKTIGT - KORT VERSION:
+Skriv en KORTFATTAD annons på max 150 ord. Fokusera på:
+- En catchy rubrik
+- De 3-4 viktigaste försäljningspunkterna
+- Pris och kontaktinfo
+Var koncis och säljande utan att vara för ordrik.`;
   }
+  return `
+VIKTIGT - LÅNG VERSION:
+Skriv en UTFÖRLIG och detaljerad annons på 250-400 ord. Inkludera:
+- En catchy rubrik
+- Detaljerad beskrivning av bilen och dess skick
+- All relevant utrustning och funktioner
+- Finansieringsmöjligheter om tillgängligt
+- Garanti och serviceinformation
+- Pris och kontaktinfo
+Var säljande och professionell med rik detaljnivå.`;
+};
+
+// Function to personalize the system prompt if user info is provided
+const personalizePrompt = (basePrompt: string, companyName?: string, userName?: string, length: AdLength = "long"): string => {
+  let prompt = basePrompt;
   
-  // Add personalization to the prompt
-  return `${basePrompt}
+  // Add length instructions
+  prompt = `${prompt}\n\n${getLengthInstructions(length)}`;
+  
+  // Add company personalization
+  if (companyName && userName) {
+    prompt = `${prompt}
 
 Denna annons är för ${companyName}. Inkludera företagsnamnet naturligt i annonsen där det passar (t.ex. "Kontakta oss på ${companyName}" eller "Välkommen till ${companyName}").`;
+  }
+  
+  return prompt;
 };
 
 serve(async (req) => {
@@ -49,9 +80,9 @@ serve(async (req) => {
   }
 
   try {
-    const { formData, systemPrompt, companyName, userName } = (await req.json()) as RequestBody;
+    const { formData, systemPrompt, companyName, userName, length = "long" } = (await req.json()) as RequestBody;
 
-    console.log("Generating ad for:", formData.car, companyName ? `(${companyName})` : "(anonymous)");
+    console.log("Generating ad for:", formData.car, `length: ${length}`, companyName ? `(${companyName})` : "(anonymous)");
 
     if (!lovableApiKey) {
       console.error("LOVABLE_API_KEY is not configured");
@@ -61,8 +92,8 @@ serve(async (req) => {
       );
     }
 
-    // Personalize the system prompt if user info is provided
-    const finalSystemPrompt = personalizePrompt(systemPrompt, companyName, userName);
+    // Personalize the system prompt with length instructions
+    const finalSystemPrompt = personalizePrompt(systemPrompt, companyName, userName, length);
 
     // Build the user prompt with car information including financing
     const userPrompt = `Skapa en bilannons för följande bil:

@@ -1,169 +1,141 @@
-import { useState, useEffect } from "react";
-import { Car, FileText, Sparkles, CheckCircle, Loader2, Eye } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 
 /**
- * App Demo Component - Shows a modern step-by-step animation
- * Demonstrates how easy it is to use Bilgen
+ * Premium Transformation Demo
+ * Shows the value proposition: Registration number → Professional car ad
+ * No process visualization, only results
  */
 const TerminalDemo = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [showReveal, setShowReveal] = useState(false);
-
-  const steps = [
-    { 
-      icon: Car, 
-      completedText: 'Registreringsnummer: ABC123',
-      activeText: 'Anger registreringsnummer...' 
-    },
-    { 
-      icon: FileText, 
-      completedText: 'Bilinfo hämtad: Volvo XC60 2019',
-      activeText: 'Hämtar bilinfo...' 
-    },
-    { 
-      icon: Sparkles, 
-      completedText: 'Annons skapad',
-      activeText: 'Skapar annons...' 
-    },
-    { 
-      icon: CheckCircle, 
-      completedText: 'Klart! Annonsen är redo',
-      activeText: 'Slutför...' 
-    },
-  ];
-
-  useEffect(() => {
-    if (currentStep < steps.length) {
-      const delay = currentStep === 0 ? 800 : 1200;
-      const timer = setTimeout(() => {
-        setCurrentStep((prev) => prev + 1);
-      }, delay);
-      return () => clearTimeout(timer);
-    } else if (!showReveal) {
-      // Show reveal after all steps complete
-      const revealTimer = setTimeout(() => {
-        setShowReveal(true);
-      }, 400);
-      return () => clearTimeout(revealTimer);
-    } else {
-      // Reset and loop after showing reveal for a while
-      const resetTimer = setTimeout(() => {
-        setShowReveal(false);
-        setCurrentStep(0);
-      }, 2500);
-      return () => clearTimeout(resetTimer);
-    }
-  }, [currentStep, steps.length, showReveal]);
-
-  const progressPercentage = (currentStep / steps.length) * 100;
-
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* Modern app card */}
-      <div className="rounded-2xl overflow-hidden shadow-xl border border-border/50 bg-card">
-        {/* Header with progress */}
-        <div className="px-5 py-4 border-b border-border/30 bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Skapa annons</span>
-            <span className="text-xs text-muted-foreground">
-              {Math.min(currentStep, steps.length)}/{steps.length}
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Main transformation container */}
+      <div className="relative">
+        {/* Split-screen transformation */}
+        <div className="grid md:grid-cols-[1fr,auto,1.4fr] gap-4 md:gap-6 items-stretch">
+          
+          {/* INPUT SIDE - Minimal, muted */}
+          <div className="relative group">
             <div 
-              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
-        </div>
-        
-        {/* Steps list */}
-        <div className="p-5 space-y-3">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isCompleted = index < currentStep;
-            const isActive = index === currentStep;
-            const isVisible = index <= currentStep;
-            
-            if (!isVisible) return null;
-            
-            return (
-              <div
-                key={index}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
-                  isCompleted 
-                    ? 'bg-primary/5 border border-primary/20' 
-                    : isActive 
-                      ? 'bg-muted/50 border border-border/50' 
-                      : 'bg-muted/30'
-                }`}
-                style={{ 
-                  animation: isVisible ? 'fade-in-up 0.4s ease-out forwards' : undefined,
-                  animationDelay: `${index * 0.05}s`
-                }}
-              >
-                {/* Icon container */}
-                <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${
-                  isCompleted 
-                    ? 'bg-primary/10 text-primary' 
-                    : isActive 
-                      ? 'bg-muted text-muted-foreground' 
-                      : 'bg-muted/50 text-muted-foreground/50'
-                }`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                
-                {/* Text */}
-                <span className={`flex-1 text-sm ${
-                  isCompleted 
-                    ? 'text-foreground font-medium' 
-                    : 'text-muted-foreground'
-                }`}>
-                  {isCompleted ? step.completedText : step.activeText}
+              className="h-full rounded-2xl border border-border/40 bg-muted/30 p-6 md:p-8 flex flex-col justify-center backdrop-blur-sm"
+              style={{ 
+                animation: 'fade-in 0.6s ease-out forwards',
+              }}
+            >
+              {/* License plate styling */}
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
+                  Registreringsnummer
                 </span>
                 
-                {/* Status indicator */}
-                <div className="flex-shrink-0">
-                  {isCompleted ? (
-                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <CheckCircle className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                  ) : isActive ? (
-                    <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
-                  ) : null}
+                <div className="relative">
+                  {/* Swedish license plate style */}
+                  <div className="inline-flex items-center gap-3 px-5 py-3 rounded-lg bg-background/80 border border-border/60 shadow-sm">
+                    <div className="w-1.5 h-8 rounded-full bg-[#003399]" />
+                    <span className="text-2xl md:text-3xl font-mono font-semibold tracking-[0.15em] text-foreground/80">
+                      ABC 123
+                    </span>
+                  </div>
                 </div>
+                
+                <p className="text-xs text-muted-foreground/50 mt-4">
+                  Det enda du behöver
+                </p>
               </div>
-            );
-          })}
-        </div>
-        
-        {/* Reveal section - shows after completion */}
-        {showReveal && (
+            </div>
+          </div>
+
+          {/* TRANSFORMATION ARROW */}
           <div 
-            className="px-5 pb-5 animate-fade-in"
-            style={{ animationDuration: '0.5s' }}
+            className="flex items-center justify-center py-4 md:py-0"
+            style={{ 
+              animation: 'fade-in 0.8s ease-out 0.2s forwards',
+              opacity: 0,
+            }}
           >
-            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 border border-primary/20">
-              {/* Mini preview */}
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <Car className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">Volvo XC60 D4 2019</p>
-                  <p className="text-xs text-muted-foreground">Professionell annons skapad</p>
+            <div className="relative">
+              {/* Glow effect */}
+              <div className="absolute inset-0 blur-xl bg-primary/20 rounded-full scale-150" />
+              
+              {/* Arrow container */}
+              <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center">
+                <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+              </div>
+            </div>
+          </div>
+
+          {/* OUTPUT SIDE - Premium, high energy */}
+          <div 
+            className="relative group"
+            style={{ 
+              animation: 'fade-in 0.6s ease-out 0.3s forwards, slide-up 0.6s ease-out 0.3s forwards',
+              opacity: 0,
+            }}
+          >
+            {/* Subtle glow behind card */}
+            <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent rounded-3xl blur-2xl opacity-60" />
+            
+            <div className="relative h-full rounded-2xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.02] p-6 md:p-8 shadow-lg shadow-primary/5">
+              {/* Ready badge */}
+              <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+                  <Check className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-primary">
+                    Redo att publiceras
+                  </span>
                 </div>
               </div>
               
-              {/* CTA button */}
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-                <Eye className="w-4 h-4" />
-                Visa annons
-              </button>
+              {/* Car info header */}
+              <div className="space-y-1 mb-5">
+                <h3 className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">
+                  Volvo XC60 D4 2019
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  AWD Momentum · 78 000 mil
+                </p>
+              </div>
+              
+              {/* Price */}
+              <div className="mb-5">
+                <span className="text-2xl md:text-3xl font-bold text-foreground">
+                  289 000 kr
+                </span>
+              </div>
+              
+              {/* Generated ad preview */}
+              <div className="space-y-3 pt-5 border-t border-border/40">
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Välskött familjebil med panoramatak och dragkrok. Servad hos märkesverkstad med fullständig servicehistorik. Inga anmärkningar vid senaste besiktning.
+                </p>
+                
+                {/* Feature tags */}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {['Panoramatak', 'Dragkrok', 'Navigation'].map((feature) => (
+                    <span 
+                      key={feature}
+                      className="px-2.5 py-1 text-[11px] font-medium rounded-md bg-muted/50 text-muted-foreground border border-border/30"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Tagline */}
+        <div 
+          className="text-center mt-8 md:mt-10"
+          style={{ 
+            animation: 'fade-in 0.6s ease-out 0.5s forwards',
+            opacity: 0,
+          }}
+        >
+          <p className="text-sm md:text-base text-muted-foreground">
+            Från regnummer till färdig annons – <span className="text-foreground font-medium">på sekunder.</span>
+          </p>
+        </div>
       </div>
     </div>
   );

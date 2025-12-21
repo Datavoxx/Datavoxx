@@ -56,9 +56,7 @@ const AppHeader = ({
 
   return (
     <header
-      className={`sticky top-0 z-50 h-16 border-b border-gray-200 bg-white/70 backdrop-blur-md transition-all duration-300 ${
-        isScrolled ? "shadow-[0_2px_10px_rgba(0,0,0,0.05)]" : ""
-      }`}
+      className="sticky top-0 z-50 h-16 transition-all duration-300"
     >
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
         {/* Left side - Back button or Contact */}

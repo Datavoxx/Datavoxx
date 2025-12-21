@@ -29,11 +29,33 @@ const TerminalDemo = () => {
     { id: 'mixed' as const, icon: Target, label: "Balanserad", description: "Blandning av allt" },
   ];
 
-  const generatedAdText = `Januari-rea! Just nu erbjuder vi förmånlig kampanjfinansiering med endast 3,95% i ränta vid köp i samband med vår januarikampanj. Ett fantastiskt tillfälle att göra en riktigt bra bilaffär!
+  const adTexts = {
+    financing: `Januari-rea! Just nu erbjuder vi förmånlig kampanjfinansiering med endast 3,95% i ränta vid köp i samband med vår januarikampanj. Ett fantastiskt tillfälle att göra en riktigt bra bilaffär!
 
 Nu till bilen: Vi har en Volvo XC60 D4 AWD Momentum, årsmodell 2019. En robust och välutrustad SUV med panoramatak, navigation och dragkrok.
 
-Bilen är servad hos märkesverkstad och har fullständig servicehistorik. Kontakta oss för provkörning eller mer information!`;
+Bilen är servad hos märkesverkstad och har fullständig servicehistorik. Kontakta oss för provkörning eller mer information!`,
+    
+    equipment: `Volvo XC60 D4 AWD Momentum 2019 – Topputrustad SUV!
+
+Denna välskötta XC60 levereras med:
+✓ Panoramatak för extra rymd och ljus
+✓ Navigation med stor pekskärm
+✓ Dragkrok (1800 kg)
+✓ Parkeringskamera och sensorer
+✓ Läderklädsel med elstolar
+✓ Adaptiv farthållare
+
+Bilen har fullständig servicehistorik hos märkesverkstad och är i utmärkt skick. Kontakta oss för provkörning!`,
+    
+    mixed: `Volvo XC60 D4 AWD Momentum 2019 – Välutrustad till kampanjpris!
+
+En robust familje-SUV med panoramatak, navigation och dragkrok. Läderklädsel, parkeringskamera och fullständig servicehistorik hos märkesverkstad.
+
+Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss för visning och provkörning!`
+  };
+
+  const generatedAdText = adTexts[selectedFocus];
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -79,13 +101,15 @@ Bilen är servad hos märkesverkstad och har fullständig servicehistorik. Konta
             {showResult ? "Klart!" : `Steg ${currentStep} av ${totalSteps}`}
           </span>
           {showResult && (
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleReset}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-4 h-4" />
               Börja om
-            </button>
+            </Button>
           )}
         </div>
         

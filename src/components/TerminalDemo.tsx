@@ -100,17 +100,6 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
           <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
             {showResult ? "Klart!" : `Steg ${currentStep} av ${totalSteps}`}
           </span>
-          {showResult && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-              className="flex items-center gap-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Börja om
-            </Button>
-          )}
         </div>
         
         {/* Progress track */}
@@ -364,13 +353,24 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
                   )}
                 </Button>
               ) : (
-                <Button
-                  onClick={() => navigate('/start')}
-                  className="gap-2 bg-primary hover:bg-primary/90"
-                >
-                  Skapa på riktigt
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleReset}
+                    className="flex items-center gap-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Börja om
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/start')}
+                    className="gap-2 bg-primary hover:bg-primary/90"
+                  >
+                    Skapa på riktigt
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               )}
             </div>
           </div>

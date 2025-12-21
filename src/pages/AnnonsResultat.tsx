@@ -180,9 +180,26 @@ const AnnonsResultat = () => {
     setIsEditing(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
+    const originalText = generatedAd;
     setGeneratedAd(editedAd);
     setIsEditing(false);
+
+    // Spara redigeringen till databasen
+    try {
+      const sessionId = localStorage.getItem('bilgen_session_id') || 'unknown';
+      
+      await supabase.from('ad_edits').insert({
+        session_id: sessionId,
+        original_text: originalText,
+        edited_text: editedAd,
+        car_info: `${state?.formData.car || ''} ${state?.formData.year || ''}`.trim(),
+        ad_length: selectedLength
+      });
+    } catch (error) {
+      console.error("Error saving edit:", error);
+    }
+
     toast({
       title: "Ändringar sparade!",
       description: "Din redigerade annons är redo att kopieras",

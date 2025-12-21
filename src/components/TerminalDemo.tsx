@@ -110,34 +110,34 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
           />
         </div>
         
-        {/* Step indicators */}
-        <div className="flex justify-between mt-3">
-          {[1, 2, 3].map((step) => (
+        {/* Step indicators - big numbers */}
+        <div className="flex justify-between mt-4">
+          {[
+            { num: 1, label: 'Reg.nr' },
+            { num: 2, label: 'Finansiering' },
+            { num: 3, label: 'Fokus' }
+          ].map((step) => (
             <div 
-              key={step}
-              className={`flex items-center gap-2 transition-colors duration-300 ${
-                step < currentStep || showResult 
-                  ? 'text-primary' 
-                  : step === currentStep 
-                    ? 'text-foreground' 
-                    : 'text-muted-foreground/50'
-              }`}
+              key={step.num}
+              className="flex flex-col items-center gap-1"
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium border transition-all duration-300 ${
-                step < currentStep || showResult
-                  ? 'bg-primary border-primary text-primary-foreground'
-                  : step === currentStep
-                    ? 'border-primary/50 bg-primary/10'
-                    : 'border-muted-foreground/30'
+              <div className={`text-3xl font-bold transition-all duration-300 ${
+                step.num < currentStep || showResult
+                  ? 'text-primary'
+                  : step.num === currentStep
+                    ? 'text-foreground'
+                    : 'text-muted-foreground/30'
               }`}>
-                {step < currentStep || showResult ? (
-                  <Check className="w-3.5 h-3.5" />
-                ) : (
-                  step
-                )}
+                {step.num}
               </div>
-              <span className="hidden sm:inline text-xs">
-                {step === 1 ? 'Reg.nr' : step === 2 ? 'Finansiering' : 'Fokus'}
+              <span className={`text-xs transition-colors duration-300 ${
+                step.num < currentStep || showResult
+                  ? 'text-primary'
+                  : step.num === currentStep
+                    ? 'text-foreground'
+                    : 'text-muted-foreground/50'
+              }`}>
+                {step.label}
               </span>
             </div>
           ))}

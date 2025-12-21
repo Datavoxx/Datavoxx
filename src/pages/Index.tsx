@@ -22,11 +22,16 @@ const Index = () => {
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 pt-24 pb-16">
         {/* Hero Section */}
         <div className="text-center mb-20">
-          <img 
-            src={bilgenLogo} 
-            alt="BILGEN" 
-            className="h-32 mx-auto mb-10"
-          />
+          <button
+            onClick={() => navigate("/")}
+            className="transition-opacity hover:opacity-80"
+          >
+            <img 
+              src={bilgenLogo} 
+              alt="BILGEN - Gå till startsidan" 
+              className="h-32 mx-auto mb-10"
+            />
+          </button>
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-4">
             Redo att börja?
           </h1>

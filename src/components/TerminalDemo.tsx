@@ -1,8 +1,8 @@
-import { Check, Car, CreditCard, Target } from "lucide-react";
+import { Car, CreditCard, Target, Copy } from "lucide-react";
 
 /**
  * Premium Transformation Demo
- * Shows: 3 inputs (reg, financing, focus) → Professional car ad
+ * Shows: 3 inputs (reg, financing, focus) → Generated ad TEXT
  * Cinematic, modern SaaS aesthetic
  */
 const TerminalDemo = () => {
@@ -24,6 +24,12 @@ const TerminalDemo = () => {
       value: "Finansiering först",
     },
   ];
+
+  const generatedAdText = `Januari-rea! Just nu erbjuder vi förmånlig kampanjfinansiering med endast 3,95% i ränta vid köp i samband med vår januarikampanj. Ett fantastiskt tillfälle att göra en riktigt bra bilaffär!
+
+Nu till bilen: Vi har en Volvo XC60 D4 AWD Momentum, årsmodell 2019. En robust och välutrustad SUV med panoramatak, navigation och dragkrok.
+
+Bilen är servad hos märkesverkstad och har fullständig servicehistorik. Kontakta oss för provkörning eller mer information!`;
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -137,7 +143,7 @@ const TerminalDemo = () => {
             </div>
           </div>
 
-          {/* OUTPUT SIDE - Premium Result */}
+          {/* OUTPUT SIDE - Generated Ad Text */}
           <div 
             className="relative"
             style={{ 
@@ -152,63 +158,42 @@ const TerminalDemo = () => {
               {/* Shimmer overlay */}
               <div className="absolute inset-0 shimmer-effect pointer-events-none" />
               
-              {/* Ready badge with shimmer */}
-              <div className="relative flex items-center gap-2 mb-5">
-                <div className="relative overflow-hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25">
-                  <div className="absolute inset-0 shimmer-badge" />
-                  <Check className="relative w-3.5 h-3.5 text-primary" />
-                  <span className="relative text-[10px] uppercase tracking-wider font-semibold text-primary">
-                    Redo att publiceras
+              {/* Header with copy indicator */}
+              <div className="relative flex items-center justify-between mb-5">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
+                  Din genererade annonstext
+                </span>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors">
+                  <Copy className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-[11px] font-medium text-primary">
+                    Kopiera
                   </span>
                 </div>
               </div>
               
-              {/* Car image placeholder */}
-              <div className="relative mb-5 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30 p-4 aspect-[16/9] flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
-                <Car className="w-12 h-12 text-muted-foreground/30" />
-                <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-background/80 backdrop-blur-sm border border-border/40">
-                  <span className="text-[10px] text-muted-foreground">3 bilder</span>
-                </div>
+              {/* Generated text content */}
+              <div className="relative space-y-4">
+                {generatedAdText.split('\n\n').map((paragraph, index) => (
+                  <p 
+                    key={index}
+                    className="text-sm md:text-base leading-relaxed text-foreground/85"
+                    style={{
+                      animation: 'fade-in 0.4s ease-out forwards',
+                      animationDelay: `${0.6 + index * 0.1}s`,
+                      opacity: 0,
+                    }}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
               </div>
               
-              {/* Car info */}
-              <div className="space-y-1 mb-4">
-                <h3 className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">
-                  Volvo XC60 D4 2019
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  AWD Momentum · 78 000 mil
-                </p>
-              </div>
-              
-              {/* Price with glow */}
-              <div className="mb-5">
-                <span className="text-3xl md:text-4xl font-bold text-foreground">
-                  289 000 kr
+              {/* Subtle footer indicator */}
+              <div className="mt-6 pt-4 border-t border-border/30 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+                <span className="text-[11px] text-muted-foreground/60">
+                  Redo att klistras in på Blocket, Bytbil, Facebook...
                 </span>
-                <span className="ml-2 text-sm text-primary font-medium">
-                  från 2 890 kr/mån
-                </span>
-              </div>
-              
-              {/* Generated ad preview */}
-              <div className="space-y-3 pt-5 border-t border-border/40">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Välskött familjebil med panoramatak och dragkrok. Servad hos märkesverkstad med fullständig servicehistorik.
-                </p>
-                
-                {/* Feature tags */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {['Panoramatak', 'Dragkrok', 'Navigation', 'Kamera'].map((feature) => (
-                    <span 
-                      key={feature}
-                      className="px-2.5 py-1 text-[11px] font-medium rounded-md bg-muted/50 text-muted-foreground border border-border/30"
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
@@ -223,7 +208,7 @@ const TerminalDemo = () => {
           }}
         >
           <p className="text-base md:text-lg text-muted-foreground">
-            Tre val. En professionell annons. <span className="text-foreground font-medium">Klart.</span>
+            Från regnummer till säljande annonstext – <span className="text-foreground font-medium">på sekunder.</span>
           </p>
         </div>
       </div>

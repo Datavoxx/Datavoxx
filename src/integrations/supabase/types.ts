@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_edits: {
+        Row: {
+          ad_length: string | null
+          car_info: string | null
+          created_at: string
+          edited_text: string
+          id: string
+          original_ad_id: string | null
+          original_text: string
+          session_id: string
+        }
+        Insert: {
+          ad_length?: string | null
+          car_info?: string | null
+          created_at?: string
+          edited_text: string
+          id?: string
+          original_ad_id?: string | null
+          original_text: string
+          session_id: string
+        }
+        Update: {
+          ad_length?: string | null
+          car_info?: string | null
+          created_at?: string
+          edited_text?: string
+          id?: string
+          original_ad_id?: string | null
+          original_text?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_edits_original_ad_id_fkey"
+            columns: ["original_ad_id"]
+            isOneToOne: false
+            referencedRelation: "ad_generations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ad_generations: {
         Row: {
           brand: string

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Copy, Check, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
+import { Copy, Check, RefreshCw, Loader2, ArrowLeft, Sparkles, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,6 @@ interface FormData {
   price: string;
   equipment: string;
   condition: string;
-  // Nya finansieringsfält
   interestRate: string;
   campaign: string;
   insuranceOffer: string;
@@ -32,7 +31,7 @@ interface LocationState {
 const AnnonsResultat = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, isLoading: authLoading } = useAuth();
+  const { user, profile } = useAuth();
   const state = location.state as LocationState | null;
 
   const [generatedAd, setGeneratedAd] = useState("");
@@ -50,7 +49,6 @@ const AnnonsResultat = () => {
     setGeneratedAd("");
 
     try {
-      // Build request body - include user info only if logged in
       const requestBody: { 
         formData: FormData; 
         systemPrompt: string; 
@@ -82,7 +80,6 @@ const AnnonsResultat = () => {
 
       setGeneratedAd(data.generatedAd || "");
       
-      // Save ad to database only if user is logged in
       if (user) {
         try {
           await supabase.from('ad_generations').insert({
@@ -120,20 +117,19 @@ const AnnonsResultat = () => {
     }
   }, [state, user, profile]);
 
-  // Redirect if no state
   useEffect(() => {
     if (!state) {
       navigate("/annons-generator");
     }
   }, [state, navigate]);
 
-  // Generate on mount - only once
   useEffect(() => {
     if (!state || hasGeneratedRef.current) return;
     hasGeneratedRef.current = true;
     generateAd();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedAd);
     setCopied(true);
@@ -172,100 +168,176 @@ const AnnonsResultat = () => {
   return (
     <div className="relative min-h-screen bg-background">
       <DecorativeBackground />
-      {/* Header */}
       <AppHeader showBackButton={true} onBackClick={handleBack} />
       
       <div className="mx-auto max-w-3xl relative z-10 p-6">
 
-        {/* Title */}
-        <div className="mb-10 text-center opacity-0 animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Din Genererade Annons</h1>
-          <p className="text-muted-foreground">
-            {state.formData.car} {state.formData.year && `(${state.formData.year})`}
-          </p>
+        {/* Success Hero Section */}
+        <div className="mb-8 text-center opacity-0 animate-fade-in">
+          {/* Success icon with glow */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-4 animate-pulse-glow">
+            <Sparkles className="w-8 h-8 text-primary" />
+          </div>
+          
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent mb-3">
+            Annons Skapad!
+          </h1>
+          
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+            <span className="text-primary font-medium">
+              {state.formData.car} {state.formData.year && `(${state.formData.year})`}
+            </span>
+          </div>
         </div>
 
-        {/* Generated Ad Card */}
+        {/* Regeneration Progress Indicator */}
+        {generatedAd && !isGenerating && (
+          <div className="flex justify-center gap-2 mb-6 opacity-0 animate-fade-in" style={{ animationDelay: "50ms" }}>
+            {[...Array(MAX_REGENERATIONS)].map((_, i) => (
+              <div
+                key={i}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  i < regenerateCount
+                    ? 'bg-muted-foreground/30'
+                    : 'bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]'
+                }`}
+              />
+            ))}
+            <span className="text-xs text-muted-foreground ml-2">
+              {MAX_REGENERATIONS - regenerateCount} regenereringar kvar
+            </span>
+          </div>
+        )}
+
+        {/* Main Content Card with Glassmorphism */}
         <div 
-          className="rounded-xl border border-level-border bg-level-card p-6 transition-all duration-300 hover:shadow-[0_0_30px_0_hsl(var(--level-card-glow)/0.15)] opacity-0 animate-fade-in"
+          className="relative rounded-2xl overflow-hidden opacity-0 animate-fade-in"
           style={{ animationDelay: "100ms" }}
         >
-          {isGenerating ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-12 w-12 animate-spin text-foreground mb-4" />
-              <p className="text-lg text-muted-foreground">Genererar din annons...</p>
-              <p className="text-sm text-muted-foreground mt-2">Detta kan ta 30-60 sekunder</p>
-            </div>
-          ) : generatedAd ? (
-            <>
-              {/* Limit reached message */}
-              {regenerateCount >= MAX_REGENERATIONS && (
-                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-center">
-                  <p className="text-orange-700 font-medium">
-                    Du har regenererat 3 gånger – prova att ändra något i formuläret för ett bättre resultat!
-                  </p>
+          {/* Gradient border effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-primary/10 rounded-2xl" />
+          
+          {/* Glass card content */}
+          <div className="relative m-[1px] rounded-2xl backdrop-blur-xl bg-background/80 border border-border/50 p-6 md:p-8">
+            
+            {isGenerating ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="relative">
+                  <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse" />
+                  <Loader2 className="relative h-14 w-14 animate-spin text-primary mb-6" />
                 </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="mb-6 flex flex-wrap justify-center gap-4">
-                <Button
-                  variant="outline"
-                  onClick={handleCopy}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" />
-                      Kopierat!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Kopiera annons
-                    </>
-                  )}
-                </Button>
+                <p className="text-xl font-medium text-foreground mb-2">Genererar din annons...</p>
+                <p className="text-sm text-muted-foreground">Detta kan ta 30-60 sekunder</p>
                 
-                {regenerateCount >= MAX_REGENERATIONS ? (
-                  <Button
-                    variant="outline"
-                    onClick={handleBack}
-                    className="border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Ändra något i formuläret
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={handleRegenerate}
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Regenerera ({MAX_REGENERATIONS - regenerateCount}/{MAX_REGENERATIONS} kvar)
-                  </Button>
+                {/* Loading progress dots */}
+                <div className="flex gap-1.5 mt-6">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-primary animate-pulse"
+                      style={{ animationDelay: `${i * 200}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : generatedAd ? (
+              <>
+                {/* Max regenerations warning */}
+                {regenerateCount >= MAX_REGENERATIONS && (
+                  <div className="mb-6 rounded-xl border border-orange-500/30 bg-orange-500/10 backdrop-blur-sm p-4 text-center">
+                    <p className="text-orange-400 font-medium">
+                      Du har regenererat 3 gånger – prova att ändra något i formuläret!
+                    </p>
+                  </div>
                 )}
-                
-                <Button
-                  variant="ghost"
-                  onClick={handleBack}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Tillbaka till formulär
+
+                {/* Action Buttons - Clear hierarchy */}
+                <div className="mb-8 flex flex-col sm:flex-row justify-center gap-3">
+                  {/* Primary CTA - Copy */}
+                  <Button
+                    onClick={handleCopy}
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="mr-2 h-5 w-5" />
+                        Kopierat!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-2 h-5 w-5" />
+                        Kopiera annons
+                      </>
+                    )}
+                  </Button>
+                  
+                  {/* Secondary - Regenerate or Change */}
+                  {regenerateCount >= MAX_REGENERATIONS ? (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={handleBack}
+                      className="border-orange-500/50 text-orange-400 hover:bg-orange-500/10 hover:border-orange-500"
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Ändra formuläret
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={handleRegenerate}
+                      className="border-border/50 hover:border-primary/50 hover:bg-primary/5"
+                    >
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Regenerera
+                    </Button>
+                  )}
+                </div>
+
+                {/* Ad Content with styled header */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <FileText className="w-4 h-4" />
+                    <span className="text-sm font-medium uppercase tracking-wider">Din annons</span>
+                  </div>
+                  
+                  <div className="relative rounded-xl overflow-hidden">
+                    {/* Subtle inner glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+                    
+                    <div className="relative bg-secondary/50 backdrop-blur-sm border border-border/30 rounded-xl p-6 md:p-8">
+                      <div className="whitespace-pre-wrap text-foreground leading-relaxed font-normal">
+                        {generatedAd}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tertiary - Back link */}
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleBack}
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Tillbaka till formulär
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                  <FileText className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground mb-4">Ingen annons genererad ännu</p>
+                <Button onClick={handleRegenerate} variant="outline">
+                  Försök igen
                 </Button>
               </div>
-              
-              <div className="whitespace-pre-wrap rounded-lg bg-secondary p-6 text-foreground leading-relaxed">
-                {generatedAd}
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16">
-              <p className="text-muted-foreground">Ingen annons genererad ännu</p>
-              <Button onClick={handleRegenerate} className="mt-4">
-                Försök igen
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

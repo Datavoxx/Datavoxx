@@ -82,10 +82,13 @@ const AppHeader = ({
           )}
         </div>
 
-        {/* Center - Logo (absolutely centered) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <img src={bilgenLogo} alt="BILGEN" className="h-7" />
-        </div>
+        {/* Center - Logo (absolutely centered, clickable home link) */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
+        >
+          <img src={bilgenLogo} alt="BILGEN - Gå till startsidan" className="h-7" />
+        </button>
 
         {/* Right side - Actions */}
         <div className="flex items-center justify-end gap-2">

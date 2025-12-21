@@ -91,15 +91,24 @@ Med vänliga hälsningar`
               Bilgen skapar färdiga texter på sekunder – anpassat för svenska bilhandlare
             </p>
             
-            {/* CTA Button with glow */}
-            <button
-              onClick={() => navigate("/start")}
-              className="group relative inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/25 cursor-pointer mb-8"
-            >
-              <Sparkles className="h-5 w-5" />
-              Skapa din första bilannons
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </button>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <button
+                onClick={() => navigate("/start")}
+                className="group relative inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/25 cursor-pointer"
+              >
+                <Sparkles className="h-5 w-5" />
+                Skapa din första bilannons
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button
+                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-transparent border-2 border-primary/30 text-foreground font-semibold text-lg transition-all duration-300 hover:border-primary hover:bg-primary/5 cursor-pointer"
+              >
+                Prova demo
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-y-1 rotate-90" />
+              </button>
+            </div>
 
             {/* Trust indicators */}
             <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
@@ -119,7 +128,9 @@ Med vänliga hälsningar`
           </div>
 
           {/* Terminal Demo */}
-          <TerminalDemo />
+          <div id="demo">
+            <TerminalDemo />
+          </div>
         </div>
       </section>
 

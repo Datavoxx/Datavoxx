@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Copy, Check, RefreshCw, Loader2, ArrowLeft, Sparkles, FileText } from "lucide-react";
+import { Copy, Check, RefreshCw, Loader2, ArrowLeft, Sparkles, FileText, AlignLeft, AlignJustify } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+
+type AdLength = "short" | "long";
 
 interface FormData {
   car: string;
@@ -38,11 +40,12 @@ const AnnonsResultat = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [regenerateCount, setRegenerateCount] = useState(0);
+  const [selectedLength, setSelectedLength] = useState<AdLength>("long");
   const hasGeneratedRef = useRef(false);
   
   const MAX_REGENERATIONS = 3;
 
-  const generateAd = useCallback(async () => {
+  const generateAd = useCallback(async (length: AdLength = selectedLength) => {
     if (!state) return;
 
     setIsGenerating(true);
@@ -53,10 +56,12 @@ const AnnonsResultat = () => {
         formData: FormData; 
         systemPrompt: string; 
         companyName?: string; 
-        userName?: string 
+        userName?: string;
+        length: AdLength;
       } = {
         formData: state.formData,
         systemPrompt: state.systemPrompt,
+        length,
       };
       
       if (user && profile) {
@@ -115,7 +120,7 @@ const AnnonsResultat = () => {
     } finally {
       setIsGenerating(false);
     }
-  }, [state, user, profile]);
+  }, [state, user, profile, selectedLength]);
 
   useEffect(() => {
     if (!state) {
@@ -126,9 +131,16 @@ const AnnonsResultat = () => {
   useEffect(() => {
     if (!state || hasGeneratedRef.current) return;
     hasGeneratedRef.current = true;
-    generateAd();
+    generateAd(selectedLength);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleLengthChange = (length: AdLength) => {
+    if (length === selectedLength || isGenerating) return;
+    setSelectedLength(length);
+    setRegenerateCount(prev => prev + 1);
+    generateAd(length);
+  };
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedAd);
@@ -251,8 +263,8 @@ const AnnonsResultat = () => {
                   </div>
                 )}
 
-                {/* Action Buttons - Clear hierarchy */}
-                <div className="mb-8 flex flex-col sm:flex-row justify-center gap-3">
+                {/* Action Buttons Row */}
+                <div className="mb-8 flex flex-col sm:flex-row justify-center items-center gap-3">
                   {/* Primary CTA - Copy */}
                   <Button
                     onClick={handleCopy}
@@ -271,6 +283,34 @@ const AnnonsResultat = () => {
                       </>
                     )}
                   </Button>
+
+                  {/* Length Toggle - Segmented buttons */}
+                  <div className="inline-flex rounded-lg border border-border/50 p-1 bg-background/50 backdrop-blur-sm">
+                    <button
+                      onClick={() => handleLengthChange("short")}
+                      disabled={isGenerating}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        selectedLength === "short"
+                          ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      } ${isGenerating ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      <AlignLeft className="w-4 h-4" />
+                      Kort
+                    </button>
+                    <button
+                      onClick={() => handleLengthChange("long")}
+                      disabled={isGenerating}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        selectedLength === "long"
+                          ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      } ${isGenerating ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      <AlignJustify className="w-4 h-4" />
+                      Lång
+                    </button>
+                  </div>
                   
                   {/* Secondary - Regenerate or Change */}
                   {regenerateCount >= MAX_REGENERATIONS ? (
@@ -298,9 +338,14 @@ const AnnonsResultat = () => {
 
                 {/* Ad Content with styled header */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <FileText className="w-4 h-4" />
-                    <span className="text-sm font-medium uppercase tracking-wider">Din annons</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <FileText className="w-4 h-4" />
+                      <span className="text-sm font-medium uppercase tracking-wider">Din annons</span>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      {selectedLength === "short" ? "Kort version" : "Lång version"}
+                    </span>
                   </div>
                   
                   <div className="relative rounded-xl overflow-hidden">

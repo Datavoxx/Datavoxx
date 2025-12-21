@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Copy, Check, RefreshCw, Loader2, ArrowLeft, Sparkles, FileText, AlignLeft, AlignJustify } from "lucide-react";
+import { Copy, Check, RefreshCw, Loader2, ArrowLeft, Sparkles, FileText, AlignLeft, AlignJustify, Pencil, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,8 @@ const AnnonsResultat = () => {
   const [copied, setCopied] = useState(false);
   const [regenerateCount, setRegenerateCount] = useState(0);
   const [selectedLength, setSelectedLength] = useState<AdLength>("long");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAd, setEditedAd] = useState("");
   const hasGeneratedRef = useRef(false);
   
   const MAX_REGENERATIONS = 3;
@@ -171,6 +173,25 @@ const AnnonsResultat = () => {
         formData: state?.formData,
       },
     });
+  };
+
+  const handleStartEdit = () => {
+    setEditedAd(generatedAd);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    setGeneratedAd(editedAd);
+    setIsEditing(false);
+    toast({
+      title: "Ändringar sparade!",
+      description: "Din redigerade annons är redo att kopieras",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditedAd("");
+    setIsEditing(false);
   };
 
   if (!state) {
@@ -343,9 +364,20 @@ const AnnonsResultat = () => {
                       <FileText className="w-4 h-4" />
                       <span className="text-sm font-medium uppercase tracking-wider">Din annons</span>
                     </div>
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                      {selectedLength === "short" ? "Kort version" : "Lång version"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {!isEditing && (
+                        <button
+                          onClick={handleStartEdit}
+                          className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/30"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          Redigera
+                        </button>
+                      )}
+                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                        {selectedLength === "short" ? "Kort version" : "Lång version"}
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="relative rounded-xl overflow-hidden">
@@ -353,9 +385,39 @@ const AnnonsResultat = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
                     
                     <div className="relative bg-secondary/50 backdrop-blur-sm border border-border/30 rounded-xl p-6 md:p-8">
-                      <div className="whitespace-pre-wrap text-foreground leading-relaxed font-normal">
-                        {generatedAd}
-                      </div>
+                      {isEditing ? (
+                        <div className="space-y-4">
+                          <textarea
+                            value={editedAd}
+                            onChange={(e) => setEditedAd(e.target.value)}
+                            className="w-full min-h-[300px] bg-background/50 border border-border/50 rounded-lg p-4 text-foreground leading-relaxed font-normal resize-y focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                            placeholder="Redigera din annons här..."
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancelEdit}
+                              className="border-border/50"
+                            >
+                              <X className="w-4 h-4 mr-1.5" />
+                              Avbryt
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={handleSaveEdit}
+                              className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
+                            >
+                              <Save className="w-4 h-4 mr-1.5" />
+                              Spara ändringar
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="whitespace-pre-wrap text-foreground leading-relaxed font-normal">
+                          {generatedAd}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

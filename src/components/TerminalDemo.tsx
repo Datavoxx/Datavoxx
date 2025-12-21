@@ -1,28 +1,32 @@
-import { Car, CreditCard, Target, Copy } from "lucide-react";
+import { useState } from "react";
+import { Car, CreditCard, Target, Copy, Check, ChevronRight, ChevronLeft, Sparkles, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 /**
- * Premium Transformation Demo
- * Shows: 3 inputs (reg, financing, focus) → Generated ad TEXT
- * Cinematic, modern SaaS aesthetic
+ * Interactive Step-by-Step Demo
+ * Users click through: Reg.nr → Financing → Focus → Generated text
  */
 const TerminalDemo = () => {
-  const inputSteps = [
-    {
-      icon: Car,
-      label: "Registreringsnummer",
-      value: "ABC 123",
-      isPlate: true,
-    },
-    {
-      icon: CreditCard,
-      label: "Finansiering",
-      value: "3,95% ränta · Kampanj",
-    },
-    {
-      icon: Target,
-      label: "Annonsens fokus",
-      value: "Finansiering först",
-    },
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedFocus, setSelectedFocus] = useState<'financing' | 'equipment' | 'mixed'>('financing');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const navigate = useNavigate();
+
+  const regNumber = "ABC 123";
+  
+  const financingDetails = [
+    { label: "Ränta", value: "3,95%" },
+    { label: "Kampanj", value: "Januarikampanj" },
+    { label: "Försäkring", value: "Inkluderat erbjudande" },
+  ];
+
+  const focusOptions = [
+    { id: 'financing' as const, icon: CreditCard, label: "Finansiering", description: "Lyft fram kampanjränta och erbjudanden" },
+    { id: 'equipment' as const, icon: Car, label: "Skick & Utrustning", description: "Fokusera på bilens egenskaper" },
+    { id: 'mixed' as const, icon: Target, label: "Balanserad", description: "Blandning av allt" },
   ];
 
   const generatedAdText = `Januari-rea! Just nu erbjuder vi förmånlig kampanjfinansiering med endast 3,95% i ränta vid köp i samband med vår januarikampanj. Ett fantastiskt tillfälle att göra en riktigt bra bilaffär!
@@ -31,186 +35,329 @@ Nu till bilen: Vi har en Volvo XC60 D4 AWD Momentum, årsmodell 2019. En robust 
 
 Bilen är servad hos märkesverkstad och har fullständig servicehistorik. Kontakta oss för provkörning eller mer information!`;
 
+  const handleNext = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    } else if (currentStep === 3) {
+      // Generate
+      setIsGenerating(true);
+      setTimeout(() => {
+        setIsGenerating(false);
+        setShowResult(true);
+        setCurrentStep(4);
+      }, 1500);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      setShowResult(false);
+    }
+  };
+
+  const handleReset = () => {
+    setCurrentStep(1);
+    setShowResult(false);
+    setSelectedFocus('financing');
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedAdText);
+    toast.success("Kopierat till urklipp!");
+  };
+
+  const totalSteps = 3;
+  const progressPercentage = showResult ? 100 : ((currentStep - 1) / totalSteps) * 100 + (100 / totalSteps / 2);
+
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      {/* Main transformation container */}
-      <div className="relative">
-        {/* Background glow orbs */}
-        <div className="absolute -inset-20 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
-          <div className="absolute bottom-1/4 right-1/3 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
+    <div className="w-full max-w-2xl mx-auto">
+      {/* Progress bar */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            {showResult ? "Klart!" : `Steg ${currentStep} av ${totalSteps}`}
+          </span>
+          {showResult && (
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Börja om
+            </button>
+          )}
         </div>
-
-        {/* Split-screen transformation */}
-        <div className="relative grid md:grid-cols-[1fr,auto,1.3fr] gap-4 md:gap-8 items-stretch">
-          
-          {/* INPUT SIDE - 3 Steps */}
+        
+        {/* Progress track */}
+        <div className="relative h-1.5 bg-muted/50 rounded-full overflow-hidden">
           <div 
-            className="relative"
-            style={{ 
-              animation: 'fade-in 0.5s ease-out forwards, slide-up 0.5s ease-out forwards',
-              opacity: 0,
-            }}
-          >
-            <div className="h-full rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 md:p-8">
-              {/* Header */}
-              <div className="mb-6">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
-                  Dina val
-                </span>
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
+        
+        {/* Step indicators */}
+        <div className="flex justify-between mt-3">
+          {[1, 2, 3].map((step) => (
+            <div 
+              key={step}
+              className={`flex items-center gap-2 transition-colors duration-300 ${
+                step < currentStep || showResult 
+                  ? 'text-primary' 
+                  : step === currentStep 
+                    ? 'text-foreground' 
+                    : 'text-muted-foreground/50'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium border transition-all duration-300 ${
+                step < currentStep || showResult
+                  ? 'bg-primary border-primary text-primary-foreground'
+                  : step === currentStep
+                    ? 'border-primary/50 bg-primary/10'
+                    : 'border-muted-foreground/30'
+              }`}>
+                {step < currentStep || showResult ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  step
+                )}
               </div>
+              <span className="hidden sm:inline text-xs">
+                {step === 1 ? 'Reg.nr' : step === 2 ? 'Finansiering' : 'Fokus'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-              {/* Steps */}
-              <div className="space-y-4">
-                {inputSteps.map((step, index) => (
-                  <div 
-                    key={step.label}
-                    className="group"
-                    style={{ 
-                      animation: 'fade-in 0.4s ease-out forwards',
-                      animationDelay: `${0.2 + index * 0.1}s`,
-                      opacity: 0,
-                    }}
-                  >
-                    <div className="flex items-start gap-4 p-3 rounded-xl transition-all duration-300 hover:bg-muted/30">
-                      {/* Icon container */}
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                        <step.icon className="w-5 h-5 text-primary" />
+      {/* Main content card */}
+      <div className="relative">
+        {/* Background glow */}
+        <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent rounded-3xl blur-2xl" />
+        
+        <div className="relative rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+          {/* Step content with transitions */}
+          <div className="p-6 md:p-8 min-h-[320px] flex flex-col">
+            
+            {/* Step 1: Registration number */}
+            {currentStep === 1 && !showResult && (
+              <div className="flex-1 animate-fade-in">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <Car className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Ange registreringsnummer</h3>
+                    <p className="text-sm text-muted-foreground">Vi hämtar bilens uppgifter automatiskt</p>
+                  </div>
+                </div>
+                
+                {/* License plate display */}
+                <div className="flex justify-center py-8">
+                  <div className="inline-flex items-center gap-3 px-6 py-4 rounded-lg bg-background border-2 border-border shadow-sm">
+                    <div className="w-2 h-10 rounded-full bg-[#003399]" />
+                    <span className="text-3xl font-mono font-bold tracking-[0.15em] text-foreground">
+                      {regNumber}
+                    </span>
+                  </div>
+                </div>
+                
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  Klicka "Nästa" för att fortsätta med demon
+                </p>
+              </div>
+            )}
+
+            {/* Step 2: Financing */}
+            {currentStep === 2 && !showResult && (
+              <div className="flex-1 animate-fade-in">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <CreditCard className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Finansieringsuppgifter</h3>
+                    <p className="text-sm text-muted-foreground">Dessa inkluderas i annonsen</p>
+                  </div>
+                </div>
+                
+                {/* Financing details */}
+                <div className="space-y-3 py-4">
+                  {financingDetails.map((detail, index) => (
+                    <div 
+                      key={detail.label}
+                      className="flex items-center gap-3 p-4 rounded-xl bg-muted/30 border border-border/50"
+                      style={{
+                        animation: 'fade-in 0.3s ease-out forwards',
+                        animationDelay: `${index * 0.1}s`,
+                      }}
+                    >
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Check className="w-4 h-4 text-primary" />
                       </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium">
-                          {step.label}
-                        </span>
-                        
-                        {step.isPlate ? (
-                          <div className="mt-1.5 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-background/80 border border-border/60">
-                            <div className="w-1 h-5 rounded-full bg-[#003399]" />
-                            <span className="text-base font-mono font-semibold tracking-[0.1em] text-foreground/90">
-                              {step.value}
-                            </span>
-                          </div>
-                        ) : (
-                          <p className="mt-1 text-sm font-medium text-foreground/80">
-                            {step.value}
-                          </p>
-                        )}
+                      <div>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">{detail.label}</span>
+                        <p className="font-medium text-foreground">{detail.value}</p>
                       </div>
                     </div>
-                    
-                    {/* Separator */}
-                    {index < inputSteps.length - 1 && (
-                      <div className="ml-8 mt-2 mb-2 h-px bg-gradient-to-r from-border/40 via-border/20 to-transparent" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* TRANSFORMATION ELEMENT - Animated */}
-          <div 
-            className="flex items-center justify-center py-4 md:py-0"
-            style={{ 
-              animation: 'fade-in 0.6s ease-out 0.4s forwards',
-              opacity: 0,
-            }}
-          >
-            <div className="relative flex flex-col items-center gap-2">
-              {/* Pulsing connection line (vertical on mobile, hidden on desktop) */}
-              <div className="hidden md:block absolute left-1/2 -translate-x-1/2 w-px h-full bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-              
-              {/* Main orb */}
-              <div className="relative">
-                {/* Outer glow ring */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-xl scale-150 animate-pulse-glow" />
-                
-                {/* Middle ring */}
-                <div className="absolute inset-[-4px] rounded-full border border-primary/20 animate-[spin_8s_linear_infinite]">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/60" />
+                  ))}
                 </div>
-                
-                {/* Core */}
-                <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
-                    <svg className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+              </div>
+            )}
+
+            {/* Step 3: Focus selection */}
+            {currentStep === 3 && !showResult && !isGenerating && (
+              <div className="flex-1 animate-fade-in">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <Target className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Välj fokus för annonsen</h3>
+                    <p className="text-sm text-muted-foreground">Vad ska lyftas fram mest?</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* OUTPUT SIDE - Generated Ad Text */}
-          <div 
-            className="relative"
-            style={{ 
-              animation: 'fade-in 0.6s ease-out 0.5s forwards, slide-up 0.6s ease-out 0.5s forwards',
-              opacity: 0,
-            }}
-          >
-            {/* Glow behind card */}
-            <div className="absolute -inset-4 bg-gradient-to-br from-primary/8 via-accent/5 to-transparent rounded-3xl blur-2xl" />
-            
-            <div className="relative h-full rounded-2xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.03] p-6 md:p-8 shadow-xl shadow-primary/5 overflow-hidden">
-              {/* Shimmer overlay */}
-              <div className="absolute inset-0 shimmer-effect pointer-events-none" />
-              
-              {/* Header with copy indicator */}
-              <div className="relative flex items-center justify-between mb-5">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
-                  Din genererade annonstext
-                </span>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors">
-                  <Copy className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-[11px] font-medium text-primary">
-                    Kopiera
-                  </span>
+                
+                {/* Focus options */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4">
+                  {focusOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      onClick={() => setSelectedFocus(option.id)}
+                      className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                        selectedFocus === option.id
+                          ? 'border-primary bg-primary/10 shadow-sm'
+                          : 'border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40'
+                      }`}
+                    >
+                      <option.icon className={`w-5 h-5 mb-2 ${
+                        selectedFocus === option.id ? 'text-primary' : 'text-muted-foreground'
+                      }`} />
+                      <p className={`font-medium text-sm ${
+                        selectedFocus === option.id ? 'text-foreground' : 'text-foreground/80'
+                      }`}>
+                        {option.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {option.description}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
-              
-              {/* Generated text content */}
-              <div className="relative space-y-4">
-                {generatedAdText.split('\n\n').map((paragraph, index) => (
-                  <p 
-                    key={index}
-                    className="text-sm md:text-base leading-relaxed text-foreground/85"
-                    style={{
-                      animation: 'fade-in 0.4s ease-out forwards',
-                      animationDelay: `${0.6 + index * 0.1}s`,
-                      opacity: 0,
-                    }}
+            )}
+
+            {/* Generating state */}
+            {isGenerating && (
+              <div className="flex-1 flex flex-col items-center justify-center animate-fade-in py-12">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                  </div>
+                </div>
+                <p className="mt-6 text-foreground font-medium">Genererar annonstext...</p>
+                <p className="text-sm text-muted-foreground mt-1">AI analyserar och skriver</p>
+              </div>
+            )}
+
+            {/* Step 4: Result */}
+            {showResult && (
+              <div className="flex-1 animate-fade-in">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      Din genererade annonstext
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
                   >
-                    {paragraph}
-                  </p>
-                ))}
+                    <Copy className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-medium text-primary">Kopiera</span>
+                  </button>
+                </div>
+                
+                {/* Generated text */}
+                <div className="rounded-xl bg-background border border-border p-4 mb-4 max-h-[200px] overflow-y-auto">
+                  {generatedAdText.split('\n\n').map((paragraph, index) => (
+                    <p 
+                      key={index}
+                      className="text-sm leading-relaxed text-foreground/90 mb-3 last:mb-0"
+                      style={{
+                        animation: 'fade-in 0.4s ease-out forwards',
+                        animationDelay: `${index * 0.15}s`,
+                        opacity: 0,
+                      }}
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+                
+                {/* Ready indicator */}
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs">Redo att klistras in på Blocket, Bytbil, Facebook...</span>
+                </div>
               </div>
+            )}
+
+            {/* Navigation buttons */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
+              {currentStep > 1 && !showResult ? (
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Tillbaka
+                </Button>
+              ) : (
+                <div />
+              )}
               
-              {/* Subtle footer indicator */}
-              <div className="mt-6 pt-4 border-t border-border/30 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
-                <span className="text-[11px] text-muted-foreground/60">
-                  Redo att klistras in på Blocket, Bytbil, Facebook...
-                </span>
-              </div>
+              {!showResult ? (
+                <Button
+                  onClick={handleNext}
+                  disabled={isGenerating}
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                >
+                  {currentStep === 3 ? (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generera
+                    </>
+                  ) : (
+                    <>
+                      Nästa
+                      <ChevronRight className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => navigate('/start')}
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                >
+                  Skapa på riktigt
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tagline */}
-        <div 
-          className="text-center mt-10 md:mt-12"
-          style={{ 
-            animation: 'fade-in 0.6s ease-out 0.7s forwards',
-            opacity: 0,
-          }}
-        >
-          <p className="text-base md:text-lg text-muted-foreground">
-            Från regnummer till säljande annonstext – <span className="text-foreground font-medium">på sekunder.</span>
-          </p>
-        </div>
+      {/* Tagline */}
+      <div className="text-center mt-8">
+        <p className="text-sm md:text-base text-muted-foreground">
+          Från regnummer till säljande annonstext – <span className="text-foreground font-medium">på sekunder.</span>
+        </p>
       </div>
     </div>
   );

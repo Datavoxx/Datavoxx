@@ -36,12 +36,12 @@ serve(async (req) => {
 
     console.log(`Connecting to SMTP host: ${smtpHost}`);
 
-    // Use STARTTLS approach for One.com (port 587)
+    // One.com: prefer implicit TLS (SMTPS) on port 465 in this runtime
     const client = new SMTPClient({
       connection: {
         hostname: smtpHost,
-        port: 587,
-        tls: false, // Start without TLS, use STARTTLS
+        port: 465,
+        tls: true,
         auth: {
           username: smtpUser,
           password: smtpPass,
@@ -51,7 +51,7 @@ serve(async (req) => {
 
     // Build email with proper reply headers
     const emailSubject = subject.startsWith("Re:") ? subject : `Re: ${subject}`;
-    
+
     const headers: Record<string, string> = {};
     if (inReplyTo) {
       headers["In-Reply-To"] = inReplyTo;
@@ -60,15 +60,21 @@ serve(async (req) => {
 
     console.log("Sending email via SMTP...");
 
-    await client.send({
-      from: smtpUser,
-      to: to,
-      subject: emailSubject,
-      content: body,
-      headers: Object.keys(headers).length > 0 ? headers : undefined,
-    });
-
-    await client.close();
+    try {
+      await client.send({
+        from: smtpUser,
+        to: to,
+        subject: emailSubject,
+        content: body,
+        headers: Object.keys(headers).length > 0 ? headers : undefined,
+      });
+    } finally {
+      try {
+        await client.close();
+      } catch (closeErr) {
+        console.warn("SMTP close error:", closeErr);
+      }
+    }
 
     console.log("Email sent successfully!");
 

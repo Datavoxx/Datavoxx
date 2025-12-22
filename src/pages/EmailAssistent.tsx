@@ -10,7 +10,10 @@ import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
 import EmailInbox, { EmailMessage } from "@/components/EmailInbox";
 import EmailReplyPanel from "@/components/EmailReplyPanel";
+import EmailConnectionRequest from "@/components/EmailConnectionRequest";
 
+// Mahmoud's user ID - the only user with full inbox access
+const MAHMOUD_USER_ID = "0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3";
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -64,7 +67,7 @@ const EmailAssistent = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Inbox mode state
-  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
+  const [viewMode, setViewMode] = useState<ViewMode>("templates");
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
   const [isLoadingEmails, setIsLoadingEmails] = useState(false);
@@ -72,12 +75,15 @@ const EmailAssistent = () => {
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
-  // Fetch emails on mount
+  // Check if current user is Mahmoud (has full inbox access)
+  const isMahmoud = user?.id === MAHMOUD_USER_ID;
+
+  // Fetch emails on mount - only for Mahmoud
   useEffect(() => {
-    if (viewMode === "inbox") {
+    if (viewMode === "inbox" && isMahmoud) {
       fetchEmails();
     }
-  }, [viewMode]);
+  }, [viewMode, isMahmoud]);
 
   const fetchEmails = async () => {
     setIsLoadingEmails(true);
@@ -452,39 +458,47 @@ const EmailAssistent = () => {
       {/* Main Content */}
       {viewMode === "inbox" ? (
         <main className="flex-1 overflow-hidden p-4 max-w-6xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
-            {/* Inbox Panel */}
-            <EmailInbox
-              emails={emails}
-              selectedEmail={selectedEmail}
-              onSelectEmail={setSelectedEmail}
-              onRefresh={fetchEmails}
-              isLoading={isLoadingEmails}
-              error={emailError}
-            />
-
-            {/* Reply Panel */}
-            {selectedEmail ? (
-              <EmailReplyPanel
-                email={selectedEmail}
-                onBack={() => setSelectedEmail(null)}
-                onGenerateReply={handleGenerateReply}
-                onSendEmail={handleSendEmail}
-                isGenerating={isGeneratingReply}
-                isSending={isSendingEmail}
-                companyName={profile?.company_name || undefined}
-                userName={profile?.display_name || undefined}
+          {isMahmoud ? (
+            /* Mahmoud sees the full inbox */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
+              {/* Inbox Panel */}
+              <EmailInbox
+                emails={emails}
+                selectedEmail={selectedEmail}
+                onSelectEmail={setSelectedEmail}
+                onRefresh={fetchEmails}
+                isLoading={isLoadingEmails}
+                error={emailError}
               />
-            ) : (
-              <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
-                <Reply className="h-12 w-12 text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
-                <p className="text-sm text-gray-400 text-center">
-                  Klicka på ett mejl i inkorgen för att generera ett svar
-                </p>
-              </div>
-            )}
-          </div>
+
+              {/* Reply Panel */}
+              {selectedEmail ? (
+                <EmailReplyPanel
+                  email={selectedEmail}
+                  onBack={() => setSelectedEmail(null)}
+                  onGenerateReply={handleGenerateReply}
+                  onSendEmail={handleSendEmail}
+                  isGenerating={isGeneratingReply}
+                  isSending={isSendingEmail}
+                  companyName={profile?.company_name || undefined}
+                  userName={profile?.display_name || undefined}
+                />
+              ) : (
+                <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
+                  <Reply className="h-12 w-12 text-gray-300 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
+                  <p className="text-sm text-gray-400 text-center">
+                    Klicka på ett mejl i inkorgen för att generera ett svar
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Other users see the email connection request form */
+            <div className="flex items-center justify-center h-[calc(100vh-180px)]">
+              <EmailConnectionRequest userId={user!.id} />
+            </div>
+          )}
         </main>
       ) : (
         <>

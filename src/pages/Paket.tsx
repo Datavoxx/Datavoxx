@@ -12,8 +12,9 @@ const Paket = () => {
       name: "Gen 1",
       icon: Rocket,
       features: ["Grundläggande verktyg", "Email-support", "5 annonser/månad", "Bil Research Basic"],
-      price: "299",
+      price: "999",
       blur: "blur-[6px]",
+      priceBlur: "blur-[10px]",
       bgClass: "bg-white/10",
       borderClass: "border-white/20",
     },
@@ -21,9 +22,10 @@ const Paket = () => {
       name: "Gen 2",
       icon: Sparkles,
       features: ["Alla Gen 1 funktioner", "Obegränsade annonser", "Prioriterad support", "AI Email-assistent", "Avancerad Research"],
-      price: "599",
+      price: "2799",
       popular: true,
       blur: "blur-[6px]",
+      priceBlur: "blur-[10px]",
       bgClass: "bg-white/10",
       borderClass: "border-primary/30",
     },
@@ -31,8 +33,9 @@ const Paket = () => {
       name: "Gen 3",
       icon: Crown,
       features: ["Alla Gen 2 funktioner", "White-label lösning", "Dedikerad account manager", "Custom AI-träning", "API-access", "Enterprise support"],
-      price: "1299",
+      price: null,
       blur: "blur-[8px]",
+      priceBlur: "blur-[12px]",
       bgClass: "bg-black/90",
       borderClass: "border-black/50",
       dark: true,
@@ -115,12 +118,22 @@ const Paket = () => {
                   </h3>
 
                   {/* Price */}
-                  <div className="mb-4">
-                    <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
-                      {pkg.price} kr
-                    </span>
-                    <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
-                  </div>
+                  {pkg.price && (
+                    <div className={`mb-4 ${pkg.priceBlur}`}>
+                      <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
+                        {pkg.price} kr
+                      </span>
+                      <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
+                    </div>
+                  )}
+                  {!pkg.price && (
+                    <div className={`mb-4 ${pkg.priceBlur}`}>
+                      <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
+                        ••••• kr
+                      </span>
+                      <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
+                    </div>
+                  )}
 
                   {/* Features */}
                   <ul className="space-y-2 mb-6">

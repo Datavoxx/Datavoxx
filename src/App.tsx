@@ -13,6 +13,7 @@ import BilResearch from "./pages/BilResearch";
 import EmailAssistent from "./pages/EmailAssistent";
 import Paket from "./pages/Paket";
 import Auth from "./pages/Auth";
+import AdminRoles from "./pages/AdminRoles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/bil-research" element={<BilResearch />} />
               <Route path="/email-assistent" element={<EmailAssistent />} />
               <Route path="/paket" element={<Paket />} />
+              <Route path="/admin/roles" element={<AdminRoles />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

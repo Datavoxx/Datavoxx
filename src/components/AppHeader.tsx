@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail } from "lucide-react";
+import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
@@ -11,6 +11,8 @@ interface AppHeaderProps {
   showClearButton?: boolean;
   onClearClick?: () => void;
 }
+
+const ADMIN_USER_ID = "bc8ed488-4ebc-49b1-988b-4b0e926c7b8d";
 
 const AppHeader = ({
   showBackButton = false,
@@ -23,6 +25,8 @@ const AppHeader = ({
   const { user, profile, isLoading, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+
+  const isAdmin = user?.id === ADMIN_USER_ID;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -126,6 +130,15 @@ const AppHeader = ({
                     <p className="text-xs text-gray-500">Inloggad som</p>
                     <p className="truncate text-sm font-medium text-gray-900">{user.email}</p>
                   </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => navigate("/admin/roles")}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Rollhantering
+                    </button>
+                  )}
                   <button
                     onClick={handleSignOut}
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"

@@ -12,6 +12,7 @@ import HistoryPanel from "@/components/HistoryPanel";
 import EmailInbox, { EmailMessage } from "@/components/EmailInbox";
 import EmailReplyPanel from "@/components/EmailReplyPanel";
 import EmailConnectionRequest from "@/components/EmailConnectionRequest";
+import EmailTemplateDemo from "@/components/EmailTemplateDemo";
 
 interface Message {
   role: "user" | "assistant";
@@ -506,17 +507,21 @@ const EmailAssistent = () => {
           {/* Template/Chat View */}
           <main className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl mx-auto w-full">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center pt-16 text-center">
-                <div className="flex items-center gap-3 mb-3 opacity-0 animate-fade-in">
-                  <Mail className="h-10 w-10 text-gray-700" />
-                  <h2 className="text-4xl font-bold tracking-tight text-foreground">Email Assistent</h2>
+              <div className="flex flex-col items-center pt-8">
+                {/* Interactive Demo Section */}
+                <EmailTemplateDemo 
+                  onTryTemplate={() => {
+                    // Scroll to input and focus
+                    textareaRef.current?.focus();
+                  }}
+                />
+
+                {/* Divider */}
+                <div className="w-full max-w-2xl my-10 flex items-center gap-4">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-sm text-muted-foreground">Eller välj en mall</span>
+                  <div className="flex-1 h-px bg-border" />
                 </div>
-                <p
-                  className="text-lg text-gray-500 max-w-md mb-10 opacity-0 animate-fade-in"
-                  style={{ animationDelay: "50ms" }}
-                >
-                  Välj en mall nedan eller beskriv fritt vilket e-postmeddelande du behöver hjälp med.
-                </p>
 
                 {/* Template Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">

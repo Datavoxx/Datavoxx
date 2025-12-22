@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown, Inbox } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown, Inbox, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ type ViewMode = "templates" | "inbox";
 
 const EmailAssistent = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
   
   // Template/chat mode state
@@ -350,6 +352,49 @@ const EmailAssistent = () => {
     setIsHistoryOpen(false);
     setViewMode("templates");
   };
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <DecorativeBackground />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show "create account" prompt for anonymous users
+  if (!user) {
+    return (
+      <div className="relative flex min-h-screen flex-col bg-slate-50">
+        <DecorativeBackground />
+        <AppHeader showBackButton={true} />
+        
+        <main className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-md text-center border border-gray-200">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-4">
+              Skapa ett konto för att använda Email Assistenten
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              För att kunna generera e-postmeddelanden, se din inkorg och spara historik behöver du logga in eller skapa ett konto.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button onClick={() => navigate('/auth')} className="gap-2">
+                <UserPlus className="h-4 w-4" />
+                Skapa konto
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/auth')}>
+                Logga in
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">

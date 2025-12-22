@@ -40,7 +40,7 @@ const AnnonsResultat = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [regenerateCount, setRegenerateCount] = useState(0);
-  const [selectedLength, setSelectedLength] = useState<AdLength>("long");
+  const [selectedLength, setSelectedLength] = useState<AdLength>("short");
   const [isEditing, setIsEditing] = useState(false);
   const [editedAd, setEditedAd] = useState("");
   const hasGeneratedRef = useRef(false);
@@ -277,7 +277,7 @@ const AnnonsResultat = () => {
                   <Loader2 className="relative h-14 w-14 animate-spin text-primary mb-6" />
                 </div>
                 <p className="text-xl font-medium text-foreground mb-2">Genererar din annons...</p>
-                <p className="text-sm text-muted-foreground">Detta kan ta 30-60 sekunder</p>
+                <p className="text-sm text-muted-foreground">Detta kan ta {selectedLength === "short" ? "10-15 sekunder" : "30-60 sekunder"}</p>
                 
                 {/* Loading progress dots */}
                 <div className="flex gap-1.5 mt-6">

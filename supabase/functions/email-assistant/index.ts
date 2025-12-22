@@ -161,18 +161,58 @@ Hör gärna av dig om du är intresserad av något annat!${signature}"
 - Avsluta med signatur om tillgänglig`;
 };
 
+// Prompt for suggesting dynamic directives based on email content
+const buildSuggestDirectivesPrompt = (emailContext: EmailContext): string => {
+  return `Du är en expert på att analysera inkommande mejl till bilhandlare i Sverige.
+
+Analysera mejlet nedan och föreslå 3-4 korta, relevanta svarsalternativ som användaren kan välja för att generera ett svar.
+
+📌 INKOMMANDE MEJL
+
+Från: ${emailContext.fromName} <${emailContext.from}>
+Ämne: ${emailContext.subject}
+
+Innehåll:
+${emailContext.body}
+
+📌 KATEGORIER OCH EXEMPEL
+
+- Köpförfrågan (kund vill köpa bil) → "Bekräfta tillgänglighet", "Föreslå provkörning", "Skicka mer info om bilen"
+- Säljförfrågan (kund vill sälja bil) → "Be om bilder", "Föreslå värdering", "Ge preliminärt inköpspris"
+- Prisförhandling → "Stå fast vid pris", "Erbjud liten rabatt", "Föreslå alternativ bil"
+- Bokningsbekräftelse → "Bekräfta bokning", "Föreslå annan tid", "Skicka vägbeskrivning"
+- Allmän fråga → "Svara på frågan", "Be om mer info", "Hänvisa till hemsida"
+- Reklamation/Klagomål → "Be om ursäkt och erbjud lösning", "Be om mer detaljer", "Boka in service"
+
+📌 REGLER
+
+- Returnera ENDAST en JSON-array, inget annat
+- Varje objekt har "label" (kort, 2-3 ord) och "value" (mer detaljerat direktiv)
+- Anpassa förslagen till mejlets innehåll
+- Max 4 förslag
+
+📌 EXEMPELSVAR
+
+[
+  {"label": "Bekräfta tillgänglighet", "value": "Bekräfta att bilen finns kvar och är tillgänglig för visning"},
+  {"label": "Föreslå provkörning", "value": "Föreslå att boka en provkörning och fråga vilken tid som passar"},
+  {"label": "Skicka mer info", "value": "Erbjud dig att skicka mer information om bilens utrustning och historik"}
+]`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, companyName, userName, emailContext, directive } = (await req.json()) as {
+    const { messages, companyName, userName, emailContext, directive, mode } = (await req.json()) as {
       messages?: Message[];
       companyName?: string;
       userName?: string;
       emailContext?: EmailContext;
       directive?: string;
+      mode?: "suggest-directives" | "generate";
     };
 
     if (!lovableApiKey) {
@@ -181,6 +221,55 @@ serve(async (req) => {
 
     let systemPrompt: string;
     let chatMessages: { role: string; content: string }[];
+
+    // Mode: suggest-directives - analyze email and suggest quick actions
+    if (mode === "suggest-directives" && emailContext) {
+      systemPrompt = buildSuggestDirectivesPrompt(emailContext);
+      chatMessages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Analysera mejlet och föreslå svarsalternativ." }
+      ];
+      console.log("Suggesting directives for email from:", emailContext.from);
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: chatMessages,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Lovable AI error:", response.status, errorText);
+        throw new Error("Lovable AI error");
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "[]";
+      
+      // Try to parse as JSON, fallback to empty array
+      let directives = [];
+      try {
+        // Extract JSON from response (in case there's extra text)
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          directives = JSON.parse(jsonMatch[0]);
+        }
+      } catch (parseError) {
+        console.error("Failed to parse directives:", parseError);
+        directives = [];
+      }
+
+      console.log("Suggested directives:", directives.length);
+      return new Response(JSON.stringify({ directives }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Check if this is a reply-to-email request
     if (emailContext && directive) {

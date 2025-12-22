@@ -12,8 +12,6 @@ import EmailInbox, { EmailMessage } from "@/components/EmailInbox";
 import EmailReplyPanel from "@/components/EmailReplyPanel";
 import EmailConnectionRequest from "@/components/EmailConnectionRequest";
 
-// Mahmoud's user ID - the only user with full inbox access
-const MAHMOUD_USER_ID = "0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3";
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -75,15 +73,15 @@ const EmailAssistent = () => {
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
-  // Check if current user is Mahmoud (has full inbox access)
-  const isMahmoud = user?.id === MAHMOUD_USER_ID;
+  // Check if current user has email connected
+  const hasEmailConnected = profile?.email_connected === true;
 
-  // Fetch emails on mount - only for Mahmoud
+  // Fetch emails on mount - only for users with email connected
   useEffect(() => {
-    if (viewMode === "inbox" && isMahmoud) {
+    if (viewMode === "inbox" && hasEmailConnected) {
       fetchEmails();
     }
-  }, [viewMode, isMahmoud]);
+  }, [viewMode, hasEmailConnected]);
 
   const fetchEmails = async () => {
     setIsLoadingEmails(true);
@@ -458,8 +456,8 @@ const EmailAssistent = () => {
       {/* Main Content */}
       {viewMode === "inbox" ? (
         <main className="flex-1 overflow-hidden p-4 max-w-6xl mx-auto w-full">
-          {isMahmoud ? (
-            /* Mahmoud sees the full inbox */
+          {hasEmailConnected ? (
+            /* User with connected email sees their inbox */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
               {/* Inbox Panel */}
               <EmailInbox

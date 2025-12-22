@@ -167,7 +167,30 @@ Med vänliga hälsningar`
                 <Clock className="h-4 w-4 text-green-500" />
                 Spara 30+ min/dag
               </span>
+              <span className="flex items-center gap-2">
+                <Search className="h-4 w-4 text-primary" />
+                1000+ bilannonser studerade på Blocket
+              </span>
             </div>
+
+            {/* Account CTA */}
+            {!user && (
+              <div className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 max-w-xl mx-auto">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <p className="text-lg font-semibold text-foreground">
+                    Skapa ett gratis konto
+                  </p>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Logga in för en personlig upplevelse – spara historik, få anpassade inställningar och mer. Helt kostnadsfritt!
+                </p>
+                <Button onClick={() => navigate("/auth")} className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Skapa konto gratis
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Demo Selector Tabs */}

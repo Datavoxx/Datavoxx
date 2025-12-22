@@ -23,6 +23,7 @@ interface EmailReplyPanelProps {
   isSending?: boolean;
   companyName?: string;
   userName?: string;
+  hasAIEmailAccess?: boolean;
 }
 
 // Fallback directives if AI fails
@@ -39,6 +40,7 @@ const EmailReplyPanel = ({
   onSendEmail,
   isGenerating,
   isSending = false,
+  hasAIEmailAccess = false,
 }: EmailReplyPanelProps) => {
   const { toast } = useToast();
   const [directive, setDirective] = useState("");
@@ -86,10 +88,13 @@ const EmailReplyPanel = ({
     setEditableReply(generatedReply);
   }, [generatedReply]);
 
-  // Fetch AI-suggested directives when email changes
+  // Fetch AI-suggested directives when email changes (only if user has AI access)
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!email) return;
+      if (!email || !hasAIEmailAccess) {
+        setSuggestedDirectives([]);
+        return;
+      }
       
       setIsLoadingSuggestions(true);
       setSuggestedDirectives([]);
@@ -111,19 +116,18 @@ const EmailReplyPanel = ({
 
         if (data?.directives && Array.isArray(data.directives) && data.directives.length > 0) {
           setSuggestedDirectives(data.directives);
-        } else {
-          setSuggestedDirectives(fallbackDirectives);
         }
       } catch (error) {
         console.error("Failed to fetch directive suggestions:", error);
-        setSuggestedDirectives(fallbackDirectives);
+        // Don't show fallbacks - just show empty if AI fails
+        setSuggestedDirectives([]);
       } finally {
         setIsLoadingSuggestions(false);
       }
     };
 
     fetchSuggestions();
-  }, [email?.id]);
+  }, [email?.id, hasAIEmailAccess]);
 
   // Reset state when email changes
   useEffect(() => {
@@ -273,39 +277,41 @@ const EmailReplyPanel = ({
 
       {/* Reply Input */}
       <div className="border-t border-gray-100 p-4 space-y-3">
-        {/* AI-Suggested Quick Directives */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {isLoadingSuggestions ? (
-            <>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Sparkles className="h-3 w-3 animate-pulse text-primary" />
-                <span>AI analyserar...</span>
-              </div>
-              <Skeleton className="h-7 w-24" />
-              <Skeleton className="h-7 w-28" />
-              <Skeleton className="h-7 w-20" />
-            </>
-          ) : (
-            <>
-              {suggestedDirectives.length > 0 && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-1">
-                  <Sparkles className="h-3 w-3 text-primary" />
+        {/* AI-Suggested Quick Directives - only for users with AI email access */}
+        {hasAIEmailAccess && (
+          <div className="flex flex-wrap gap-2 items-center">
+            {isLoadingSuggestions ? (
+              <>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Sparkles className="h-3 w-3 animate-pulse text-primary" />
+                  <span>AI analyserar...</span>
                 </div>
-              )}
-              {suggestedDirectives.map((qd, index) => (
-                <Button
-                  key={`${qd.label}-${index}`}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickDirective(qd.value)}
-                  className="text-xs h-7 px-2.5 hover:bg-primary/10 hover:border-primary/30 transition-colors"
-                >
-                  {qd.label}
-                </Button>
-              ))}
-            </>
-          )}
-        </div>
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-7 w-28" />
+                <Skeleton className="h-7 w-20" />
+              </>
+            ) : (
+              <>
+                {suggestedDirectives.length > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-1">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                )}
+                {suggestedDirectives.map((qd, index) => (
+                  <Button
+                    key={`${qd.label}-${index}`}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuickDirective(qd.value)}
+                    className="text-xs h-7 px-2.5 hover:bg-primary/10 hover:border-primary/30 transition-colors"
+                  >
+                    {qd.label}
+                  </Button>
+                ))}
+              </>
+            )}
+          </div>
+        )}
 
         {/* Directive Input */}
         <div className="relative flex items-end gap-2">

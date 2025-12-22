@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
-import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key, Server, Phone, Building, User } from "lucide-react";
+import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key, Server, Phone, Building, User, X, Shield, Lock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 interface EmailConnectionRequestProps {
   userId: string;
 }
@@ -428,7 +434,66 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
   // Options view (after selecting provider)
   if (viewState === "options") {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-lg border border-gray-200 max-h-[85vh] overflow-y-auto">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-lg border border-gray-200 max-h-[85vh] overflow-y-auto relative">
+        {/* What is API? button in top right */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="absolute top-4 right-4 text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1.5 transition-colors">
+              <HelpCircle className="h-4 w-4" />
+              Vad är API?
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Key className="h-5 w-5 text-primary" />
+                Vad är en API-nyckel?
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <p>
+                En <strong className="text-foreground">API-nyckel</strong> är ett unikt lösenord som låter vår tjänst säkert kommunicera med din e-post. Det fungerar som en digital nyckel som ger oss tillåtelse att läsa dina mejl och skicka svar åt dig.
+              </p>
+              
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-amber-800 mb-1">Viktigt att veta</p>
+                  <p className="text-amber-700 text-xs">
+                    Din API-nyckel är personlig och ska aldrig delas med någon annan. Den ger åtkomst till ditt e-postkonto.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Shield className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Säkerhet</p>
+                    <p className="text-xs">Dina uppgifter krypteras och lagras säkert. Vi har aldrig åtkomst till ditt vanliga lösenord.</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Lock className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">App-lösenord</p>
+                    <p className="text-xs">För Gmail skapar du ett speciellt "app-lösenord" som bara fungerar för denna tjänst – inte ditt vanliga lösenord.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-xs border-t pt-3">
+                Har du frågor? Välj "Ska vi hjälpa dig?" så kontaktar vi dig och guidar dig genom processen.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <Button
           variant="ghost"
           size="sm"

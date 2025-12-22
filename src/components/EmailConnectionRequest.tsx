@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key, Server } from "lucide-react";
+import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key, Server, Phone, Building, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ interface ExistingRequest {
   created_at: string;
 }
 
-type ViewState = "select-provider" | "options" | "guide" | "pending";
+type ViewState = "select-provider" | "options" | "guide" | "pending" | "help-form";
 type ProviderType = "google" | "other" | null;
 
 const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
@@ -35,6 +35,11 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
   const [imapPort, setImapPort] = useState("");
   const [imapUsername, setImapUsername] = useState("");
   const [imapPassword, setImapPassword] = useState("");
+  
+  // Help form state
+  const [contactName, setContactName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [companyName, setCompanyName] = useState("");
 
   useEffect(() => {
     fetchExistingRequest();
@@ -124,12 +129,26 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
   };
 
   const handleRequestHelp = async () => {
+    if (!contactName || !phoneNumber || !companyName) {
+      toast({
+        title: "Fyll i alla fält",
+        description: "Namn, telefonnummer och företagsnamn krävs.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const requestType = selectedProvider === "google" ? "request_help_gmail" : "request_help_other";
+      
       const { error } = await supabase.from("email_connection_requests").insert({
         user_id: userId,
-        request_type: selectedProvider || "other",
+        request_type: requestType,
         email_address: null,
+        contact_name: contactName,
+        phone_number: phoneNumber,
+        company_name: companyName,
       });
 
       if (error) throw error;
@@ -159,6 +178,8 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
     } else if (viewState === "options") {
       setViewState("select-provider");
       setSelectedProvider(null);
+    } else if (viewState === "help-form") {
+      setViewState("options");
     }
   };
 
@@ -315,10 +336,99 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
     );
   }
 
+  // Help form view
+  if (viewState === "help-form") {
+    return (
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-lg border border-gray-200">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBack}
+          className="mb-4 -ml-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Tillbaka
+        </Button>
+
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <HelpCircle className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Vi hjälper dig
+          </h2>
+          <p className="text-muted-foreground">
+            Fyll i dina uppgifter så kontaktar vi dig för att hjälpa dig ansluta din {selectedProvider === "google" ? "Gmail" : "e-post"}.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="contact-name" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Namn
+            </Label>
+            <Input
+              id="contact-name"
+              placeholder="Ditt namn"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone-number" className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              Telefonnummer
+            </Label>
+            <Input
+              id="phone-number"
+              type="tel"
+              placeholder="070-123 45 67"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="company-name" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              Företagsnamn
+            </Label>
+            <Input
+              id="company-name"
+              placeholder="Ditt företag"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+          </div>
+
+          <Button 
+            onClick={handleRequestHelp} 
+            disabled={isSubmitting}
+            className="w-full mt-6"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Skickar...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Skicka förfrågan
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Options view (after selecting provider)
   if (viewState === "options") {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-lg border border-gray-200">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 max-w-lg border border-gray-200 max-h-[85vh] overflow-y-auto">
         <Button
           variant="ghost"
           size="sm"
@@ -425,8 +535,7 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
         <div className="space-y-3">
           <Button
             variant="outline"
-            onClick={handleRequestHelp}
-            disabled={isSubmitting}
+            onClick={() => setViewState("help-form")}
             className="w-full h-auto py-3"
           >
             <div className="flex items-center gap-3">
@@ -434,7 +543,7 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
               <div className="text-left">
                 <p className="font-semibold">Ska vi hjälpa dig?</p>
                 <p className="text-xs font-normal text-muted-foreground">
-                  {isSubmitting ? "Skickar förfrågan..." : "Vi kontaktar dig och hjälper dig ansluta"}
+                  Vi kontaktar dig och hjälper dig ansluta
                 </p>
               </div>
             </div>

@@ -135,27 +135,36 @@ export type Database = {
       }
       email_connection_requests: {
         Row: {
+          company_name: string | null
+          contact_name: string | null
           created_at: string | null
           email_address: string | null
           id: string
+          phone_number: string | null
           request_type: string
           status: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          company_name?: string | null
+          contact_name?: string | null
           created_at?: string | null
           email_address?: string | null
           id?: string
+          phone_number?: string | null
           request_type: string
           status?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          company_name?: string | null
+          contact_name?: string | null
           created_at?: string | null
           email_address?: string | null
           id?: string
+          phone_number?: string | null
           request_type?: string
           status?: string | null
           updated_at?: string | null

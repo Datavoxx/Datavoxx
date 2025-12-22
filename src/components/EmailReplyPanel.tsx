@@ -17,10 +17,9 @@ interface EmailReplyPanelProps {
 }
 
 const quickDirectives = [
-  { label: "Tacka & bekräfta", value: "Tacka för mejlet och bekräfta att vi återkommer" },
   { label: "Boka visning", value: "Föreslå att boka en visning/provkörning" },
-  { label: "Skicka pris", value: "Bekräfta pris och tillgänglighet" },
-  { label: "Nej tack", value: "Tacka artigt men avböj" },
+  { label: "Bekräfta pris", value: "Bekräfta pris och tillgänglighet" },
+  { label: "Neka bud", value: "Tacka artigt men avböj budet" },
 ];
 
 const EmailReplyPanel = ({

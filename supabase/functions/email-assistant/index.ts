@@ -125,19 +125,40 @@ Från: ${emailContext.fromName} <${emailContext.from}>
 Innehåll:
 ${emailContext.body}
 
-📌 DITT UPPDRAG
+📌 SNABBVAL / DIREKTIV
 
-Användaren kommer ge ett kort direktiv om vad svaret ska innehålla. Baserat på kontexten ovan och direktivet, skriv ett professionellt svar på svenska.
+Användaren kan välja något av följande snabbval eller skriva eget direktiv:
+
+• "Föreslå att boka en visning/provkörning"
+• "Bekräfta pris och tillgänglighet"
+• "Tacka artigt men avböj budet"
+
+📌 EXEMPEL
+
+Input: "Föreslå att boka en visning/provkörning"
+Output:
+"Hej [namn]!
+
+Tack för ditt intresse för [bilen]. Den finns kvar och ser bra ut!
+
+När passar det för en provkörning? Vi har tider lediga hela veckan.${signature}"
+
+Input: "Tacka artigt men avböj budet"
+Output:
+"Hej [namn]!
+
+Tack för ditt bud på [bilen]. Tyvärr ligger det en bit från vår prisbild och vi väljer att avböja.
+
+Hör gärna av dig om du är intresserad av något annat!${signature}"
 
 📌 REGLER
 
 - Skriv alltid på svenska
-- Skriv endast själva mejlet, inga förklaringar eller rubriker
-- Håll det kort och professionellt (50-90 ord)
-- Anpassa tonen till bilbranschen
-- Svara på kundens frågor om sådana finns
-- Var hjälpsam och serviceinriktad
-- Avsluta med en tydlig CTA om lämpligt${signature}`;
+- Skriv endast mejlet, inga förklaringar eller rubriker
+- **Håll det KORT: max 3-5 rader**
+- Var professionell men personlig
+- Använd kundens namn om det finns
+- Avsluta med signatur om tillgänglig`;
 };
 
 serve(async (req) => {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Copy, ArrowLeft, User, Calendar, Loader2 } from "lucide-react";
+import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
@@ -163,6 +163,15 @@ const EmailReplyPanel = ({
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-primary font-medium">Ditt svar:</p>
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => replyTextareaRef.current?.focus()}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Redigera
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

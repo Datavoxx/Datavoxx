@@ -6,7 +6,7 @@ import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -73,7 +73,16 @@ Med vänliga hälsningar`
       <DecorativeBackground />
 
       {/* Login Button - Top Right */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/paket")}
+          className="gap-2"
+        >
+          <Package className="h-4 w-4" />
+          Paket
+        </Button>
         {user ? (
           <Button
             variant="outline"

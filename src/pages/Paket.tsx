@@ -1,11 +1,58 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, Sparkles, Crown, Rocket } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Paket = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!name.trim() || !email.trim()) {
+      toast({
+        title: "Fyll i alla fält",
+        description: "Både namn och email krävs.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase
+        .from("package_waitlist")
+        .insert({ name: name.trim(), email: email.trim() });
+
+      if (error) throw error;
+
+      setIsSubmitted(true);
+      toast({
+        title: "Tack för din anmälan! 🎉",
+        description: "Du är nu på listan och kommer få ett mail när vi lanserar.",
+      });
+    } catch (error) {
+      console.error("Error submitting to waitlist:", error);
+      toast({
+        title: "Något gick fel",
+        description: "Försök igen senare.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const packages = [
     {
@@ -165,15 +212,85 @@ const Paket = () => {
           ))}
         </div>
 
+        {/* Waitlist Signup Box */}
+        <div className="max-w-xl mx-auto mb-16 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+          <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 backdrop-blur-sm">
+            {/* Decorative star */}
+            <div className="absolute -top-3 -right-3">
+              <Star className="h-6 w-6 text-primary fill-primary animate-pulse" />
+            </div>
+            
+            {!isSubmitted ? (
+              <>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground text-center mb-2">
+                  Bli först att testa <span className="text-primary">"the real deal"</span>
+                </h2>
+                <p className="text-muted-foreground text-center mb-6">
+                  Anmäl dig till vår waitlist och få exklusiv tidig tillgång
+                </p>
+                
+                <form onSubmit={handleWaitlistSubmit} className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <Input
+                      type="text"
+                      placeholder="Ditt namn"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-background/50 border-white/20 focus:border-primary"
+                      maxLength={100}
+                    />
+                    <Input
+                      type="email"
+                      placeholder="Din email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-background/50 border-white/20 focus:border-primary"
+                      maxLength={255}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full gap-2"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      "Skickar..."
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Jag vill vara först!
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <Star className="h-8 w-8 text-green-400 fill-green-400" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground mb-2">
+                  Du är på listan! 🚀
+                </h2>
+                <p className="text-muted-foreground">
+                  Vi hör av oss så snart paketen är redo för lansering.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* CTA Section */}
-        <div className="text-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
-          <p className="text-lg text-muted-foreground mb-6">
-            Håll utkik – <span className="text-primary font-semibold">paketen kommer snart!</span>
+        <div className="text-center animate-fade-in" style={{ animationDelay: "0.7s" }}>
+          <p className="text-muted-foreground mb-4">
+            Vill du fortsätta testa beta-versionen?
           </p>
           <Button
+            variant="outline"
             size="lg"
             onClick={() => navigate("/start")}
-            className="gap-2 text-lg px-8"
+            className="gap-2"
           >
             Fortsätt med Beta
             <ArrowLeft className="h-5 w-5 rotate-180" />

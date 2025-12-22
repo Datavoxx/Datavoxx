@@ -65,7 +65,7 @@ const EmailAssistent = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Inbox mode state
-  const [viewMode, setViewMode] = useState<ViewMode>("templates");
+  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
   const [isLoadingEmails, setIsLoadingEmails] = useState(false);

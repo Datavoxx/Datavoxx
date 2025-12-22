@@ -109,9 +109,9 @@ class ImapClient {
       if (fetchMatch) {
         // Save previous email if exists
         if (currentEmail && currentEmail.uid) {
-          currentEmail.body = bodyBuffer.trim();
-          currentEmail.preview = bodyBuffer.substring(0, 150).replace(/\s+/g, " ").trim();
-          if (bodyBuffer.length > 150) currentEmail.preview += "...";
+          currentEmail.body = cleanBody(bodyBuffer.trim());
+          currentEmail.preview = currentEmail.body.substring(0, 150).replace(/\s+/g, " ").trim();
+          if (currentEmail.body.length > 150) currentEmail.preview += "...";
           emails.push(currentEmail as EmailMessage);
         }
         
@@ -236,18 +236,86 @@ function decodeHeader(header: string): string {
   });
 }
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function cleanBody(body: string): string {
-  // Remove quoted-printable soft line breaks
-  let cleaned = body.replace(/=\r?\n/g, "");
+  let text = body;
+  
+  // Check if this is a multipart MIME message
+  const boundaryMatch = body.match(/boundary="?([^"\s\r\n]+)"?/i);
+  
+  if (boundaryMatch) {
+    const boundary = boundaryMatch[1];
+    const parts = body.split(new RegExp(`--${escapeRegex(boundary)}`));
+    
+    // Find the text/plain part first, then text/html as fallback
+    let plainText = '';
+    let htmlText = '';
+    
+    for (const part of parts) {
+      if (part.toLowerCase().includes('content-type: text/plain')) {
+        // Extract content after the headers (double newline)
+        const contentMatch = part.match(/\r?\n\r?\n([\s\S]*)/);
+        if (contentMatch) {
+          plainText = contentMatch[1];
+          break;
+        }
+      } else if (part.toLowerCase().includes('content-type: text/html')) {
+        const contentMatch = part.match(/\r?\n\r?\n([\s\S]*)/);
+        if (contentMatch) {
+          htmlText = contentMatch[1];
+        }
+      }
+    }
+    
+    text = plainText || htmlText || text;
+  }
+  
+  // Remove common MIME messages
+  text = text.replace(/^This is a multipart message in MIME format\.?\s*/gim, '');
+  
+  // Remove MIME headers that might still be in the text
+  text = text.replace(/^Content-Type:.*$/gim, '');
+  text = text.replace(/^Content-Transfer-Encoding:.*$/gim, '');
+  text = text.replace(/^Content-Disposition:.*$/gim, '');
+  
+  // Remove boundary markers (lines starting with dashes followed by alphanumeric/special chars)
+  text = text.replace(/^--[-=\w]+--?$/gm, '');
+  
   // Decode quoted-printable
-  cleaned = cleaned.replace(/=([0-9A-F]{2})/gi, (_, hex) => 
-    String.fromCharCode(parseInt(hex, 16))
-  );
+  text = text.replace(/=\r?\n/g, ''); // Remove soft line breaks
+  text = text.replace(/=([0-9A-F]{2})/gi, (_, hex) => {
+    const charCode = parseInt(hex, 16);
+    return String.fromCharCode(charCode);
+  });
+  
+  // Fix UTF-8 encoding issues (Ã¤ → ä, etc)
+  try {
+    // Try to decode as UTF-8 bytes
+    const bytes = new Uint8Array(text.split('').map(c => c.charCodeAt(0)));
+    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    if (!decoded.includes('�')) {
+      text = decoded;
+    }
+  } catch {}
+  
   // Remove HTML tags if present
-  cleaned = cleaned.replace(/<[^>]*>/g, " ");
+  text = text.replace(/<[^>]*>/g, ' ');
+  
+  // Decode HTML entities
+  text = text.replace(/&nbsp;/gi, ' ');
+  text = text.replace(/&amp;/gi, '&');
+  text = text.replace(/&lt;/gi, '<');
+  text = text.replace(/&gt;/gi, '>');
+  text = text.replace(/&quot;/gi, '"');
+  text = text.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec)));
+  
   // Clean up whitespace
-  cleaned = cleaned.replace(/\s+/g, " ").trim();
-  return cleaned;
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  return text;
 }
 
 serve(async (req) => {

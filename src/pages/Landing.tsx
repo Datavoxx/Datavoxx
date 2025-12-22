@@ -78,7 +78,7 @@ Med vänliga hälsningar`
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("/annons")}
+            onClick={() => navigate("/start")}
             className="gap-2"
           >
             Till appen

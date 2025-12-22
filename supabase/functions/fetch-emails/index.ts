@@ -220,20 +220,40 @@ class ImapClient {
   }
 }
 
+function decodeUtf8(str: string): string {
+  try {
+    const bytes = new Uint8Array(str.split('').map(c => c.charCodeAt(0)));
+    return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  } catch {
+    return str;
+  }
+}
+
 function decodeHeader(header: string): string {
-  // Decode RFC 2047 encoded words
-  return header.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, (_, charset, encoding, text) => {
+  // Decode RFC 2047 encoded words (handles =?charset?encoding?text?= format)
+  let decoded = header.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, (_, charset, encoding, text) => {
     try {
       if (encoding.toUpperCase() === "B") {
-        return atob(text);
+        // Base64 decoding
+        const decoded = atob(text);
+        return decodeUtf8(decoded);
       } else if (encoding.toUpperCase() === "Q") {
-        return text.replace(/_/g, " ").replace(/=([0-9A-F]{2})/gi, (_match: string, hex: string) =>
-          String.fromCharCode(parseInt(hex, 16))
-        );
+        // Quoted-printable decoding
+        const qpDecoded = text
+          .replace(/_/g, " ")
+          .replace(/=([0-9A-F]{2})/gi, (_match: string, hex: string) =>
+            String.fromCharCode(parseInt(hex, 16))
+          );
+        return decodeUtf8(qpDecoded);
       }
     } catch {}
     return text;
   });
+  
+  // Clean up any remaining whitespace issues from multi-line encoded headers
+  decoded = decoded.replace(/\s+/g, ' ').trim();
+  
+  return decoded;
 }
 
 function escapeRegex(str: string): string {
@@ -281,8 +301,11 @@ function cleanBody(body: string): string {
   text = text.replace(/^Content-Transfer-Encoding:.*$/gim, '');
   text = text.replace(/^Content-Disposition:.*$/gim, '');
   
-  // Remove boundary markers (lines starting with dashes followed by alphanumeric/special chars)
-  text = text.replace(/^--[-=\w]+--?$/gm, '');
+  // Remove boundary markers - multiple patterns to catch all variations
+  text = text.replace(/^--[-=\w]+--?$/gm, '');  // Standard boundary format
+  text = text.replace(/^-{2,}[\w-]*-{0,2}$/gm, '');  // More aggressive boundary lines
+  text = text.replace(/-{5,}\d[\d-]*/g, '');  // Inline boundaries like -----------9072-1766368286425-1
+  text = text.replace(/-{10,}[\d-]+/g, '');  // Very long dash sequences with numbers
   
   // Decode quoted-printable
   text = text.replace(/=\r?\n/g, ''); // Remove soft line breaks

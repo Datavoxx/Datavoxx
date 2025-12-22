@@ -113,6 +113,7 @@ export type Database = {
           id: string
           session_id: string
           step_from: number | null
+          user_id: string | null
         }
         Insert: {
           action: string
@@ -120,6 +121,7 @@ export type Database = {
           id?: string
           session_id: string
           step_from?: number | null
+          user_id?: string | null
         }
         Update: {
           action?: string
@@ -127,6 +129,7 @@ export type Database = {
           id?: string
           session_id?: string
           step_from?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import TerminalDemo from "@/components/TerminalDemo";
 import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research'>('annons');
 
@@ -68,6 +71,31 @@ Med vänliga hälsningar`
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       <DecorativeBackground />
+
+      {/* Login Button - Top Right */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+        {user ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/annons")}
+            className="gap-2"
+          >
+            Till appen
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/auth")}
+            className="gap-2"
+          >
+            <LogIn className="h-4 w-4" />
+            Logga in
+          </Button>
+        )}
+      </div>
 
       {/* Hero Section */}
       <section className="relative px-6 pt-20 pb-24 md:pt-28 md:pb-32">

@@ -133,6 +133,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_connection_requests: {
+        Row: {
+          created_at: string | null
+          email_address: string | null
+          id: string
+          request_type: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_address?: string | null
+          id?: string
+          request_type: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_address?: string | null
+          id?: string
+          request_type?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_conversations: {
         Row: {
           created_at: string
@@ -221,8 +251,10 @@ export type Database = {
         Row: {
           avatar_url: string | null
           company_name: string | null
+          connected_email: string | null
           created_at: string
           display_name: string | null
+          email_connected: boolean | null
           id: string
           updated_at: string
           user_id: string
@@ -230,8 +262,10 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           company_name?: string | null
+          connected_email?: string | null
           created_at?: string
           display_name?: string | null
+          email_connected?: boolean | null
           id?: string
           updated_at?: string
           user_id: string
@@ -239,8 +273,10 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           company_name?: string | null
+          connected_email?: string | null
           created_at?: string
           display_name?: string | null
+          email_connected?: boolean | null
           id?: string
           updated_at?: string
           user_id?: string

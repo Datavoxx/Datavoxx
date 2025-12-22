@@ -11,7 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
-import FeedbackWidget from "@/components/FeedbackWidget";
+
 
 interface Message {
   role: "user" | "assistant";
@@ -351,7 +351,6 @@ const BilResearch = () => {
     return (
       <div className="relative flex min-h-screen flex-col bg-slate-50">
         <DecorativeBackground />
-        <FeedbackWidget />
         <AppHeader showBackButton={true} />
 
         <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">
@@ -434,7 +433,6 @@ const BilResearch = () => {
   return (
     <div className="relative flex min-h-screen flex-col bg-slate-50">
       <DecorativeBackground />
-      <FeedbackWidget />
       <AppHeader showBackButton={true} />
 
       {/* History Button - only for logged in users */}

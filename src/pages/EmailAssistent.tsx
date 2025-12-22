@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import HistoryPanel from "@/components/HistoryPanel";
@@ -53,6 +54,7 @@ const EmailAssistent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
+  const { hasAIEmail, isLoading: roleLoading } = useUserRole();
   
   // Template/chat mode state
   const [input, setInput] = useState("");
@@ -358,7 +360,7 @@ const EmailAssistent = () => {
   };
 
   // Show loading state while checking auth
-  if (authLoading) {
+  if (authLoading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <DecorativeBackground />
@@ -480,6 +482,7 @@ const EmailAssistent = () => {
                   isSending={isSendingEmail}
                   companyName={profile?.company_name || undefined}
                   userName={profile?.display_name || undefined}
+                  hasAIEmailAccess={hasAIEmail}
                 />
               ) : (
                 <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">

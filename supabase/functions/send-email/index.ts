@@ -21,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { to, subject, body, inReplyTo, messageId }: SendEmailRequest = await req.json();
+    const { to, subject, body, inReplyTo }: SendEmailRequest = await req.json();
 
     console.log(`Sending email to: ${to}`);
     console.log(`Subject: ${subject}`);
@@ -34,11 +34,14 @@ serve(async (req) => {
       throw new Error("Missing SMTP configuration");
     }
 
+    console.log(`Connecting to SMTP host: ${smtpHost}`);
+
+    // Use STARTTLS approach for One.com (port 587)
     const client = new SMTPClient({
       connection: {
         hostname: smtpHost,
         port: 587,
-        tls: true,
+        tls: false, // Start without TLS, use STARTTLS
         auth: {
           username: smtpUser,
           password: smtpPass,
@@ -54,6 +57,8 @@ serve(async (req) => {
       headers["In-Reply-To"] = inReplyTo;
       headers["References"] = inReplyTo;
     }
+
+    console.log("Sending email via SMTP...");
 
     await client.send({
       from: smtpUser,

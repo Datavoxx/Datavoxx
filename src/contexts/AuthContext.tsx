@@ -8,6 +8,8 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   company_name: string | null;
+  email_connected: boolean | null;
+  connected_email: string | null;
 }
 
 interface AuthContextType {

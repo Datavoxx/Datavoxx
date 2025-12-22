@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil } from "lucide-react";
+import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
 import { EmailMessage } from "./EmailInbox";
+import { supabase } from "@/integrations/supabase/client";
+
+interface QuickDirective {
+  label: string;
+  value: string;
+}
 
 interface EmailReplyPanelProps {
   email: EmailMessage;
@@ -18,7 +25,8 @@ interface EmailReplyPanelProps {
   userName?: string;
 }
 
-const quickDirectives = [
+// Fallback directives if AI fails
+const fallbackDirectives: QuickDirective[] = [
   { label: "Boka visning", value: "Föreslå att boka en visning/provkörning" },
   { label: "Bekräfta pris", value: "Bekräfta pris och tillgänglighet" },
   { label: "Neka bud", value: "Tacka artigt men avböj budet" },
@@ -36,6 +44,8 @@ const EmailReplyPanel = ({
   const [directive, setDirective] = useState("");
   const [generatedReply, setGeneratedReply] = useState("");
   const [editableReply, setEditableReply] = useState("");
+  const [suggestedDirectives, setSuggestedDirectives] = useState<QuickDirective[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -75,6 +85,52 @@ const EmailReplyPanel = ({
   useEffect(() => {
     setEditableReply(generatedReply);
   }, [generatedReply]);
+
+  // Fetch AI-suggested directives when email changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!email) return;
+      
+      setIsLoadingSuggestions(true);
+      setSuggestedDirectives([]);
+      
+      try {
+        const { data, error } = await supabase.functions.invoke("email-assistant", {
+          body: {
+            mode: "suggest-directives",
+            emailContext: {
+              from: email.from,
+              fromName: email.fromName,
+              subject: email.subject,
+              body: email.body || email.preview,
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        if (data?.directives && Array.isArray(data.directives) && data.directives.length > 0) {
+          setSuggestedDirectives(data.directives);
+        } else {
+          setSuggestedDirectives(fallbackDirectives);
+        }
+      } catch (error) {
+        console.error("Failed to fetch directive suggestions:", error);
+        setSuggestedDirectives(fallbackDirectives);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [email?.id]);
+
+  // Reset state when email changes
+  useEffect(() => {
+    setDirective("");
+    setGeneratedReply("");
+    setEditableReply("");
+  }, [email?.id]);
 
   const handleGenerate = async () => {
     if (!directive.trim() || isGenerating) return;
@@ -217,19 +273,38 @@ const EmailReplyPanel = ({
 
       {/* Reply Input */}
       <div className="border-t border-gray-100 p-4 space-y-3">
-        {/* Quick Directives */}
-        <div className="flex flex-wrap gap-2">
-          {quickDirectives.map((qd) => (
-            <Button
-              key={qd.label}
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickDirective(qd.value)}
-              className="text-xs h-7 px-2.5"
-            >
-              {qd.label}
-            </Button>
-          ))}
+        {/* AI-Suggested Quick Directives */}
+        <div className="flex flex-wrap gap-2 items-center">
+          {isLoadingSuggestions ? (
+            <>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Sparkles className="h-3 w-3 animate-pulse text-primary" />
+                <span>AI analyserar...</span>
+              </div>
+              <Skeleton className="h-7 w-24" />
+              <Skeleton className="h-7 w-28" />
+              <Skeleton className="h-7 w-20" />
+            </>
+          ) : (
+            <>
+              {suggestedDirectives.length > 0 && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-1">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                </div>
+              )}
+              {suggestedDirectives.map((qd, index) => (
+                <Button
+                  key={`${qd.label}-${index}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickDirective(qd.value)}
+                  className="text-xs h-7 px-2.5 hover:bg-primary/10 hover:border-primary/30 transition-colors"
+                >
+                  {qd.label}
+                </Button>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Directive Input */}

@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import TerminalDemo from "@/components/TerminalDemo";
+import BookDemoForm from "@/components/BookDemoForm";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [showBookDemoForm, setShowBookDemoForm] = useState(false);
 
   const outputExamples = [
     {
@@ -269,7 +272,7 @@ Med vänliga hälsningar`
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </button>
                 <button
-                  onClick={() => navigate("/start")}
+                  onClick={() => setShowBookDemoForm(true)}
                   className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-transparent border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-lg transition-all duration-300 hover:bg-primary-foreground/10 hover:border-primary-foreground/50 cursor-pointer"
                 >
                   <Mail className="h-5 w-5" />
@@ -396,6 +399,11 @@ Med vänliga hälsningar`
           </div>
         </div>
       </footer>
+      {/* Book Demo Form Modal */}
+      <BookDemoForm 
+        open={showBookDemoForm} 
+        onClose={() => setShowBookDemoForm(false)} 
+      />
     </div>
   );
 };

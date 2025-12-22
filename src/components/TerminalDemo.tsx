@@ -20,10 +20,15 @@ const TerminalDemo = () => {
   const trackDemoAction = async (action: string, stepFrom: number) => {
     try {
       const sessionId = localStorage.getItem('bilgen_session_id') || 'unknown';
+      
+      // Hämta aktuell user om inloggad
+      const { data: { user } } = await supabase.auth.getUser();
+      
       await supabase.from('demo_tests').insert({
         session_id: sessionId,
         action,
-        step_from: stepFrom
+        step_from: stepFrom,
+        user_id: user?.id || null  // null = anonym
       });
     } catch (error) {
       console.error("Error tracking demo action:", error);

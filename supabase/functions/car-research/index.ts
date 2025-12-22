@@ -58,7 +58,8 @@ Neutral
 
 Praktiskt användbar i säljsituation
 
-Skriv så att svaret kan läsas upp för kund utan redigering
+Skriv så att svaret kan läsas upp för kund utan redigering`;
+
 // Personalized system prompt for logged-in users
 const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
   return `Du är en bilexpert som arbetar för ${companyName}. Din uppgift är att hjälpa ${userName} att lära sig mer om olika bilmodeller så de kan sälja dem bättre.

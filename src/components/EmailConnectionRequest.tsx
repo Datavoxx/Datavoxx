@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key } from "lucide-react";
+import { Mail, Loader2, CheckCircle, Clock, ArrowLeft, HelpCircle, BookOpen, Key, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,8 +26,15 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
   const [viewState, setViewState] = useState<ViewState>("select-provider");
   const [selectedProvider, setSelectedProvider] = useState<ProviderType>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [existingRequest, setExistingRequest] = useState<ExistingRequest | null>(null);
   const [isLoadingRequest, setIsLoadingRequest] = useState(true);
+  
+  // IMAP form state
+  const [imapServer, setImapServer] = useState("");
+  const [imapPort, setImapPort] = useState("");
+  const [imapUsername, setImapUsername] = useState("");
+  const [imapPassword, setImapPassword] = useState("");
 
   useEffect(() => {
     fetchExistingRequest();
@@ -61,6 +70,57 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
   const handleSelectProvider = (provider: ProviderType) => {
     setSelectedProvider(provider);
     setViewState("options");
+    
+    // Pre-fill IMAP settings for known providers
+    if (provider === "google") {
+      setImapServer("imap.gmail.com");
+      setImapPort("993");
+    } else {
+      setImapServer("");
+      setImapPort("993");
+    }
+  };
+
+  const handleConnect = async () => {
+    if (!imapServer || !imapPort || !imapUsername || !imapPassword) {
+      toast({
+        title: "Fyll i alla fält",
+        description: "Alla IMAP-uppgifter krävs för att ansluta.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      // Update the user's profile with email connection info
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          email_connected: true,
+          connected_email: imapUsername,
+        })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "E-post ansluten!",
+        description: "Dina IMAP-uppgifter har sparats.",
+      });
+
+      // Reload the page to show the inbox
+      window.location.reload();
+    } catch (error) {
+      console.error("Error connecting email:", error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte ansluta e-posten. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const handleRequestHelp = async () => {
@@ -269,7 +329,7 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
           Tillbaka
         </Button>
 
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Key className="h-8 w-8 text-primary" />
           </div>
@@ -281,17 +341,99 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
           </p>
         </div>
 
-        <div className="space-y-4">
+        {/* IMAP Configuration Form */}
+        <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <Server className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Fyll i dina IMAP-uppgifter</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="imap-server">Server</Label>
+                <Input
+                  id="imap-server"
+                  placeholder="imap.example.com"
+                  value={imapServer}
+                  onChange={(e) => setImapServer(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imap-port">Port</Label>
+                <Input
+                  id="imap-port"
+                  placeholder="993"
+                  value={imapPort}
+                  onChange={(e) => setImapPort(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="imap-username">Användarnamn (e-post)</Label>
+              <Input
+                id="imap-username"
+                type="email"
+                placeholder="din.email@example.com"
+                value={imapUsername}
+                onChange={(e) => setImapUsername(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="imap-password">Lösenord / App-lösenord</Label>
+              <Input
+                id="imap-password"
+                type="password"
+                placeholder="••••••••••••"
+                value={imapPassword}
+                onChange={(e) => setImapPassword(e.target.value)}
+              />
+            </div>
+
+            <Button 
+              onClick={handleConnect} 
+              disabled={isConnecting}
+              className="w-full"
+            >
+              {isConnecting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Ansluter...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Anslut
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white/80 text-muted-foreground">eller</span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
           <Button
+            variant="outline"
             onClick={handleRequestHelp}
             disabled={isSubmitting}
-            className="w-full h-auto py-4"
+            className="w-full h-auto py-3"
           >
             <div className="flex items-center gap-3">
               <HelpCircle className="h-5 w-5 shrink-0" />
               <div className="text-left">
                 <p className="font-semibold">Ska vi hjälpa dig?</p>
-                <p className="text-xs font-normal opacity-80">
+                <p className="text-xs font-normal text-muted-foreground">
                   {isSubmitting ? "Skickar förfrågan..." : "Vi kontaktar dig och hjälper dig ansluta"}
                 </p>
               </div>
@@ -299,9 +441,9 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
           </Button>
 
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setViewState("guide")}
-            className="w-full h-auto py-4"
+            className="w-full h-auto py-3"
           >
             <div className="flex items-center gap-3">
               <BookOpen className="h-5 w-5 shrink-0" />

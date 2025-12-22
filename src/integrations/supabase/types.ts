@@ -106,6 +106,30 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_tests: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          session_id: string
+          step_from: number | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          session_id: string
+          step_from?: number | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+          step_from?: number | null
+        }
+        Relationships: []
+      }
       email_conversations: {
         Row: {
           created_at: string

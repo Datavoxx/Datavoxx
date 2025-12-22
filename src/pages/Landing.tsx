@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import TerminalDemo from "@/components/TerminalDemo";
+import EmailDemo from "@/components/EmailDemo";
+import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
+  const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research'>('annons');
 
   const outputExamples = [
     {
@@ -130,9 +133,33 @@ Med vänliga hälsningar`
             </div>
           </div>
 
-          {/* Terminal Demo */}
-          <div id="demo">
-            <TerminalDemo />
+          {/* Demo Selector Tabs */}
+          <div id="demo" className="mb-8">
+            <div className="flex justify-center gap-2 mb-8">
+              {[
+                { id: 'annons' as const, label: 'Bilannons', icon: FileText },
+                { id: 'email' as const, label: 'E-mail', icon: Mail },
+                { id: 'research' as const, label: 'Bil Research', icon: Search }
+              ].map((demo) => (
+                <button
+                  key={demo.id}
+                  onClick={() => setSelectedDemo(demo.id)}
+                  className={`group flex items-center gap-2 px-5 py-3 rounded-full font-medium text-sm transition-all duration-300 cursor-pointer ${
+                    selectedDemo === demo.id 
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' 
+                      : 'bg-card/50 border border-border/50 text-muted-foreground hover:bg-card hover:border-border hover:text-foreground'
+                  }`}
+                >
+                  <demo.icon className={`h-4 w-4 transition-transform duration-300 ${selectedDemo === demo.id ? 'scale-110' : 'group-hover:scale-110'}`} />
+                  {demo.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Render selected demo */}
+            {selectedDemo === 'annons' && <TerminalDemo />}
+            {selectedDemo === 'email' && <EmailDemo />}
+            {selectedDemo === 'research' && <BilResearchDemo />}
           </div>
         </div>
       </section>

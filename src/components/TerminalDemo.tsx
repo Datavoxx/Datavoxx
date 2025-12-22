@@ -3,6 +3,7 @@ import { Car, CreditCard, Target, Copy, Check, ChevronRight, ChevronLeft, Sparkl
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Interactive Step-by-Step Demo
@@ -14,6 +15,20 @@ const TerminalDemo = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const navigate = useNavigate();
+
+  // Track demo actions
+  const trackDemoAction = async (action: string, stepFrom: number) => {
+    try {
+      const sessionId = localStorage.getItem('bilgen_session_id') || 'unknown';
+      await supabase.from('demo_tests').insert({
+        session_id: sessionId,
+        action,
+        step_from: stepFrom
+      });
+    } catch (error) {
+      console.error("Error tracking demo action:", error);
+    }
+  };
 
   const regNumber = "ABC 123";
   
@@ -57,11 +72,13 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
 
   const generatedAdText = adTexts[selectedFocus];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 3) {
+      await trackDemoAction('next', currentStep);
       setCurrentStep(currentStep + 1);
     } else if (currentStep === 3) {
       // Generate
+      await trackDemoAction('generate', currentStep);
       setIsGenerating(true);
       setTimeout(() => {
         setIsGenerating(false);
@@ -78,15 +95,22 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    await trackDemoAction('reset', 4);
     setCurrentStep(1);
     setShowResult(false);
     setSelectedFocus('financing');
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
+    await trackDemoAction('copy', 4);
     navigator.clipboard.writeText(generatedAdText);
     toast.success("Kopierat till urklipp!");
+  };
+
+  const handleCreateReal = async () => {
+    await trackDemoAction('create_real', 4);
+    navigate('/start');
   };
 
   const totalSteps = 3;
@@ -364,7 +388,7 @@ Just nu med kampanjfinansiering från 3,95% ränta. Passa på – kontakta oss f
                     Börja om
                   </Button>
                   <Button
-                    onClick={() => navigate('/start')}
+                    onClick={handleCreateReal}
                     className="gap-2 bg-primary hover:bg-primary/90"
                   >
                     Skapa på riktigt

@@ -11,7 +11,9 @@ interface EmailReplyPanelProps {
   email: EmailMessage;
   onBack: () => void;
   onGenerateReply: (directive: string) => Promise<string>;
+  onSendEmail?: (to: string, subject: string, body: string) => Promise<void>;
   isGenerating: boolean;
+  isSending?: boolean;
   companyName?: string;
   userName?: string;
 }
@@ -26,12 +28,16 @@ const EmailReplyPanel = ({
   email,
   onBack,
   onGenerateReply,
+  onSendEmail,
   isGenerating,
+  isSending = false,
 }: EmailReplyPanelProps) => {
   const { toast } = useToast();
   const [directive, setDirective] = useState("");
   const [generatedReply, setGeneratedReply] = useState("");
+  const [editableReply, setEditableReply] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -49,9 +55,26 @@ const EmailReplyPanel = ({
     }
   };
 
+  const adjustReplyTextareaHeight = () => {
+    const textarea = replyTextareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 120)}px`;
+    }
+  };
+
   useEffect(() => {
     adjustTextareaHeight();
   }, [directive]);
+
+  useEffect(() => {
+    adjustReplyTextareaHeight();
+  }, [editableReply]);
+
+  // Sync editableReply when generatedReply changes
+  useEffect(() => {
+    setEditableReply(generatedReply);
+  }, [generatedReply]);
 
   const handleGenerate = async () => {
     if (!directive.trim() || isGenerating) return;
@@ -69,11 +92,29 @@ const EmailReplyPanel = ({
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedReply);
+    navigator.clipboard.writeText(editableReply);
     toast({
       title: "Kopierat!",
       description: "Svaret har kopierats till urklipp.",
     });
+  };
+
+  const handleSendEmail = async () => {
+    if (!editableReply.trim() || !onSendEmail || isSending) return;
+
+    try {
+      await onSendEmail(email.from, email.subject, editableReply);
+      toast({
+        title: "Skickat!",
+        description: `Mejlet har skickats till ${email.fromName}.`,
+      });
+      // Clear the reply after successful send
+      setGeneratedReply("");
+      setEditableReply("");
+      setDirective("");
+    } catch (error) {
+      // Error handled in parent
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -116,24 +157,50 @@ const EmailReplyPanel = ({
             </p>
           </div>
 
-          {/* Generated Reply */}
-          {generatedReply && (
+          {/* Generated/Editable Reply */}
+          {(generatedReply || editableReply) && (
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-primary font-medium">Genererat svar:</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={copyToClipboard}
-                  className="h-7 px-2 text-xs"
-                >
-                  <Copy className="h-3 w-3 mr-1" />
-                  Kopiera
-                </Button>
+                <p className="text-xs text-primary font-medium">Ditt svar:</p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyToClipboard}
+                    className="h-7 px-2 text-xs"
+                    disabled={!editableReply.trim()}
+                  >
+                    <Copy className="h-3 w-3 mr-1" />
+                    Kopiera
+                  </Button>
+                  {onSendEmail && (
+                    <Button
+                      size="sm"
+                      onClick={handleSendEmail}
+                      disabled={isSending || !editableReply.trim()}
+                      className="h-7 px-3 text-xs"
+                    >
+                      {isSending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <>
+                          <Send className="h-3 w-3 mr-1" />
+                          Skicka
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {generatedReply}
-              </p>
+              <textarea
+                ref={replyTextareaRef}
+                value={editableReply}
+                onChange={(e) => setEditableReply(e.target.value)}
+                className="w-full min-h-[120px] text-sm bg-transparent border-0 
+                           focus:outline-none focus:ring-0 resize-none text-foreground
+                           placeholder:text-gray-400"
+                placeholder="Redigera ditt svar här..."
+              />
             </div>
           )}
         </div>

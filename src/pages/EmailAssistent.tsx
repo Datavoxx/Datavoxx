@@ -68,6 +68,7 @@ const EmailAssistent = () => {
   const [isLoadingEmails, setIsLoadingEmails] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   // Fetch emails on mount
   useEffect(() => {
@@ -178,6 +179,47 @@ const EmailAssistent = () => {
       throw error;
     } finally {
       setIsGeneratingReply(false);
+    }
+  };
+
+  const handleSendEmail = async (to: string, subject: string, body: string): Promise<void> => {
+    setIsSendingEmail(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          to,
+          subject,
+          body,
+          inReplyTo: selectedEmail?.messageId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kunde inte skicka mejl");
+      }
+
+      toast({
+        title: "Mejl skickat!",
+        description: `Svaret har skickats till ${to}`,
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast({
+        title: "Fel",
+        description: error instanceof Error ? error.message : "Kunde inte skicka mejl",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -382,7 +424,9 @@ const EmailAssistent = () => {
                 email={selectedEmail}
                 onBack={() => setSelectedEmail(null)}
                 onGenerateReply={handleGenerateReply}
+                onSendEmail={handleSendEmail}
                 isGenerating={isGeneratingReply}
+                isSending={isSendingEmail}
                 companyName={profile?.company_name || undefined}
                 userName={profile?.display_name || undefined}
               />

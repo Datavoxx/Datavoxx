@@ -16,6 +16,7 @@ export interface EmailMessage {
   preview: string;
   body: string;
   isRead: boolean;
+  messageId?: string;
 }
 
 interface EmailInboxProps {

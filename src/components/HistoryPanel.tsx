@@ -10,6 +10,8 @@ interface HistoryItem {
   id: string;
   title: string;
   preview: string;
+  fullAnswer?: string;
+  fullQuestion?: string;
   created_at: string;
   type: "research" | "email" | "ad";
 }
@@ -47,6 +49,8 @@ const HistoryPanel = ({ type, isOpen, onClose, onSelect }: HistoryPanelProps) =>
               id: item.id,
               title: item.question.slice(0, 50) + (item.question.length > 50 ? "..." : ""),
               preview: item.answer?.slice(0, 100) + "..." || "",
+              fullAnswer: item.answer || "",
+              fullQuestion: item.question,
               created_at: item.created_at,
               type: "research" as const,
             }));

@@ -49,6 +49,7 @@ const BilResearch = () => {
     year: "",
     researchQuestion: "",
   });
+  const [followUpQuestion, setFollowUpQuestion] = useState("");
 
   const handleInputChange = (field: keyof ResearchFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -237,13 +238,58 @@ const BilResearch = () => {
     }
   };
 
-  const handleHistorySelect = (item: { id: string; title: string; preview: string }) => {
+  const handleHistorySelect = (item: { id: string; title: string; preview: string; fullAnswer?: string; fullQuestion?: string }) => {
     setMessages([
-      { role: "user", content: item.title },
-      { role: "assistant", content: item.preview.replace("...", "") }
+      { role: "user", content: item.fullQuestion || item.title },
+      { role: "assistant", content: item.fullAnswer || item.preview }
     ]);
     setShowResult(true);
     setIsHistoryOpen(false);
+  };
+
+  const handleFollowUp = async () => {
+    if (!followUpQuestion.trim() || isLoading) return;
+    
+    const newUserMessage: Message = { role: "user", content: followUpQuestion };
+    const updatedMessages = [...messages, newUserMessage];
+    setMessages(updatedMessages);
+    setFollowUpQuestion("");
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("car-research", {
+        body: { 
+          messages: updatedMessages,
+          companyName: profile?.company_name || "Bilhandlare",
+          userName: profile?.display_name || user?.email || "Användare"
+        }
+      });
+      
+      if (error) throw error;
+      
+      const assistantMessage: Message = { role: "assistant", content: data.response };
+      setMessages([...updatedMessages, assistantMessage]);
+      
+      // Spara till databasen om inloggad
+      if (user) {
+        await supabase.from("research_conversations").insert({
+          session_id: user.id,
+          user_id: user.id,
+          user_name: profile?.display_name || user.email || "Användare",
+          question: followUpQuestion,
+          answer: data.response,
+        });
+      }
+    } catch (error) {
+      console.error("Error sending follow-up:", error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte skicka uppföljningsfrågan",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNewSearch = () => {
@@ -356,6 +402,28 @@ const BilResearch = () => {
               </div>
             )}
             <div ref={messagesEndRef} />
+          </div>
+
+          {/* Follow-up input */}
+          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ställ en uppföljningsfråga..."
+                value={followUpQuestion}
+                onChange={(e) => setFollowUpQuestion(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleFollowUp()}
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleFollowUp} 
+                disabled={isLoading || !followUpQuestion.trim()}
+                className="gap-2"
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                Skicka
+              </Button>
+            </div>
           </div>
         </main>
       </div>

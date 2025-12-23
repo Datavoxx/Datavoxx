@@ -6,7 +6,7 @@ import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -81,8 +81,8 @@ Med vänliga hälsningar`
             size="sm"
             className="gap-2"
           >
-            <Zap className="h-4 w-4" />
             Produkter
+            <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
           </Button>
           <div className="absolute right-0 top-full mt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 space-y-1">

@@ -110,6 +110,16 @@ const EmailAssistent = () => {
       const data = await response.json();
 
       if (!response.ok) {
+        // If needsConnection is true, show connection form instead of error
+        if (data.needsConnection) {
+          setShowAddAccount(true);
+          // Also update profile to reflect actual state
+          await supabase
+            .from("profiles")
+            .update({ email_connected: false, connected_email: null })
+            .eq("user_id", user!.id);
+          return;
+        }
         throw new Error(data.error || "Kunde inte hämta mejl");
       }
 

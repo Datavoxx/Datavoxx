@@ -18,7 +18,7 @@ const Landing = () => {
 
   const outputExamples = [
     {
-      title: "Bilannons",
+      title: "Annonstext",
       label: "10 sek",
       icon: "📝",
       content: `VOLVO XC60 D4 AWD 2019
@@ -92,8 +92,8 @@ Med vänliga hälsningar`
               >
                 <FileText className="h-4 w-4 text-primary" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Annonsgenerator</p>
-                  <p className="text-xs text-muted-foreground">Skapa bilannonser på sekunder</p>
+                  <p className="text-sm font-medium text-foreground">Annonstextgenerator</p>
+                  <p className="text-xs text-muted-foreground">Skapa annonstextar på sekunder</p>
                 </div>
               </button>
               <button
@@ -243,7 +243,7 @@ Med vänliga hälsningar`
           <div id="demo" className="mb-8">
             <div className="flex justify-center gap-2 mb-8">
               {[
-                { id: 'annons' as const, label: 'Bilannons', icon: FileText },
+                { id: 'annons' as const, label: 'Annonstext', icon: FileText },
                 { id: 'email' as const, label: 'E-mail', icon: Mail },
                 { id: 'research' as const, label: 'Bil Research', icon: Search }
               ].map((demo) => (
@@ -452,7 +452,7 @@ Med vänliga hälsningar`
               <h4 className="font-semibold text-neutral-200 mb-4 text-sm uppercase tracking-wider">Produkt</h4>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Bilannonsgenerator</a>
+                  <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Annonstextgenerator</a>
                 </li>
                 <li>
                   <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">Email-assistent</a>

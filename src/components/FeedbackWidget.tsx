@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const SERVICES = [
-  { id: "annons", label: "Bilannonsgenerator" },
+  { id: "annons", label: "Annonstextgenerator" },
   { id: "research", label: "Bil Research Expert" },
   { id: "email", label: "Email Assistent" },
 ];

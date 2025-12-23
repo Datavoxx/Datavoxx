@@ -153,7 +153,7 @@ const Auth = () => {
   }
 
   const tools = [
-    { icon: FileText, title: "Bilannonsgenerator" },
+    { icon: FileText, title: "Annonstextgenerator" },
     { icon: Search, title: "Bil Research Expert" },
     { icon: MailIcon, title: "Email Assistent" },
   ];

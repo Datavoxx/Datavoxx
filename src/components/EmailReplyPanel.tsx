@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil, Sparkles } from "lucide-react";
+import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,6 +48,8 @@ const EmailReplyPanel = ({
   const [editableReply, setEditableReply] = useState("");
   const [suggestedDirectives, setSuggestedDirectives] = useState<QuickDirective[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [cleanedEmailBody, setCleanedEmailBody] = useState<string | null>(null);
+  const [isCleaningEmail, setIsCleaningEmail] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -128,6 +130,47 @@ const EmailReplyPanel = ({
 
     fetchSuggestions();
   }, [email?.id, hasAIEmailAccess]);
+
+  // Clean email body when email changes
+  useEffect(() => {
+    const cleanEmailBody = async () => {
+      if (!email?.body && !email?.preview) {
+        setCleanedEmailBody(null);
+        return;
+      }
+
+      const rawBody = email.body || email.preview || "";
+      
+      // Check if the body looks like it needs cleaning (contains HTML/CSS/code)
+      const needsCleaning = /<[^>]+>|{[^}]+}|style=|class=|Content-Type:|MIME-Version:|base64/i.test(rawBody);
+      
+      if (!needsCleaning) {
+        setCleanedEmailBody(rawBody);
+        return;
+      }
+
+      setIsCleaningEmail(true);
+      setCleanedEmailBody(null);
+
+      try {
+        const { data, error } = await supabase.functions.invoke("clean-email-body", {
+          body: { emailBody: rawBody },
+        });
+
+        if (error) throw error;
+
+        setCleanedEmailBody(data.cleanedBody || rawBody);
+      } catch (error) {
+        console.error("Failed to clean email body:", error);
+        // Fallback to raw body on error
+        setCleanedEmailBody(rawBody);
+      } finally {
+        setIsCleaningEmail(false);
+      }
+    };
+
+    cleanEmailBody();
+  }, [email?.id]);
 
   // Reset state when email changes
   useEffect(() => {
@@ -211,10 +254,26 @@ const EmailReplyPanel = ({
         <div className="p-4 space-y-4">
           {/* Original Email */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-xs text-gray-400 mb-2">Inkommande mejl:</p>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-              {email.body || email.preview}
+            <p className="text-xs text-gray-400 mb-2 flex items-center gap-1.5">
+              Inkommande mejl:
+              {isCleaningEmail && (
+                <span className="flex items-center gap-1 text-primary">
+                  <Wand2 className="h-3 w-3 animate-pulse" />
+                  <span>AI formaterar...</span>
+                </span>
+              )}
             </p>
+            {isCleaningEmail ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-5/6" />
+              </div>
+            ) : (
+              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {cleanedEmailBody || email.body || email.preview}
+              </p>
+            )}
           </div>
 
           {/* Generated/Editable Reply */}

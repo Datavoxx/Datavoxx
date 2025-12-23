@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -346,25 +347,71 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const imapHost = Deno.env.get("IMAP_HOST");
-  const imapUser = Deno.env.get("IMAP_USER");
-  const imapPass = Deno.env.get("IMAP_PASS");
-
-  if (!imapHost || !imapUser || !imapPass) {
-    console.error("Missing IMAP credentials");
+  // Get the authorization header to identify the user
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader) {
+    console.error("No authorization header provided");
     return new Response(
-      JSON.stringify({ error: "IMAP-konfiguration saknas. Kontakta administratören." }),
+      JSON.stringify({ error: "Autentisering krävs. Logga in igen." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Create Supabase client with the user's JWT
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  // Get the current user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error("Failed to get user:", userError);
+    return new Response(
+      JSON.stringify({ error: "Kunde inte verifiera användare. Logga in igen." }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log(`Fetching emails for user: ${user.id}`);
+
+  // Get the user's email credentials from the database
+  const { data: credentials, error: credError } = await supabase
+    .from("email_credentials")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (credError) {
+    console.error("Error fetching credentials:", credError);
+    return new Response(
+      JSON.stringify({ error: "Kunde inte hämta e-postuppgifter." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
+  if (!credentials) {
+    console.log("No email credentials found for user");
+    return new Response(
+      JSON.stringify({ error: "Du har inte kopplat någon e-post ännu.", needsConnection: true }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  const imapHost = credentials.imap_host;
+  const imapUser = credentials.imap_username;
+  const imapPass = credentials.imap_password;
+  const imapPort = credentials.imap_port || 993;
+
+  console.log(`Connecting to IMAP server: ${imapHost} as ${imapUser}`);
+
   const client = new ImapClient();
 
   try {
-    const { limit = 20 } = await req.json().catch(() => ({}));
+    const { limit = 30 } = await req.json().catch(() => ({}));
 
-    console.log(`Connecting to IMAP server: ${imapHost} as ${imapUser}`);
-    await client.connect(imapHost, 993);
+    await client.connect(imapHost, imapPort);
     console.log("Connected, logging in...");
     
     await client.login(imapUser, imapPass);
@@ -403,9 +450,9 @@ serve(async (req) => {
     let errorMessage = "Kunde inte ansluta till e-postservern.";
     if (error instanceof Error) {
       if (error.message.includes("AUTHENTICATIONFAILED")) {
-        errorMessage = "Fel användarnamn eller lösenord för e-postkontot.";
+        errorMessage = "Fel användarnamn eller lösenord för e-postkontot. Uppdatera dina IMAP-uppgifter.";
       } else if (error.message.includes("ENOTFOUND") || error.message.includes("ETIMEDOUT")) {
-        errorMessage = "Kunde inte nå e-postservern. Kontrollera IMAP_HOST.";
+        errorMessage = "Kunde inte nå e-postservern. Kontrollera IMAP-serveradressen.";
       }
     }
 

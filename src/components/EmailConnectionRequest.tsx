@@ -104,8 +104,23 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
 
     setIsConnecting(true);
     try {
+      // First, save the email credentials to the new table
+      const { error: credError } = await supabase
+        .from("email_credentials")
+        .upsert({
+          user_id: userId,
+          imap_host: imapServer,
+          imap_port: parseInt(imapPort) || 993,
+          imap_username: imapUsername,
+          imap_password: imapPassword,
+          smtp_host: imapServer.replace("imap.", "smtp."),
+          smtp_port: 465,
+        }, { onConflict: "user_id" });
+
+      if (credError) throw credError;
+
       // Update the user's profile with email connection info
-      const { error } = await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
           email_connected: true,
@@ -113,11 +128,11 @@ const EmailConnectionRequest = ({ userId }: EmailConnectionRequestProps) => {
         })
         .eq("user_id", userId);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       toast({
         title: "E-post ansluten!",
-        description: "Dina IMAP-uppgifter har sparats.",
+        description: "Dina IMAP-uppgifter har sparats säkert.",
       });
 
       // Reload the page to show the inbox

@@ -14,6 +14,7 @@ import EmailAssistent from "./pages/EmailAssistent";
 import Paket from "./pages/Paket";
 import Auth from "./pages/Auth";
 import AdminRoles from "./pages/AdminRoles";
+import Bildgenerator from "./pages/Bildgenerator";
 import NotFound from "./pages/NotFound";
 
 // Product pages
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/email-assistent" element={<EmailAssistent />} />
               <Route path="/paket" element={<Paket />} />
               <Route path="/admin/roles" element={<AdminRoles />} />
+              <Route path="/bildgenerator" element={<Bildgenerator />} />
               {/* Product pages */}
               <Route path="/produkt/annonsgenerator" element={<ProduktAnnonsgenerator />} />
               <Route path="/produkt/bil-research" element={<ProduktBilResearch />} />

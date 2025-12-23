@@ -60,8 +60,8 @@ const Paket = () => {
       icon: Rocket,
       features: ["Grundläggande verktyg", "Email-support", "5 annonser/månad", "Bil Research Basic"],
       price: "999",
-      blur: "blur-[6px]",
-      priceBlur: "blur-[10px]",
+      blur: "",
+      priceBlur: "",
       bgClass: "bg-white/10",
       borderClass: "border-white/20",
     },
@@ -71,8 +71,8 @@ const Paket = () => {
       features: ["Alla Gen 1 funktioner", "Obegränsade annonser", "Prioriterad support", "AI Email-assistent", "Avancerad Research"],
       price: "2799",
       popular: true,
-      blur: "blur-[6px]",
-      priceBlur: "blur-[10px]",
+      blur: "",
+      priceBlur: "",
       bgClass: "bg-white/10",
       borderClass: "border-primary/30",
     },
@@ -80,12 +80,12 @@ const Paket = () => {
       name: "Gen 3",
       icon: Crown,
       features: ["Alla Gen 2 funktioner", "White-label lösning", "Dedikerad account manager", "Custom AI-träning", "API-access", "Enterprise support"],
-      price: null,
-      blur: "blur-[8px]",
-      priceBlur: "blur-[12px]",
-      bgClass: "bg-black/90",
-      borderClass: "border-black/50",
-      dark: true,
+      price: "Kontakta oss",
+      blur: "",
+      priceBlur: "",
+      bgClass: "bg-gradient-to-br from-primary/20 to-accent/10",
+      borderClass: "border-primary/40",
+      dark: false,
     },
   ];
 
@@ -165,7 +165,7 @@ const Paket = () => {
                   </h3>
 
                   {/* Price */}
-                  {pkg.price && (
+                  {pkg.price && !isNaN(Number(pkg.price)) && (
                     <div className={`mb-4 ${pkg.priceBlur}`}>
                       <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
                         {pkg.price} kr
@@ -173,12 +173,11 @@ const Paket = () => {
                       <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
                     </div>
                   )}
-                  {!pkg.price && (
+                  {pkg.price && isNaN(Number(pkg.price)) && (
                     <div className={`mb-4 ${pkg.priceBlur}`}>
-                      <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
-                        ••••• kr
+                      <span className={`text-2xl font-bold ${pkg.dark ? 'text-white/70' : 'text-primary'}`}>
+                        {pkg.price}
                       </span>
-                      <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
                     </div>
                   )}
 
@@ -201,12 +200,7 @@ const Paket = () => {
                   </Button>
                 </div>
 
-                {/* Lock Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-                  <div className={`p-4 rounded-full ${pkg.dark ? 'bg-black/60' : 'bg-background/80'} border border-white/10 shadow-xl`}>
-                    <Lock className={`h-8 w-8 ${pkg.dark ? 'text-white/60' : 'text-muted-foreground'}`} />
-                  </div>
-                </div>
+                {/* Lock Overlay - Temporarily disabled */}
               </div>
             </div>
           ))}

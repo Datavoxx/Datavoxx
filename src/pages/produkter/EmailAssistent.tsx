@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import EmailDemo from "@/components/EmailDemo";
 import StepGuide, { StepGuideContent } from "@/components/StepGuide";
+import { useAuth } from "@/contexts/AuthContext";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const stepGuides: Record<number, StepGuideContent> = {
@@ -21,7 +22,12 @@ const stepGuides: Record<number, StepGuideContent> = {
   3: {
     title: "Steg 3: Granska svar",
     description: "AI:n skriver ett professionellt svar baserat på ditt direktiv och kundens mejl. Du kan redigera om du vill, sedan kopiera eller skicka direkt.",
-    tip: "Alla svar sparas i historiken så du kan se vad du skickat tidigare."
+    tip: "Alla svar sparas i historiken så du kan se vad du skickat tidigare.",
+    authPrompt: {
+      text: "Skapa ett kostnadsfritt konto för att spara dina svar och se din historik.",
+      buttonText: "Kostnadsfri registrering",
+      link: "/auth"
+    }
   }
 };
 
@@ -35,6 +41,7 @@ const features = [
 
 const EmailAssistentPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
 
   const handleStepChange = (step: number) => {
@@ -93,7 +100,11 @@ const EmailAssistentPage = () => {
 
             {/* Step Guide Sidebar */}
             <div className="hidden lg:block sticky top-8">
-              <StepGuide currentStep={currentStep} stepGuides={stepGuides} />
+              <StepGuide 
+                currentStep={currentStep} 
+                stepGuides={stepGuides} 
+                isAuthenticated={!!user}
+              />
               
               {/* Features list */}
               <div className="mt-6 p-4 rounded-xl bg-card/50 border border-border/50">
@@ -112,7 +123,11 @@ const EmailAssistentPage = () => {
 
           {/* Mobile Step Guide */}
           <div className="lg:hidden mt-8">
-            <StepGuide currentStep={currentStep} stepGuides={stepGuides} />
+            <StepGuide 
+              currentStep={currentStep} 
+              stepGuides={stepGuides} 
+              isAuthenticated={!!user}
+            />
           </div>
 
           {/* CTA Section */}

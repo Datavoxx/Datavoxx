@@ -368,7 +368,7 @@ const AnnonsGenerator = () => {
 
   const handleBack = () => {
     if (currentStep === 1) {
-      navigate("/");
+      navigate("/start");
     } else {
       setCurrentStep((prev) => prev - 1);
     }

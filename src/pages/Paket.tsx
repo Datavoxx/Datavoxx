@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Paket = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdmin, isLoading: isRoleLoading } = useUserRole();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,11 +82,11 @@ const Paket = () => {
       name: "Gen 3",
       icon: Crown,
       features: ["Alla Gen 2 funktioner", "White-label lösning", "Dedikerad account manager", "Custom AI-träning", "API-access", "Enterprise support"],
-      price: null,
+      price: "Kontakta oss",
       blur: "blur-[8px]",
       priceBlur: "blur-[12px]",
-      bgClass: "bg-black/90",
-      borderClass: "border-black/50",
+      bgClass: "bg-gradient-to-br from-gray-800 via-gray-900 to-black",
+      borderClass: "border-gray-600/50",
       dark: true,
     },
   ];
@@ -113,12 +115,19 @@ const Paket = () => {
           <img src={bilgenLogo} alt="Bilgen" className="h-12 md:h-14" />
         </div>
 
-        {/* Beta Badge */}
+        {/* Beta Badge or Admin Badge */}
         <div className="flex justify-center mb-6">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-sm font-medium animate-pulse">
-            <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
-            Du använder Beta-versionen
-          </span>
+          {isAdmin ? (
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-sm font-medium">
+              <Shield className="w-4 h-4" />
+              Admin-vy
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-sm font-medium animate-pulse">
+              <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+              Du använder Beta-versionen
+            </span>
+          )}
         </div>
 
         {/* Teaser Text */}
@@ -145,48 +154,46 @@ const Paket = () => {
               {/* Popular Badge */}
               {pkg.popular && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                  <span className="px-4 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full blur-[2px]">
+                  <span className={`px-4 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full ${isAdmin ? '' : 'blur-[2px]'}`}>
                     POPULÄRAST
                   </span>
                 </div>
               )}
 
-              {/* Card Content - Blurred */}
+              {/* Card Content */}
               <div className={`${pkg.bgClass} p-6 h-full`}>
-                <div className={`${pkg.blur} select-none pointer-events-none`}>
+                <div className={`${isAdmin ? '' : pkg.blur} ${isAdmin ? '' : 'select-none pointer-events-none'}`}>
                   {/* Icon */}
-                  <div className={`w-12 h-12 rounded-xl ${pkg.dark ? 'bg-white/10' : 'bg-primary/20'} flex items-center justify-center mb-4`}>
-                    <pkg.icon className={`h-6 w-6 ${pkg.dark ? 'text-white/70' : 'text-primary'}`} />
+                  <div className={`w-12 h-12 rounded-xl ${pkg.dark ? 'bg-white/20' : 'bg-primary/20'} flex items-center justify-center mb-4`}>
+                    <pkg.icon className={`h-6 w-6 ${pkg.dark ? 'text-white' : 'text-primary'}`} />
                   </div>
 
                   {/* Name */}
-                  <h3 className={`text-2xl font-bold mb-2 ${pkg.dark ? 'text-white/80' : 'text-foreground'}`}>
+                  <h3 className={`text-2xl font-bold mb-2 ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
                     {pkg.name}
                   </h3>
 
                   {/* Price */}
-                  {pkg.price && (
-                    <div className={`mb-4 ${pkg.priceBlur}`}>
-                      <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
-                        {pkg.price} kr
+                  <div className={`mb-4 ${isAdmin ? '' : pkg.priceBlur}`}>
+                    {pkg.price === "Kontakta oss" ? (
+                      <span className={`text-2xl font-bold ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
+                        Kontakta oss
                       </span>
-                      <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
-                    </div>
-                  )}
-                  {!pkg.price && (
-                    <div className={`mb-4 ${pkg.priceBlur}`}>
-                      <span className={`text-3xl font-bold ${pkg.dark ? 'text-white/70' : 'text-foreground'}`}>
-                        ••••• kr
-                      </span>
-                      <span className={`text-sm ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>/månad</span>
-                    </div>
-                  )}
+                    ) : (
+                      <>
+                        <span className={`text-3xl font-bold ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
+                          {pkg.price} kr
+                        </span>
+                        <span className={`text-sm ${pkg.dark ? 'text-white/70' : 'text-muted-foreground'}`}>/månad</span>
+                      </>
+                    )}
+                  </div>
 
                   {/* Features */}
                   <ul className="space-y-2 mb-6">
                     {pkg.features.map((feature, i) => (
-                      <li key={i} className={`flex items-center gap-2 text-sm ${pkg.dark ? 'text-white/60' : 'text-muted-foreground'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${pkg.dark ? 'bg-white/40' : 'bg-primary/60'}`}></span>
+                      <li key={i} className={`flex items-center gap-2 text-sm ${pkg.dark ? 'text-white/80' : 'text-muted-foreground'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${pkg.dark ? 'bg-white/60' : 'bg-primary/60'}`}></span>
                         {feature}
                       </li>
                     ))}
@@ -194,19 +201,22 @@ const Paket = () => {
 
                   {/* Button */}
                   <Button 
-                    className={`w-full ${pkg.dark ? 'bg-white/20 text-white/80' : ''}`}
+                    className={`w-full ${pkg.dark ? 'bg-white/20 text-white hover:bg-white/30' : ''}`}
                     variant={pkg.popular ? "default" : "outline"}
+                    disabled={!isAdmin}
                   >
-                    Välj {pkg.name}
+                    {pkg.price === "Kontakta oss" ? "Kontakta oss" : `Välj ${pkg.name}`}
                   </Button>
                 </div>
 
-                {/* Lock Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-                  <div className={`p-4 rounded-full ${pkg.dark ? 'bg-black/60' : 'bg-background/80'} border border-white/10 shadow-xl`}>
-                    <Lock className={`h-8 w-8 ${pkg.dark ? 'text-white/60' : 'text-muted-foreground'}`} />
+                {/* Lock Overlay - Only for non-admin */}
+                {!isAdmin && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+                    <div className={`p-4 rounded-full ${pkg.dark ? 'bg-black/60' : 'bg-background/80'} border border-white/10 shadow-xl`}>
+                      <Lock className={`h-8 w-8 ${pkg.dark ? 'text-white/60' : 'text-muted-foreground'}`} />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           ))}

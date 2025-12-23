@@ -24,25 +24,26 @@ interface UserRole {
   email: string | null;
 }
 
-const ADMIN_USER_ID = "bc8ed488-4ebc-49b1-988b-4b0e926c7b8d";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const AdminRoles = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
+  const { isAdmin, isLoading: roleLoading } = useUserRole();
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && (!user || user.id !== ADMIN_USER_ID)) {
+    if (!authLoading && !roleLoading && (!user || !isAdmin)) {
       navigate("/");
       return;
     }
 
-    if (user && user.id === ADMIN_USER_ID) {
+    if (user && isAdmin) {
       fetchUserRoles();
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, roleLoading, isAdmin, navigate]);
 
   const fetchUserRoles = async () => {
     try {
@@ -78,16 +79,35 @@ const AdminRoles = () => {
 
   const getRoleBadgeStyle = (role: string | null) => {
     switch (role) {
-      case "ai_email":
-        return "bg-emerald-100 text-emerald-800 border-emerald-200";
       case "admin":
         return "bg-purple-100 text-purple-800 border-purple-200";
+      case "pro":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "beginner":
+        return "bg-emerald-100 text-emerald-800 border-emerald-200";
+      case "intro":
+        return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  if (authLoading) {
+  const getRoleLabel = (role: string | null) => {
+    switch (role) {
+      case "admin":
+        return "Admin";
+      case "pro":
+        return "Pro";
+      case "beginner":
+        return "Beginner";
+      case "intro":
+        return "Intro";
+      default:
+        return role || "-";
+    }
+  };
+
+  if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -95,7 +115,7 @@ const AdminRoles = () => {
     );
   }
 
-  if (!user || user.id !== ADMIN_USER_ID) {
+  if (!user || !isAdmin) {
     return null;
   }
 
@@ -141,16 +161,27 @@ const AdminRoles = () => {
           </div>
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                <Shield className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">
+                  {userRoles.filter((r) => r.role === "admin").length}
+                </p>
+                <p className="text-sm text-muted-foreground">Admins</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
                 <Shield className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">
-                  {userRoles.filter((r) => r.role === "ai_email").length}
+                  {userRoles.filter((r) => r.role === "beginner" || r.role === "pro").length}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  AI Email-användare
-                </p>
+                <p className="text-sm text-muted-foreground">Pro/Beginner</p>
               </div>
             </div>
           </div>
@@ -206,7 +237,7 @@ const AdminRoles = () => {
                           userRole.role
                         )}`}
                       >
-                        {userRole.role === "ai_email" ? "AI Email" : userRole.role}
+                        {getRoleLabel(userRole.role)}
                       </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">

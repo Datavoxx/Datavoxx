@@ -51,8 +51,8 @@ const Index = () => {
         {/* Level Cards */}
         <div className="flex flex-col lg:flex-row flex-wrap justify-center gap-8 lg:gap-10 max-w-5xl">
           <LevelCard
-            title="Bilannonsgenerator"
-            description="Skapa annonser snabbare med en annonsgenerator"
+            title="Annonstextgenerator"
+            description="Skapa annonstextar snabbare med AI"
             onClick={() => navigate("/annons-generator")}
           />
           <LevelCard

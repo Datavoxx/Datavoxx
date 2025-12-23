@@ -1,21 +1,25 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, ImageIcon, Download, Sparkles } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Loader2, ImageIcon, Download, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const Bildgenerator = () => {
   const navigate = useNavigate();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const { user, isLoading: authLoading } = useAuth();
-  const [prompt, setPrompt] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [padding, setPadding] = useState(0.25);
+  const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
@@ -39,9 +43,47 @@ const Bildgenerator = () => {
     );
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setUploadedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error("Skriv en beskrivning av bilden du vill skapa");
+    if (!uploadedImage) {
+      toast.error("Ladda upp en bild först");
       return;
     }
 
@@ -49,18 +91,26 @@ const Bildgenerator = () => {
     setGeneratedImage(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("generate-image", {
-        body: { prompt: prompt.trim() },
+      const base64Image = await fileToBase64(uploadedImage);
+
+      const response = await fetch("https://datavox.app.n8n.cloud/webhook-test/bildgenerator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: base64Image,
+          padding: padding,
+          padding_bottom: paddingBottom
+        })
       });
 
-      if (error) {
-        console.error("Error generating image:", error);
-        toast.error("Kunde inte generera bilden. Försök igen.");
-        return;
+      if (!response.ok) {
+        throw new Error("Webhook request failed");
       }
 
-      if (data?.imageUrl) {
-        setGeneratedImage(data.imageUrl);
+      const data = await response.json();
+      
+      if (data.imageUrl || data.image) {
+        setGeneratedImage(data.imageUrl || data.image);
         toast.success("Bilden har genererats!");
       } else {
         toast.error("Inget bildsvar mottogs");
@@ -101,29 +151,98 @@ const Bildgenerator = () => {
               Bildgenerator
             </h1>
             <p className="text-lg text-muted-foreground">
-              Generera professionella bilder med AI
+              Ladda upp en bild och justera padding-inställningar
             </p>
           </div>
 
-          {/* Input Card */}
+          {/* Upload & Settings Card */}
           <Card className="mb-6 border-purple-200 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5 text-purple-600" />
-                Beskriv din bild
+                Ladda upp bild
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="T.ex. 'En professionell bild av en röd Volvo V60 parkerad framför en modern bilhandlare vid solnedgång'"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-32 resize-none"
-                disabled={isGenerating}
-              />
+            <CardContent className="space-y-6">
+              {/* Image Upload Zone */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/50 transition-all"
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                {imagePreview ? (
+                  <div className="space-y-4">
+                    <img
+                      src={imagePreview}
+                      alt="Uppladdad bild"
+                      className="max-h-48 mx-auto rounded-lg shadow-md"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Klicka för att byta bild
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Upload className="h-12 w-12 mx-auto text-purple-400" />
+                    <p className="text-muted-foreground">
+                      Klicka eller dra en bild hit
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Padding Slider */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-foreground">
+                    Padding
+                  </label>
+                  <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                    {padding.toFixed(2)}
+                  </span>
+                </div>
+                <Slider
+                  value={[padding]}
+                  onValueChange={(val) => setPadding(val[0])}
+                  min={0.01}
+                  max={0.49}
+                  step={0.01}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Padding Bottom Slider */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-foreground">
+                    Padding Bottom
+                  </label>
+                  <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                    {paddingBottom.toFixed(2)}
+                  </span>
+                </div>
+                <Slider
+                  value={[paddingBottom]}
+                  onValueChange={(val) => setPaddingBottom(val[0])}
+                  min={0.01}
+                  max={0.49}
+                  step={0.01}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Generate Button */}
               <Button
                 onClick={handleGenerate}
-                disabled={isGenerating || !prompt.trim()}
+                disabled={isGenerating || !uploadedImage}
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
                 {isGenerating ? (

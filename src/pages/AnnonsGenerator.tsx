@@ -536,8 +536,8 @@ const AnnonsGenerator = () => {
 
         {/* Title */}
         <div className="mb-6 text-center animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Bilannonsgenerator</h1>
-          <p className="text-muted-foreground mb-6">Skapa professionella annonser på sekunder</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Annonstextgenerator</h1>
+          <p className="text-muted-foreground mb-6">Skapa professionella annonstextar på sekunder</p>
           
           {/* Step Indicator */}
           <StepIndicator />

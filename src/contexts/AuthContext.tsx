@@ -10,6 +10,7 @@ interface Profile {
   company_name: string | null;
   email_connected: boolean | null;
   connected_email: string | null;
+  email: string | null;
 }
 
 interface AuthContextType {

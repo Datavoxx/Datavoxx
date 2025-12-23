@@ -15,9 +15,9 @@ import mall2 from "@/assets/mall-2.png";
 import mall3 from "@/assets/mall-3.png";
 
 const templates: Record<string, { name: string; image: string }> = {
-  "1": { name: "A2BIL Showroom 1", image: mall1 },
-  "2": { name: "A2BIL Showroom 2", image: mall2 },
-  "3": { name: "A2BIL Showroom 3", image: mall3 },
+  "1": { name: "A2BIL Showroom Dark", image: mall1 },
+  "2": { name: "A2BIL Showroom Grå", image: mall2 },
+  "3": { name: "A2BIL Showroom Ljus", image: mall3 },
 };
 
 const Bildgenerator = () => {

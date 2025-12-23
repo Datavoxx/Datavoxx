@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown, Inbox, UserPlus } from "lucide-react";
+import { Send, Copy, Mail, Reply, FileText, History, Loader2, Info, X, Pencil, ArrowDown, Inbox, UserPlus, LogOut, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,8 +76,10 @@ const EmailAssistent = () => {
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
+  const [showAddAccount, setShowAddAccount] = useState(false);
+
   // Check if current user has email connected
-  const hasEmailConnected = profile?.email_connected === true;
+  const hasEmailConnected = profile?.email_connected === true && !showAddAccount;
 
   // Fetch emails on mount - only for users with email connected
   useEffect(() => {
@@ -91,11 +93,16 @@ const EmailAssistent = () => {
     setEmailError(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Du måste vara inloggad");
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-emails`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ limit: 30 }),
       });
@@ -195,11 +202,16 @@ const EmailAssistent = () => {
     setIsSendingEmail(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Du måste vara inloggad");
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           to,
@@ -338,6 +350,40 @@ const EmailAssistent = () => {
     setSelectedEmail(null);
   };
 
+  const handleDisconnectEmail = async () => {
+    try {
+      // Delete email credentials
+      await supabase
+        .from("email_credentials")
+        .delete()
+        .eq("user_id", user!.id);
+
+      // Update profile
+      await supabase
+        .from("profiles")
+        .update({
+          email_connected: false,
+          connected_email: null,
+        })
+        .eq("user_id", user!.id);
+
+      toast({
+        title: "E-post bortkopplad",
+        description: "Du kan nu lägga till ett nytt e-postkonto.",
+      });
+
+      // Reload to refresh state
+      window.location.reload();
+    } catch (error) {
+      console.error("Error disconnecting email:", error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte koppla bort e-posten.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -461,43 +507,89 @@ const EmailAssistent = () => {
         <main className="flex-1 overflow-hidden p-4 max-w-6xl mx-auto w-full">
           {hasEmailConnected ? (
             /* User with connected email sees their inbox */
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
-              {/* Inbox Panel */}
-              <EmailInbox
-                emails={emails}
-                selectedEmail={selectedEmail}
-                onSelectEmail={setSelectedEmail}
-                onRefresh={fetchEmails}
-                isLoading={isLoadingEmails}
-                error={emailError}
-              />
-
-              {/* Reply Panel */}
-              {selectedEmail ? (
-                <EmailReplyPanel
-                  email={selectedEmail}
-                  onBack={() => setSelectedEmail(null)}
-                  onGenerateReply={handleGenerateReply}
-                  onSendEmail={handleSendEmail}
-                  isGenerating={isGeneratingReply}
-                  isSending={isSendingEmail}
-                  companyName={profile?.company_name || undefined}
-                  userName={profile?.display_name || undefined}
-                  hasAIEmailAccess={hasAIEmail}
-                />
-              ) : (
-                <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
-                  <Reply className="h-12 w-12 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
-                  <p className="text-sm text-gray-400 text-center">
-                    Klicka på ett mejl i inkorgen för att generera ett svar
-                  </p>
+            <div className="flex flex-col h-[calc(100vh-180px)] gap-4">
+              {/* Email Account Header */}
+              <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{profile?.connected_email || "Kopplad e-post"}</p>
+                    <p className="text-xs text-muted-foreground">Aktiv e-postanslutning</p>
+                  </div>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddAccount(true)}
+                    className="gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Byt konto
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDisconnectEmail}
+                    className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Koppla bort
+                  </Button>
+                </div>
+              </div>
+
+              {/* Inbox Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+                {/* Inbox Panel */}
+                <EmailInbox
+                  emails={emails}
+                  selectedEmail={selectedEmail}
+                  onSelectEmail={setSelectedEmail}
+                  onRefresh={fetchEmails}
+                  isLoading={isLoadingEmails}
+                  error={emailError}
+                />
+
+                {/* Reply Panel */}
+                {selectedEmail ? (
+                  <EmailReplyPanel
+                    email={selectedEmail}
+                    onBack={() => setSelectedEmail(null)}
+                    onGenerateReply={handleGenerateReply}
+                    onSendEmail={handleSendEmail}
+                    isGenerating={isGeneratingReply}
+                    isSending={isSendingEmail}
+                    companyName={profile?.company_name || undefined}
+                    userName={profile?.display_name || undefined}
+                    hasAIEmailAccess={hasAIEmail}
+                  />
+                ) : (
+                  <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
+                    <Reply className="h-12 w-12 text-gray-300 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
+                    <p className="text-sm text-gray-400 text-center">
+                      Klicka på ett mejl i inkorgen för att generera ett svar
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             /* Other users see the email connection request form */
-            <div className="flex items-center justify-center h-[calc(100vh-180px)]">
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] gap-4">
+              {showAddAccount && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAddAccount(false)}
+                  className="self-start"
+                >
+                  ← Tillbaka till inkorgen
+                </Button>
+              )}
               <EmailConnectionRequest userId={user!.id} />
             </div>
           )}

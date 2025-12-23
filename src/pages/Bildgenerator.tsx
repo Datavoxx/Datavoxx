@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import AppHeader from "@/components/AppHeader";
@@ -7,14 +7,28 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, ImageIcon, Download, Sparkles, Upload } from "lucide-react";
+import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+
+import mall1 from "@/assets/mall-1.png";
+import mall2 from "@/assets/mall-2.png";
+import mall3 from "@/assets/mall-3.png";
+
+const templates: Record<string, { name: string; image: string }> = {
+  "1": { name: "A2BIL Showroom 1", image: mall1 },
+  "2": { name: "A2BIL Showroom 2", image: mall2 },
+  "3": { name: "A2BIL Showroom 3", image: mall3 },
+};
 
 const Bildgenerator = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const { user, isLoading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const mallId = searchParams.get("mall");
+  const selectedTemplate = mallId ? templates[mallId] : null;
 
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -22,6 +36,13 @@ const Bildgenerator = () => {
   const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+
+  // Redirect to template selector if no template is selected
+  useEffect(() => {
+    if (!authLoading && !roleLoading && user && isAdmin && !mallId) {
+      navigate("/bildgenerator-mallar");
+    }
+  }, [authLoading, roleLoading, user, isAdmin, mallId, navigate]);
 
   // Redirect non-admin users
   if (!authLoading && !roleLoading) {
@@ -159,9 +180,23 @@ const Bildgenerator = () => {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">
               Bildgenerator
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Ladda upp en bild och justera padding-inställningar
-            </p>
+            {selectedTemplate && (
+              <div className="flex items-center justify-center gap-3 mt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/bildgenerator-mallar")}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Byt mall
+                </Button>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-sm text-muted-foreground">
+                  Vald mall: <strong className="text-foreground">{selectedTemplate.name}</strong>
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Upload & Settings Card */}

@@ -96,14 +96,13 @@ const Bildgenerator = () => {
         throw new Error(`Webhook request failed: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Läs responsen som blob (binär bilddata)
+      const blob = await response.blob();
       
-      if (data.imageUrl || data.image) {
-        setGeneratedImage(data.imageUrl || data.image);
-        toast.success("Bilden har genererats!");
-      } else {
-        toast.error("Inget bildsvar mottogs");
-      }
+      // Skapa en URL för att visa bilden
+      const imageUrl = URL.createObjectURL(blob);
+      setGeneratedImage(imageUrl);
+      toast.success("Bilden har genererats!");
     } catch (error) {
       console.error("Error:", error);
       toast.error("Ett fel uppstod. Försök igen.");
@@ -112,14 +111,28 @@ const Bildgenerator = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (generatedImage) {
-      const link = document.createElement("a");
-      link.href = generatedImage;
-      link.download = `generated-image-${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      try {
+        const response = await fetch(generatedImage);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `generated-image-${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        // Fallback
+        const link = document.createElement("a");
+        link.href = generatedImage;
+        link.download = `generated-image-${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
   };
 

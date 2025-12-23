@@ -1,22 +1,34 @@
-import { MessageCircle, Lightbulb, ArrowRight } from "lucide-react";
+import { MessageCircle, Lightbulb, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export interface StepGuideContent {
   title: string;
   description: string;
   tip?: string;
+  authPrompt?: {
+    text: string;
+    buttonText: string;
+    link: string;
+  };
 }
 
 interface StepGuideProps {
   currentStep: number;
   stepGuides: Record<number, StepGuideContent>;
   className?: string;
+  isAuthenticated?: boolean;
 }
 
-const StepGuide = ({ currentStep, stepGuides, className }: StepGuideProps) => {
+const StepGuide = ({ currentStep, stepGuides, className, isAuthenticated = false }: StepGuideProps) => {
   const guide = stepGuides[currentStep];
   
   if (!guide) return null;
+
+  // Show auth prompt if user is not authenticated and authPrompt exists for this step
+  const showAuthPrompt = !isAuthenticated && guide.authPrompt;
+  const showTip = isAuthenticated && guide.tip;
 
   return (
     <div className={cn(
@@ -42,12 +54,30 @@ const StepGuide = ({ currentStep, stepGuides, className }: StepGuideProps) => {
               {guide.description}
             </p>
             
-            {guide.tip && (
+            {/* Show tip if authenticated */}
+            {showTip && (
               <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                 <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <p className="text-xs text-foreground/80 leading-relaxed">
                   <span className="font-medium text-primary">Tips:</span> {guide.tip}
                 </p>
+              </div>
+            )}
+            
+            {/* Show auth prompt if not authenticated */}
+            {showAuthPrompt && guide.authPrompt && (
+              <div className="flex flex-col gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                <div className="flex items-start gap-3">
+                  <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <p className="text-xs text-foreground/80 leading-relaxed">
+                    {guide.authPrompt.text}
+                  </p>
+                </div>
+                <Button asChild size="sm" className="w-full">
+                  <Link to={guide.authPrompt.link}>
+                    {guide.authPrompt.buttonText}
+                  </Link>
+                </Button>
               </div>
             )}
           </div>

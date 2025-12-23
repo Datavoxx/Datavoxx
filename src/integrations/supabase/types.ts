@@ -205,6 +205,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_credentials: {
+        Row: {
+          created_at: string
+          id: string
+          imap_host: string
+          imap_password: string
+          imap_port: number
+          imap_username: string
+          smtp_host: string | null
+          smtp_port: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imap_host: string
+          imap_password: string
+          imap_port?: number
+          imap_username: string
+          smtp_host?: string | null
+          smtp_port?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imap_host?: string
+          imap_password?: string
+          imap_port?: number
+          imap_username?: string
+          smtp_host?: string | null
+          smtp_port?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string

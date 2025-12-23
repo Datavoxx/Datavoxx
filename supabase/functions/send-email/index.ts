@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,26 +22,75 @@ serve(async (req) => {
   }
 
   try {
+    // Get the authorization header to identify the user
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Autentisering krävs. Logga in igen." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create Supabase client with the user's JWT
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error("Failed to get user:", userError);
+      return new Response(
+        JSON.stringify({ error: "Kunde inte verifiera användare. Logga in igen." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Sending email for user: ${user.id}`);
+
+    // Get the user's email credentials from the database
+    const { data: credentials, error: credError } = await supabase
+      .from("email_credentials")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (credError) {
+      console.error("Error fetching credentials:", credError);
+      return new Response(
+        JSON.stringify({ error: "Kunde inte hämta e-postuppgifter." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!credentials) {
+      console.log("No email credentials found for user");
+      return new Response(
+        JSON.stringify({ error: "Du har inte kopplat någon e-post ännu." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { to, subject, body, inReplyTo }: SendEmailRequest = await req.json();
 
     console.log(`Sending email to: ${to}`);
     console.log(`Subject: ${subject}`);
 
-    const smtpHost = Deno.env.get("SMTP_HOST");
-    const smtpUser = Deno.env.get("IMAP_USER");
-    const smtpPass = Deno.env.get("IMAP_PASS");
+    const smtpHost = credentials.smtp_host || credentials.imap_host.replace("imap.", "smtp.");
+    const smtpPort = credentials.smtp_port || 465;
+    const smtpUser = credentials.imap_username;
+    const smtpPass = credentials.imap_password;
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      throw new Error("Missing SMTP configuration");
-    }
+    console.log(`Connecting to SMTP host: ${smtpHost}:${smtpPort}`);
 
-    console.log(`Connecting to SMTP host: ${smtpHost}`);
-
-    // One.com: prefer implicit TLS (SMTPS) on port 465 in this runtime
+    // Connect using implicit TLS (SMTPS) on port 465
     const client = new SMTPClient({
       connection: {
         hostname: smtpHost,
-        port: 465,
+        port: smtpPort,
         tls: true,
         auth: {
           username: smtpUser,

@@ -151,7 +151,7 @@ const BilResearch = () => {
       setShowResult(false);
       setMessages([]);
     } else if (currentStep === 1) {
-      navigate("/");
+      navigate("/start");
     } else {
       setCurrentStep((prev) => prev - 1);
     }

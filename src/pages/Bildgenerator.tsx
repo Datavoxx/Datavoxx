@@ -96,13 +96,21 @@ const Bildgenerator = () => {
         throw new Error(`Webhook request failed: ${response.status}`);
       }
 
-      // Läs responsen som blob (binär bilddata)
-      const blob = await response.blob();
+      // Läs responsen som JSON och extrahera 'data'-fältet
+      const responseData = await response.json();
       
-      // Skapa en URL för att visa bilden
-      const imageUrl = URL.createObjectURL(blob);
-      setGeneratedImage(imageUrl);
-      toast.success("Bilden har genererats!");
+      if (responseData.data) {
+        // Hantera base64 eller URL
+        const imageData = responseData.data.startsWith('data:') 
+          ? responseData.data 
+          : responseData.data.startsWith('http') 
+            ? responseData.data 
+            : `data:image/jpeg;base64,${responseData.data}`;
+        setGeneratedImage(imageData);
+        toast.success("Bilden har genererats!");
+      } else {
+        toast.error("Inget bildsvar mottogs");
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Ett fel uppstod. Försök igen.");

@@ -4,11 +4,12 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import HelpWidget from "@/components/HelpWidget";
+import { useUserRole } from "@/hooks/useUserRole";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
-
+  const { isAdmin } = useUserRole();
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white animate-fade-in">
       <DecorativeBackground />
@@ -65,6 +66,13 @@ const Index = () => {
             description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
             onClick={() => navigate("/email-assistent")}
           />
+          {isAdmin && (
+            <LevelCard
+              title="Bildgenerator"
+              description="Generera professionella bilder med AI"
+              onClick={() => navigate("/bildgenerator")}
+            />
+          )}
         </div>
       </main>
     </div>

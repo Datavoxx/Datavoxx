@@ -168,7 +168,7 @@ Med vänliga hälsningar`
             {/* Headline with gradient */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
               <span className="text-foreground">Slipp skriva </span>
-              <span className="gradient-text">bilannonser</span>
+              <span className="gradient-text">annonstext</span>
               <span className="text-foreground">, </span>
               <br className="hidden md:block" />
               <span className="gradient-text">mejl</span>

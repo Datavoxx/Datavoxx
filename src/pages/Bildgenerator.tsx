@@ -92,12 +92,19 @@ const Bildgenerator = () => {
         body: formData
       });
 
+      // Logga response headers
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+      console.log("Content-Type:", response.headers.get("content-type"));
+
       if (!response.ok) {
         throw new Error(`Webhook request failed: ${response.status}`);
       }
 
       // Läs responsen som blob (binär bilddata)
       const blob = await response.blob();
+      console.log("Blob type:", blob.type);
+      console.log("Blob size:", blob.size, "bytes");
       
       // Skapa en URL för att visa bilden
       const imageUrl = URL.createObjectURL(blob);

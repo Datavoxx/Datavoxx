@@ -156,8 +156,21 @@ Jag återkommer med ett detaljerat förslag inom kort.
 Med vänliga hälsningar`
 };
 
-const EmailDemo = () => {
-  const [selectedEmail, setSelectedEmail] = useState<DemoEmail | null>(null);
+interface EmailDemoProps {
+  onStepChange?: (step: number) => void;
+}
+
+const EmailDemo = ({ onStepChange }: EmailDemoProps = {}) => {
+  const [selectedEmail, setSelectedEmailInternal] = useState<DemoEmail | null>(null);
+  
+  const setSelectedEmail = (email: DemoEmail | null) => {
+    setSelectedEmailInternal(email);
+    if (email) {
+      onStepChange?.(2); // Step 2: Give directive
+    } else {
+      onStepChange?.(1); // Step 1: Select email
+    }
+  };
   const [directive, setDirective] = useState("");
   const [generatedReply, setGeneratedReply] = useState("");
   const [editableReply, setEditableReply] = useState("");
@@ -241,6 +254,7 @@ const EmailDemo = () => {
     setGeneratedReply(response);
     setEditableReply(response);
     setIsGenerating(false);
+    onStepChange?.(3); // Step 3: Review reply
   };
 
   const handleCopy = () => {

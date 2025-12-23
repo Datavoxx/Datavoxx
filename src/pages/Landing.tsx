@@ -74,6 +74,52 @@ Med vänliga hälsningar`
 
       {/* Login Button - Top Right */}
       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2">
+        {/* Produkter Dropdown */}
+        <div className="relative group">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+          >
+            <Zap className="h-4 w-4" />
+            Produkter
+          </Button>
+          <div className="absolute right-0 top-full mt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="bg-card/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 space-y-1">
+              <button
+                onClick={() => navigate("/produkt/annonsgenerator")}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-primary/10 transition-colors group/item"
+              >
+                <FileText className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Annonsgenerator</p>
+                  <p className="text-xs text-muted-foreground">Skapa bilannonser på sekunder</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate("/produkt/bil-research")}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-primary/10 transition-colors group/item"
+              >
+                <Search className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Bil Research</p>
+                  <p className="text-xs text-muted-foreground">Expertkunskap om bilar</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate("/produkt/email-assistent")}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-primary/10 transition-colors group/item"
+              >
+                <Mail className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Email-assistent</p>
+                  <p className="text-xs text-muted-foreground">Svara på kundmejl snabbt</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        
         <Button
           variant="ghost"
           size="sm"

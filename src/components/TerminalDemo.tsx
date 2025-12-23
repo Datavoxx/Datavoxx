@@ -9,8 +9,17 @@ import { supabase } from "@/integrations/supabase/client";
  * Interactive Step-by-Step Demo
  * Users click through: Reg.nr → Financing → Focus → Generated text
  */
-const TerminalDemo = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+interface TerminalDemoProps {
+  onStepChange?: (step: number) => void;
+}
+
+const TerminalDemo = ({ onStepChange }: TerminalDemoProps = {}) => {
+  const [currentStep, setCurrentStepInternal] = useState(1);
+  
+  const setCurrentStep = (step: number) => {
+    setCurrentStepInternal(step);
+    onStepChange?.(step);
+  };
   const [selectedFocus, setSelectedFocus] = useState<'financing' | 'equipment' | 'mixed'>('financing');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);

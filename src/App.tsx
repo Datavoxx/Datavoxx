@@ -16,6 +16,11 @@ import Auth from "./pages/Auth";
 import AdminRoles from "./pages/AdminRoles";
 import NotFound from "./pages/NotFound";
 
+// Product pages
+import ProduktAnnonsgenerator from "./pages/produkter/Annonsgenerator";
+import ProduktBilResearch from "./pages/produkter/BilResearch";
+import ProduktEmailAssistent from "./pages/produkter/EmailAssistent";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -36,7 +41,12 @@ const App = () => (
               <Route path="/email-assistent" element={<EmailAssistent />} />
               <Route path="/paket" element={<Paket />} />
               <Route path="/admin/roles" element={<AdminRoles />} />
+              {/* Product pages */}
+              <Route path="/produkt/annonsgenerator" element={<ProduktAnnonsgenerator />} />
+              <Route path="/produkt/bil-research" element={<ProduktBilResearch />} />
+              <Route path="/produkt/email-assistent" element={<ProduktEmailAssistent />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

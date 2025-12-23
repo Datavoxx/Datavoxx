@@ -9,8 +9,17 @@ import { supabase } from "@/integrations/supabase/client";
  * Interactive Step-by-Step Bil Research Demo
  * Users click through: Välj bil → Välj fråga → AI-svar
  */
-const BilResearchDemo = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+interface BilResearchDemoProps {
+  onStepChange?: (step: number) => void;
+}
+
+const BilResearchDemo = ({ onStepChange }: BilResearchDemoProps = {}) => {
+  const [currentStep, setCurrentStepInternal] = useState(1);
+  
+  const setCurrentStep = (step: number) => {
+    setCurrentStepInternal(step);
+    onStepChange?.(step);
+  };
   const [selectedQuestion, setSelectedQuestion] = useState<'problems' | 'service' | 'fuel'>('problems');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);

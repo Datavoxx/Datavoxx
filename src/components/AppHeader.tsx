@@ -16,7 +16,7 @@ const ADMIN_USER_ID = "bc8ed488-4ebc-49b1-988b-4b0e926c7b8d";
 
 const AppHeader = ({
   showBackButton = false,
-  backPath = "/",
+  backPath = "/start",
   onBackClick,
   showClearButton = false,
   onClearClick,

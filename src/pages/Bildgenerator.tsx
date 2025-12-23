@@ -72,15 +72,6 @@ const Bildgenerator = () => {
     e.preventDefault();
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const handleGenerate = async () => {
     if (!uploadedImage) {
       toast.error("Ladda upp en bild först");
@@ -91,20 +82,18 @@ const Bildgenerator = () => {
     setGeneratedImage(null);
 
     try {
-      const base64Image = await fileToBase64(uploadedImage);
+      const formData = new FormData();
+      formData.append("data", uploadedImage);
+      formData.append("padding", padding.toString());
+      formData.append("padding_bottom", paddingBottom.toString());
 
       const response = await fetch("https://datavox.app.n8n.cloud/webhook-test/bildgenerator", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: base64Image,
-          padding: padding,
-          padding_bottom: paddingBottom
-        })
+        body: formData
       });
 
       if (!response.ok) {
-        throw new Error("Webhook request failed");
+        throw new Error(`Webhook request failed: ${response.status}`);
       }
 
       const data = await response.json();

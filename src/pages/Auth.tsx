@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 // Validation schemas
@@ -100,7 +101,7 @@ const Auth = () => {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -113,90 +114,52 @@ const Auth = () => {
   ];
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Side - Decorative Background */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-gray-100 via-gray-50 to-white overflow-hidden">
-        {/* Decorative SVG shapes */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox="0 0 800 1000"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <ellipse cx="200" cy="300" rx="350" ry="350" fill="hsl(0 0% 10%)" opacity="0.04" />
-          <ellipse cx="600" cy="700" rx="300" ry="300" fill="hsl(0 0% 10%)" opacity="0.03" />
-        </svg>
+    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background relative overflow-hidden">
+      <DecorativeBackground />
+      
+      {/* Main Content - Centered */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
+        {/* Logo */}
+        <img 
+          src={bilgenLogo} 
+          alt="BILGEN" 
+          className="h-16 md:h-20 mb-8 opacity-0 animate-fade-in cursor-pointer"
+          onClick={() => navigate("/")}
+        />
         
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12">
-          <img 
-            src={bilgenLogo} 
-            alt="BILGEN" 
-            className="h-20 mb-12 opacity-0 animate-fade-in cursor-pointer"
-            onClick={() => navigate("/")}
-          />
-          
-          <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4 text-center opacity-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+        {/* Tagline */}
+        <div className="text-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
             AI-verktyg för bilhandlare
           </h2>
-          <p className="text-lg text-muted-foreground text-center max-w-md mb-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.15s" }}>
-            Spara tid och jobba smartare med våra AI-drivna verktyg.
+          <p className="text-muted-foreground">
+            Spara tid och jobba smartare
           </p>
-          
-          {/* Tool badges */}
-          <div className="flex flex-col gap-3 opacity-0 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            {tools.map((tool, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 px-5 py-3 rounded-full bg-white/80 border border-gray-200 shadow-sm"
-              >
-                <tool.icon className="h-5 w-5 text-foreground" />
-                <span className="text-sm font-medium text-foreground">{tool.title}</span>
-              </div>
-            ))}
-          </div>
-          
-          {/* Speed tagline */}
-          <div 
-            className="mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-foreground to-accent text-primary-foreground opacity-0 animate-fade-in"
-            style={{ animationDelay: "0.25s" }}
-          >
-            <span className="text-sm">⚡</span>
-            <span className="font-semibold">2-3X</span>
-            <span className="text-sm">snabbare än manuellt</span>
-          </div>
         </div>
-      </div>
-      
-      {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 bg-white">
-        {/* Mobile logo - only visible on smaller screens */}
-        <img 
-          src={bilgenLogo} 
-          alt="BILGEN" 
-          className="lg:hidden mb-10 h-16 opacity-0 animate-fade-in cursor-pointer"
-          onClick={() => navigate("/")}
-        />
+
+        {/* Tool badges - horizontal on desktop */}
+        <div className="flex flex-wrap justify-center gap-3 mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          {tools.map((tool, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm"
+            >
+              <tool.icon className="h-4 w-4 text-foreground" />
+              <span className="text-sm font-medium text-foreground">{tool.title}</span>
+            </div>
+          ))}
+        </div>
         
-        {/* Desktop logo */}
-        <img 
-          src={bilgenLogo} 
-          alt="BILGEN" 
-          className="hidden lg:block mb-10 h-14 opacity-0 animate-fade-in cursor-pointer"
-          onClick={() => navigate("/")}
-        />
-        
-        {/* Auth Form */}
+        {/* Auth Card */}
         <div 
-          className="w-full max-w-sm opacity-0 animate-fade-in"
-          style={{ animationDelay: "0.1s" }}
+          className="w-full max-w-sm bg-background/80 backdrop-blur-md border border-border/50 rounded-2xl p-8 shadow-xl opacity-0 animate-fade-in"
+          style={{ animationDelay: "0.15s" }}
         >
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
               Logga in
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               Välkommen tillbaka!
             </p>
           </div>
@@ -214,12 +177,12 @@ const Auth = () => {
                   placeholder="din@email.se"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-background/50"
                   disabled={isLoading}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-red-500">{errors.email}</p>
+                <p className="text-xs text-destructive">{errors.email}</p>
               )}
             </div>
             
@@ -235,18 +198,18 @@ const Auth = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-background/50"
                   disabled={isLoading}
                 />
               </div>
               {errors.password && (
-                <p className="text-xs text-red-500">{errors.password}</p>
+                <p className="text-xs text-destructive">{errors.password}</p>
               )}
             </div>
             
             <Button
               type="submit"
-              className="w-full py-6 text-base font-semibold transition-all duration-300 hover:shadow-lg mt-6"
+              className="w-full py-6 text-base font-semibold transition-all duration-300 hover:shadow-lg mt-2"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -263,10 +226,10 @@ const Auth = () => {
           {/* OAuth Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200" />
+              <span className="w-full border-t border-border/50" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">
+              <span className="bg-background/80 px-2 text-muted-foreground">
                 Eller fortsätt med
               </span>
             </div>
@@ -278,7 +241,7 @@ const Auth = () => {
             variant="outline"
             onClick={handleGoogleSignIn}
             disabled={isLoading || isGoogleLoading}
-            className="w-full"
+            className="w-full bg-background/50 hover:bg-background/80"
           >
             {isGoogleLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -306,6 +269,16 @@ const Auth = () => {
               </>
             )}
           </Button>
+        </div>
+
+        {/* Speed tagline */}
+        <div 
+          className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/90 text-background opacity-0 animate-fade-in"
+          style={{ animationDelay: "0.2s" }}
+        >
+          <span className="text-sm">⚡</span>
+          <span className="font-semibold">2-3X</span>
+          <span className="text-sm">snabbare än manuellt</span>
         </div>
       </div>
     </div>

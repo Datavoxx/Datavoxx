@@ -140,14 +140,20 @@ const Auth = () => {
         {/* Tool badges - horizontal on desktop */}
         <div className="flex flex-wrap justify-center gap-3 mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
           {tools.map((tool, index) => (
-            <div
-              key={index}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm ${
-                tool.title === "Email Assistent" ? "blur-[6px] opacity-40" : ""
-              }`}
-            >
-              <tool.icon className="h-4 w-4 text-foreground" />
-              <span className="text-sm font-medium text-foreground">{tool.title}</span>
+            <div key={index} className="relative">
+              {tool.title === "Email Assistent" && (
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <Lock className="h-4 w-4 text-foreground" />
+                </div>
+              )}
+              <div
+                className={`flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm ${
+                  tool.title === "Email Assistent" ? "blur-[6px] opacity-40" : ""
+                }`}
+              >
+                <tool.icon className="h-4 w-4 text-foreground" />
+                <span className="text-sm font-medium text-foreground">{tool.title}</span>
+              </div>
             </div>
           ))}
         </div>

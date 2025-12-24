@@ -131,7 +131,7 @@ const EmailReplyPanel = ({
     fetchSuggestions();
   }, [email?.id, hasAIEmailAccess]);
 
-  // Clean email body when email changes
+  // Clean email body when email changes (only if user has AI access)
   useEffect(() => {
     const cleanEmailBody = async () => {
       if (!email?.body && !email?.preview) {
@@ -140,6 +140,12 @@ const EmailReplyPanel = ({
       }
 
       const rawBody = email.body || email.preview || "";
+      
+      // If user doesn't have AI access, just show raw body without cleaning
+      if (!hasAIEmailAccess) {
+        setCleanedEmailBody(rawBody);
+        return;
+      }
       
       // Check if the body looks like it needs cleaning (contains HTML/CSS/code)
       const needsCleaning = /<[^>]+>|{[^}]+}|style=|class=|Content-Type:|MIME-Version:|base64/i.test(rawBody);
@@ -170,7 +176,7 @@ const EmailReplyPanel = ({
     };
 
     cleanEmailBody();
-  }, [email?.id]);
+  }, [email?.id, hasAIEmailAccess]);
 
   // Reset state when email changes
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import AppHeader from "@/components/AppHeader";
@@ -7,7 +7,7 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft } from "lucide-react";
+import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import mall1 from "@/assets/mall-1.png";
@@ -202,9 +202,18 @@ const Bildgenerator = () => {
           {/* Upload & Settings Card */}
           <Card className="mb-6 border-purple-200 shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-purple-600" />
-                Ladda upp bild
+              <CardTitle className="flex items-center justify-between w-full">
+                <span className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5 text-purple-600" />
+                  Ladda upp bild
+                </span>
+                <Link 
+                  to="/vad-ar-padding" 
+                  className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1 font-normal"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                  Vad är padding?
+                </Link>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">

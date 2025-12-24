@@ -25,6 +25,7 @@ import PaymentCanceled from "./pages/PaymentCanceled";
 import ProduktAnnonsgenerator from "./pages/produkter/Annonsgenerator";
 import ProduktBilResearch from "./pages/produkter/BilResearch";
 import ProduktEmailAssistent from "./pages/produkter/EmailAssistent";
+import Integritetspolicy from "./pages/Integritetspolicy";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Routes>
               {/* Public routes */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/integritetspolicy" element={<Integritetspolicy />} />
               
               {/* Protected routes - require authentication */}
               <Route path="/" element={<ProtectedRoute><Landing /></ProtectedRoute>} />

@@ -17,6 +17,8 @@ import AdminRoles from "./pages/AdminRoles";
 import Bildgenerator from "./pages/Bildgenerator";
 import BildgeneratorMallar from "./pages/BildgeneratorMallar";
 import NotFound from "./pages/NotFound";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 
 // Product pages
 import ProduktAnnonsgenerator from "./pages/produkter/Annonsgenerator";
@@ -42,6 +44,8 @@ const App = () => (
               <Route path="/bil-research" element={<BilResearch />} />
               <Route path="/email-assistent" element={<EmailAssistent />} />
               <Route path="/paket" element={<Paket />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-canceled" element={<PaymentCanceled />} />
               <Route path="/admin/roles" element={<AdminRoles />} />
               <Route path="/bildgenerator-mallar" element={<BildgeneratorMallar />} />
               <Route path="/bildgenerator" element={<Bildgenerator />} />

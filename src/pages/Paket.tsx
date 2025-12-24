@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star, Shield } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star, Shield, Loader2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,28 +9,134 @@ import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Define available add-ons
+// Define available add-ons with Stripe price IDs
 const addons = {
   creditMax: { id: 'credit-max', name: 'Credit Max', price: 599, description: 'Obegränsade credits' },
   creditBonus: { id: 'credit-bonus', name: 'Credit Bonus', price: 299, description: 'Extra credits' },
   emailAssistant: { id: 'email-assistant', name: 'E-mail Assistant', price: 799, description: 'AI-driven e-postassistent' }
 };
 
+// Stripe product IDs for subscription status
+const PRODUCT_IDS = {
+  gen1: 'prod_TezYFUWmNFuOGQ',
+  gen2: 'prod_TezkXphJVCjLhl',
+};
+
 const Paket = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, session } = useAuth();
   const { isAdmin, isLoading: isRoleLoading } = useUserRole();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<{
+    subscribed: boolean;
+    products: string[];
+    subscription_end: string | null;
+  } | null>(null);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   
   // State for selected add-ons per package
   const [selectedAddons, setSelectedAddons] = useState<{
     gen1: string[];
     gen2: string[];
   }>({ gen1: [], gen2: [] });
+
+  // Check subscription status on load
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!session?.access_token) return;
+      
+      setIsLoadingSubscription(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('check-subscription', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+        
+        if (error) throw error;
+        setSubscription(data);
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+      } finally {
+        setIsLoadingSubscription(false);
+      }
+    };
+
+    checkSubscription();
+  }, [session?.access_token]);
+
+  const handleCheckout = async (packageKey: 'gen1' | 'gen2') => {
+    if (!user) {
+      toast({
+        title: "Logga in först",
+        description: "Du måste vara inloggad för att köpa ett paket.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    setIsCheckingOut(packageKey);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          packageKey,
+          addons: selectedAddons[packageKey]
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Något gick fel",
+        description: "Kunde inte starta betalningen. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingOut(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!session?.access_token) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Portal error:", error);
+      toast({
+        title: "Något gick fel",
+        description: "Kunde inte öppna hanteringssidan.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +196,11 @@ const Paket = () => {
       return sum + (addon?.price || 0);
     }, 0);
     return basePrice + addonTotal;
+  };
+
+  const hasActiveSubscription = (packageKey: string) => {
+    if (!subscription?.subscribed) return false;
+    return subscription.products.includes(packageKey);
   };
 
   const packages = [
@@ -157,9 +268,25 @@ const Paket = () => {
           <img src={bilgenLogo} alt="Bilgen" className="h-12 md:h-14" />
         </div>
 
-        {/* Beta Badge or Admin Badge */}
+        {/* Subscription Status / Beta Badge / Admin Badge */}
         <div className="flex justify-center mb-6">
-          {isAdmin ? (
+          {subscription?.subscribed ? (
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-medium">
+                <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                Aktiv prenumeration: {subscription.products.map(p => p === 'gen1' ? 'Gen 1' : p === 'gen2' ? 'Gen 2' : p).join(', ')}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManageSubscription}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Hantera
+              </Button>
+            </div>
+          ) : isAdmin ? (
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-primary text-sm font-medium">
               <Shield className="w-4 h-4" />
               Admin-vy
@@ -285,17 +412,38 @@ const Paket = () => {
                   )}
 
                   {/* Button */}
-                  <Button 
-                    className={`w-full ${pkg.dark ? 'bg-white/20 text-white hover:bg-white/30' : ''}`}
-                    variant={pkg.popular ? "default" : "outline"}
-                    disabled={!isAdmin}
-                  >
-                    {pkg.basePrice === null ? "Kontakta oss" : `Välj ${pkg.name}`}
-                  </Button>
+                  {pkg.key && hasActiveSubscription(pkg.key) ? (
+                    <Button 
+                      className="w-full"
+                      variant="outline"
+                      onClick={handleManageSubscription}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Hantera prenumeration
+                    </Button>
+                  ) : (
+                    <Button 
+                      className={`w-full ${pkg.dark ? 'bg-white/20 text-white hover:bg-white/30' : ''}`}
+                      variant={pkg.popular ? "default" : "outline"}
+                      disabled={!isAdmin || isCheckingOut !== null || !pkg.key}
+                      onClick={() => pkg.key && handleCheckout(pkg.key)}
+                    >
+                      {isCheckingOut === pkg.key ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Laddar...
+                        </>
+                      ) : pkg.basePrice === null ? (
+                        "Kontakta oss"
+                      ) : (
+                        `Välj ${pkg.name}`
+                      )}
+                    </Button>
+                  )}
                 </div>
 
-                {/* Lock Overlay - Only for non-admin */}
-                {!isAdmin && (
+                {/* Lock Overlay - Only for non-admin and non-subscribed */}
+                {!isAdmin && !hasActiveSubscription(pkg.key || '') && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
                     <div className={`p-4 rounded-full ${pkg.dark ? 'bg-black/60' : 'bg-background/80'} border border-white/10 shadow-xl`}>
                       <Lock className={`h-8 w-8 ${pkg.dark ? 'text-white/60' : 'text-muted-foreground'}`} />

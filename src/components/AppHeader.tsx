@@ -64,8 +64,8 @@ const AppHeader = ({
       className="sticky top-0 z-50 h-14 sm:h-16 transition-all duration-300"
     >
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4 sm:px-6">
-        {/* Left side - Back button or Contact */}
-        <div className="flex w-20 sm:w-32 items-center">
+        {/* Left side - Back button/Contact + Credits */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {showBackButton ? (
             <button
               onClick={handleBack}
@@ -83,6 +83,8 @@ const AppHeader = ({
               Kontakta oss
             </a>
           )}
+          {/* Credit display */}
+          <CreditDisplay compact />
         </div>
 
         {/* Center - Logo (absolutely centered, clickable home link) */}
@@ -95,9 +97,6 @@ const AppHeader = ({
 
         {/* Right side - Actions */}
         <div className="flex items-center justify-end gap-2 sm:gap-3">
-          {/* Credit display */}
-          <CreditDisplay compact />
-          
           {showClearButton && onClearClick && (
             <button
               onClick={onClearClick}

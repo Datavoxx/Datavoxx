@@ -143,7 +143,7 @@ const Auth = () => {
             <div
               key={index}
               className={`flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm ${
-                tool.title === "Email Assistent" ? "blur-[2px] opacity-50" : ""
+                tool.title === "Email Assistent" ? "blur-[6px] opacity-40" : ""
               }`}
             >
               <tool.icon className="h-4 w-4 text-foreground" />

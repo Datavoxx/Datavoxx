@@ -3,11 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, Sparkles, Crown, Rocket, Send, Star, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
+
+// Define available add-ons
+const addons = {
+  creditMax: { id: 'credit-max', name: 'Credit Max', price: 599, description: 'Obegränsade credits' },
+  creditBonus: { id: 'credit-bonus', name: 'Credit Bonus', price: 299, description: 'Extra credits' },
+  emailAssistant: { id: 'email-assistant', name: 'E-mail Assistant', price: 799, description: 'AI-driven e-postassistent' }
+};
 
 const Paket = () => {
   const navigate = useNavigate();
@@ -17,6 +25,12 @@ const Paket = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // State for selected add-ons per package
+  const [selectedAddons, setSelectedAddons] = useState<{
+    gen1: string[];
+    gen2: string[];
+  }>({ gen1: [], gen2: [] });
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,12 +70,36 @@ const Paket = () => {
     }
   };
 
+  const toggleAddon = (packageKey: 'gen1' | 'gen2', addonId: string) => {
+    setSelectedAddons(prev => {
+      const currentAddons = prev[packageKey];
+      const isSelected = currentAddons.includes(addonId);
+      return {
+        ...prev,
+        [packageKey]: isSelected 
+          ? currentAddons.filter(id => id !== addonId)
+          : [...currentAddons, addonId]
+      };
+    });
+  };
+
+  const calculateTotal = (basePrice: number, packageKey: 'gen1' | 'gen2') => {
+    const selected = selectedAddons[packageKey];
+    const addonTotal = selected.reduce((sum, addonId) => {
+      const addon = Object.values(addons).find(a => a.id === addonId);
+      return sum + (addon?.price || 0);
+    }, 0);
+    return basePrice + addonTotal;
+  };
+
   const packages = [
     {
       name: "Gen 1",
+      key: "gen1" as const,
       icon: Rocket,
       features: ["Grundläggande verktyg", "Email-support", "5 annonser/månad", "Bil Research Basic"],
-      price: "999",
+      basePrice: 999,
+      availableAddons: [addons.creditMax, addons.creditBonus, addons.emailAssistant],
       blur: "blur-[6px]",
       priceBlur: "blur-[10px]",
       bgClass: "bg-white/10",
@@ -69,9 +107,11 @@ const Paket = () => {
     },
     {
       name: "Gen 2",
+      key: "gen2" as const,
       icon: Sparkles,
       features: ["Alla Gen 1 funktioner", "Obegränsade annonser", "Prioriterad support", "AI Email-assistent", "Avancerad Research"],
-      price: "2799",
+      basePrice: 3299,
+      availableAddons: [addons.creditMax, addons.creditBonus],
       popular: true,
       blur: "blur-[6px]",
       priceBlur: "blur-[10px]",
@@ -80,9 +120,11 @@ const Paket = () => {
     },
     {
       name: "Gen 3",
+      key: null,
       icon: Crown,
       features: ["Alla Gen 2 funktioner", "White-label lösning", "Dedikerad account manager", "Custom AI-träning", "API-access", "Enterprise support"],
-      price: "Kontakta oss",
+      basePrice: null,
+      availableAddons: [],
       blur: "blur-[8px]",
       priceBlur: "blur-[12px]",
       bgClass: "bg-gradient-to-br from-gray-800 via-gray-900 to-black",
@@ -175,22 +217,29 @@ const Paket = () => {
 
                   {/* Price */}
                   <div className={`mb-4 ${isAdmin ? '' : pkg.priceBlur}`}>
-                    {pkg.price === "Kontakta oss" ? (
+                    {pkg.basePrice === null ? (
                       <span className={`text-2xl font-bold ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
                         Kontakta oss
                       </span>
                     ) : (
-                      <>
-                        <span className={`text-3xl font-bold ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
-                          {pkg.price} kr
-                        </span>
-                        <span className={`text-sm ${pkg.dark ? 'text-white/70' : 'text-muted-foreground'}`}>/månad</span>
-                      </>
+                      <div className="space-y-1">
+                        <div>
+                          <span className={`text-3xl font-bold ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
+                            {pkg.key ? calculateTotal(pkg.basePrice, pkg.key).toLocaleString('sv-SE') : pkg.basePrice.toLocaleString('sv-SE')} kr
+                          </span>
+                          <span className={`text-sm ${pkg.dark ? 'text-white/70' : 'text-muted-foreground'}`}>/månad</span>
+                        </div>
+                        {pkg.key && selectedAddons[pkg.key].length > 0 && (
+                          <p className={`text-xs ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>
+                            Baspris: {pkg.basePrice.toLocaleString('sv-SE')} kr + tillägg
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-2 mb-4">
                     {pkg.features.map((feature, i) => (
                       <li key={i} className={`flex items-center gap-2 text-sm ${pkg.dark ? 'text-white/80' : 'text-muted-foreground'}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${pkg.dark ? 'bg-white/60' : 'bg-primary/60'}`}></span>
@@ -199,13 +248,49 @@ const Paket = () => {
                     ))}
                   </ul>
 
+                  {/* Add-ons Section */}
+                  {pkg.availableAddons.length > 0 && pkg.key && (
+                    <div className="mb-6 pt-4 border-t border-white/10">
+                      <p className={`text-xs font-semibold mb-3 ${pkg.dark ? 'text-white/70' : 'text-muted-foreground'}`}>
+                        TILLÄGG
+                      </p>
+                      <div className="space-y-3">
+                        {pkg.availableAddons.map((addon) => (
+                          <label
+                            key={addon.id}
+                            className={`flex items-start gap-3 cursor-pointer group`}
+                          >
+                            <Checkbox
+                              checked={selectedAddons[pkg.key!].includes(addon.id)}
+                              onCheckedChange={() => toggleAddon(pkg.key!, addon.id)}
+                              className="mt-0.5 border-white/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className={`text-sm font-medium ${pkg.dark ? 'text-white' : 'text-foreground'}`}>
+                                  {addon.name}
+                                </span>
+                                <span className={`text-sm font-semibold text-primary`}>
+                                  +{addon.price} kr
+                                </span>
+                              </div>
+                              <p className={`text-xs ${pkg.dark ? 'text-white/50' : 'text-muted-foreground'}`}>
+                                {addon.description}
+                              </p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Button */}
                   <Button 
                     className={`w-full ${pkg.dark ? 'bg-white/20 text-white hover:bg-white/30' : ''}`}
                     variant={pkg.popular ? "default" : "outline"}
                     disabled={!isAdmin}
                   >
-                    {pkg.price === "Kontakta oss" ? "Kontakta oss" : `Välj ${pkg.name}`}
+                    {pkg.basePrice === null ? "Kontakta oss" : `Välj ${pkg.name}`}
                   </Button>
                 </div>
 

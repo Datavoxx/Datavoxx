@@ -142,7 +142,9 @@ const Auth = () => {
           {tools.map((tool, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm"
+              className={`flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm ${
+                tool.title === "Email Assistent" ? "blur-[2px] opacity-50" : ""
+              }`}
             >
               <tool.icon className="h-4 w-4 text-foreground" />
               <span className="text-sm font-medium text-foreground">{tool.title}</span>

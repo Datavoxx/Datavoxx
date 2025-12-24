@@ -20,7 +20,6 @@ interface EmailContext {
   body: string;
 }
 
-// Generic system prompt for anonymous users
 const genericSystemPrompt = `SYSTEMPROMPT (optimerad):
 
 Du är en e-postassistent för bilhandlare i Sverige.
@@ -52,7 +51,6 @@ Skriv aldrig längre än nödvändigt och lägg aldrig till något oönskat inne
 
 Returnera endast det färdiga mejlet.`;
 
-// Personalized system prompt for logged-in users
 const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
   return `📌 ROLL
 
@@ -107,7 +105,6 @@ Med vänlig hälsning
 ${userName} på ${companyName}`;
 };
 
-// Context-aware prompt for replying to emails
 const buildReplyPrompt = (emailContext: EmailContext, companyName?: string, userName?: string): string => {
   const signature = companyName && userName 
     ? `\n\nMed vänlig hälsning\n${userName} på ${companyName}` 
@@ -161,7 +158,6 @@ Hör gärna av dig om du är intresserad av något annat!${signature}"
 - Avsluta med signatur om tillgänglig`;
 };
 
-// Prompt for suggesting dynamic directives based on email content
 const buildSuggestDirectivesPrompt = (emailContext: EmailContext): string => {
   return `Du är en expert på att analysera inkommande mejl till bilhandlare i Sverige.
 
@@ -200,19 +196,41 @@ ${emailContext.body}
 ]`;
 };
 
+// Helper function to check and consume credit
+async function checkAndUseCredit(
+  authHeader: string | null,
+  sessionId: string | undefined,
+  consume: boolean
+): Promise<{ allowed: boolean; remaining: number; error?: string }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  
+  const response = await fetch(`${supabaseUrl}/functions/v1/check-and-use-credit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(authHeader ? { Authorization: authHeader } : {}),
+    },
+    body: JSON.stringify({ consume, sessionId }),
+  });
+
+  return await response.json();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, companyName, userName, emailContext, directive, mode } = (await req.json()) as {
+    const authHeader = req.headers.get("Authorization");
+    const { messages, companyName, userName, emailContext, directive, mode, sessionId } = (await req.json()) as {
       messages?: Message[];
       companyName?: string;
       userName?: string;
       emailContext?: EmailContext;
       directive?: string;
       mode?: "suggest-directives" | "generate";
+      sessionId?: string;
     };
 
     if (!lovableApiKey) {
@@ -223,6 +241,7 @@ serve(async (req) => {
     let chatMessages: { role: string; content: string }[];
 
     // Mode: suggest-directives - analyze email and suggest quick actions
+    // This mode does NOT consume credits as it's just analysis
     if (mode === "suggest-directives" && emailContext) {
       systemPrompt = buildSuggestDirectivesPrompt(emailContext);
       chatMessages = [
@@ -252,10 +271,8 @@ serve(async (req) => {
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content || "[]";
       
-      // Try to parse as JSON, fallback to empty array
       let directives = [];
       try {
-        // Extract JSON from response (in case there's extra text)
         const jsonMatch = content.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
           directives = JSON.parse(jsonMatch[0]);
@@ -271,6 +288,20 @@ serve(async (req) => {
       });
     }
 
+    // For generation modes, check credits first
+    const creditCheck = await checkAndUseCredit(authHeader, sessionId, false);
+    if (!creditCheck.allowed) {
+      console.log("Credit check failed:", creditCheck);
+      return new Response(
+        JSON.stringify({ 
+          error: creditCheck.error || "Du har använt alla credits för idag. Återställs vid midnatt.",
+          creditExhausted: true,
+          remaining: 0
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Check if this is a reply-to-email request
     if (emailContext && directive) {
       systemPrompt = buildReplyPrompt(emailContext, companyName, userName);
@@ -280,7 +311,6 @@ serve(async (req) => {
       ];
       console.log("Generating email reply", companyName ? `for ${companyName}` : "(anonymous)");
     } else if (messages) {
-      // Regular template/freeform mode
       systemPrompt = companyName && userName ? buildPersonalizedPrompt(companyName, userName) : genericSystemPrompt;
       chatMessages = [{ role: "system", content: systemPrompt }, ...messages];
       console.log("Calling Lovable AI for email generation", companyName ? `for ${companyName}` : "(anonymous)");
@@ -329,9 +359,16 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "Kunde inte generera e-post.";
 
+    // Consume credit after successful generation
+    const consumeResult = await checkAndUseCredit(authHeader, sessionId, true);
+    console.log("Credit consumed:", consumeResult);
+
     console.log("Email generated successfully with Lovable AI");
 
-    return new Response(JSON.stringify({ content }), {
+    return new Response(JSON.stringify({ 
+      content,
+      creditsRemaining: consumeResult.remaining
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

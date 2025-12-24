@@ -6,9 +6,10 @@ interface LevelCardProps {
   description?: string;
   onClick?: () => void;
   className?: string;
+  timeBadge?: string;
 }
 
-const LevelCard = ({ title, description, onClick, className }: LevelCardProps) => {
+const LevelCard = ({ title, description, onClick, className, timeBadge }: LevelCardProps) => {
   return (
     <button
       onClick={onClick}
@@ -23,6 +24,13 @@ const LevelCard = ({ title, description, onClick, className }: LevelCardProps) =
         className
       )}
     >
+      {/* Time Badge */}
+      {timeBadge && (
+        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium">
+          {timeBadge}
+        </div>
+      )}
+
       <div className="flex-1">
         <h3 className="text-xl font-semibold text-foreground mb-3 tracking-tight">
           {title}

@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import AdminRoles from "./pages/AdminRoles";
 import Bildgenerator from "./pages/Bildgenerator";
 import BildgeneratorMallar from "./pages/BildgeneratorMallar";
+import VadArPadding from "./pages/VadArPadding";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/admin/roles" element={<ProtectedRoute><AdminRoles /></ProtectedRoute>} />
               <Route path="/bildgenerator-mallar" element={<ProtectedRoute><BildgeneratorMallar /></ProtectedRoute>} />
               <Route path="/bildgenerator" element={<ProtectedRoute><Bildgenerator /></ProtectedRoute>} />
+              <Route path="/vad-ar-padding" element={<ProtectedRoute><VadArPadding /></ProtectedRoute>} />
               {/* Product pages */}
               <Route path="/produkt/annonsgenerator" element={<ProtectedRoute><ProduktAnnonsgenerator /></ProtectedRoute>} />
               <Route path="/produkt/bil-research" element={<ProtectedRoute><ProduktBilResearch /></ProtectedRoute>} />

@@ -14,7 +14,7 @@ const LevelCard = ({ title, description, onClick, className }: LevelCardProps) =
       onClick={onClick}
       className={cn(
         "group relative flex flex-col items-start justify-between text-left",
-        "w-full sm:w-80 min-h-[200px] p-8 rounded-2xl",
+        "w-full sm:w-80 min-h-[140px] sm:min-h-[200px] p-5 sm:p-8 rounded-2xl",
         "bg-white border border-gray-200",
         "transition-all duration-300 ease-out",
         "hover:shadow-xl hover:-translate-y-2 hover:border-gray-300",

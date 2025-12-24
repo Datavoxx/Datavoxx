@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield } from "lucide-react";
+import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
@@ -60,23 +60,23 @@ const AppHeader = ({
 
   return (
     <header
-      className="sticky top-0 z-50 h-16 transition-all duration-300"
+      className="sticky top-0 z-50 h-14 sm:h-16 transition-all duration-300"
     >
-      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Left side - Back button or Contact */}
-        <div className="flex w-32 items-center">
+        <div className="flex w-20 sm:w-32 items-center">
           {showBackButton ? (
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
+              className="inline-flex items-center gap-1.5 sm:gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
             >
               <ArrowLeft className="h-4 w-4 opacity-70 transition-opacity duration-300 hover:opacity-100" />
-              Tillbaka
+              <span className="hidden sm:inline">Tillbaka</span>
             </button>
           ) : (
             <a
               href="mailto:info@datavoxx.se"
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
+              className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-all duration-300 hover:text-gray-900"
             >
               <Mail className="h-4 w-4" />
               Kontakta oss
@@ -152,9 +152,10 @@ const AppHeader = ({
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-all duration-300 hover:bg-neutral-800"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-3 sm:px-5 py-2 text-sm font-medium text-background transition-all duration-300 hover:bg-neutral-800"
             >
-              Logga in
+              <LogIn className="h-4 w-4 sm:hidden" />
+              <span className="hidden sm:inline">Logga in</span>
             </button>
           )}
         </div>

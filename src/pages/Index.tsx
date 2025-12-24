@@ -55,16 +55,19 @@ const Index = () => {
             title="Annonstextgenerator"
             description="Skapa annonstextar snabbare med AI"
             onClick={() => navigate("/annons-generator")}
+            timeBadge="10 sek"
           />
           <LevelCard
             title="Bil Research Expert"
             description="Lär känna era nya bilar genom att fråga mig om den"
             onClick={() => navigate("/bil-research")}
+            timeBadge="Direkt"
           />
           <LevelCard
             title="Email Assistent"
             description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
             onClick={() => navigate("/email-assistent")}
+            timeBadge="5 sek"
           />
           {isAdmin && (
             <LevelCard

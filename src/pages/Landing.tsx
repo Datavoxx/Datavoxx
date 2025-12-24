@@ -5,6 +5,7 @@ import TerminalDemo from "@/components/TerminalDemo";
 import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
+import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -561,6 +562,9 @@ Med vänliga hälsningar`
         open={showBookDemoForm} 
         onClose={() => setShowBookDemoForm(false)} 
       />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

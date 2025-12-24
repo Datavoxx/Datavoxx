@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 // Validation schemas
@@ -289,6 +290,9 @@ const Auth = () => {
           <span className="text-sm">snabbare än manuellt</span>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

@@ -55,7 +55,7 @@ const EmailAssistent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
-  const { hasAIEmail, isLoading: roleLoading } = useUserRole();
+  const { hasAIEmail, hasAIEmailSummary, isLoading: roleLoading } = useUserRole();
   
   // Template/chat mode state
   const [input, setInput] = useState("");
@@ -574,7 +574,7 @@ const EmailAssistent = () => {
                     isSending={isSendingEmail}
                     companyName={profile?.company_name || undefined}
                     userName={profile?.display_name || undefined}
-                    hasAIEmailAccess={hasAIEmail}
+                    hasAIEmailAccess={hasAIEmailSummary}
                   />
                 ) : (
                   <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">

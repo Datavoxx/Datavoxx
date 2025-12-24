@@ -24,6 +24,8 @@ interface UserRoleState {
   hasMinRole: (minRole: AppRole) => boolean;
   // Legacy support
   hasAIEmail: boolean;
+  // AI Email Summary - only Pro and Admin
+  hasAIEmailSummary: boolean;
 }
 
 export const useUserRole = (): UserRoleState => {
@@ -81,5 +83,7 @@ export const useUserRole = (): UserRoleState => {
     hasMinRole,
     // Legacy support
     hasAIEmail: hasMinRole("beginner"),
+    // AI Email Summary - only Pro and Admin
+    hasAIEmailSummary: hasMinRole("pro"),
   };
 };

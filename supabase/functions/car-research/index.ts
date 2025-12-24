@@ -8,7 +8,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generic system prompt for anonymous users
 const genericSystemPrompt = `DDu är en professionell bilexpert som hjälper bilsäljare att snabbt förstå och sälja olika bilmodeller bättre.
 
 Ditt viktigaste krav:
@@ -60,7 +59,6 @@ Praktiskt användbar i säljsituation
 
 Skriv så att svaret kan läsas upp för kund utan redigering`;
 
-// Personalized system prompt for logged-in users
 const buildPersonalizedPrompt = (companyName: string, userName: string): string => {
   return `Du är en bilexpert som arbetar för ${companyName}. Din uppgift är att hjälpa ${userName} att lära sig mer om olika bilmodeller så de kan sälja dem bättre.
 
@@ -75,23 +73,57 @@ Du kan svara på frågor om:
 Svara alltid på svenska, var hjälpsam och ge konkreta, användbara svar som hjälper ${userName} att förstå bilen bättre. Håll svaren informativa men koncisa.`;
 };
 
+// Helper function to check and consume credit
+async function checkAndUseCredit(
+  authHeader: string | null,
+  sessionId: string | undefined,
+  consume: boolean
+): Promise<{ allowed: boolean; remaining: number; error?: string }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  
+  const response = await fetch(`${supabaseUrl}/functions/v1/check-and-use-credit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(authHeader ? { Authorization: authHeader } : {}),
+    },
+    body: JSON.stringify({ consume, sessionId }),
+  });
+
+  return await response.json();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!lovableApiKey) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
-    const { messages, companyName, userName } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    const { messages, companyName, userName, sessionId } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error("Messages are required");
     }
 
-    // Build system prompt based on whether user info is provided
+    // Check credits first
+    const creditCheck = await checkAndUseCredit(authHeader, sessionId, false);
+    if (!creditCheck.allowed) {
+      console.log("Credit check failed:", creditCheck);
+      return new Response(
+        JSON.stringify({ 
+          error: creditCheck.error || "Du har använt alla credits för idag. Återställs vid midnatt.",
+          creditExhausted: true,
+          remaining: 0
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!lovableApiKey) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
     const systemPrompt = companyName && userName ? buildPersonalizedPrompt(companyName, userName) : genericSystemPrompt;
 
     console.log("Processing car research query with Lovable AI...", companyName ? `for ${companyName}` : "(anonymous)");
@@ -139,9 +171,16 @@ serve(async (req) => {
       throw new Error("No response content received from AI");
     }
 
+    // Consume credit after successful generation
+    const consumeResult = await checkAndUseCredit(authHeader, sessionId, true);
+    console.log("Credit consumed:", consumeResult);
+
     console.log("Car research response generated successfully with Lovable AI");
 
-    return new Response(JSON.stringify({ response: assistantResponse }), {
+    return new Response(JSON.stringify({ 
+      response: assistantResponse,
+      creditsRemaining: consumeResult.remaining
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

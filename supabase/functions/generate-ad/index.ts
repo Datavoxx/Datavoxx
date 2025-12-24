@@ -15,7 +15,6 @@ interface FormData {
   price: string;
   equipment: string;
   condition: string;
-  // Nya finansieringsfält
   interestRate: string;
   campaign: string;
   insuranceOffer: string;
@@ -31,9 +30,9 @@ interface RequestBody {
   companyName?: string;
   userName?: string;
   length?: AdLength;
+  sessionId?: string;
 }
 
-// Function to get length instructions
 const getLengthInstructions = (length: AdLength): string => {
   if (length === "short") {
     return `
@@ -56,14 +55,10 @@ Skriv en UTFÖRLIG och detaljerad annons på 250-400 ord. Inkludera:
 Var säljande och professionell med rik detaljnivå.`;
 };
 
-// Function to personalize the system prompt if user info is provided
 const personalizePrompt = (basePrompt: string, companyName?: string, userName?: string, length: AdLength = "long"): string => {
   let prompt = basePrompt;
-  
-  // Add length instructions
   prompt = `${prompt}\n\n${getLengthInstructions(length)}`;
   
-  // Add company personalization
   if (companyName && userName) {
     prompt = `${prompt}
 
@@ -73,16 +68,50 @@ Denna annons är för ${companyName}. Inkludera företagsnamnet naturligt i anno
   return prompt;
 };
 
+// Helper function to check and consume credit
+async function checkAndUseCredit(
+  authHeader: string | null,
+  sessionId: string | undefined,
+  consume: boolean
+): Promise<{ allowed: boolean; remaining: number; error?: string }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  
+  const response = await fetch(`${supabaseUrl}/functions/v1/check-and-use-credit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(authHeader ? { Authorization: authHeader } : {}),
+    },
+    body: JSON.stringify({ consume, sessionId }),
+  });
+
+  return await response.json();
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { formData, systemPrompt, companyName, userName, length = "long" } = (await req.json()) as RequestBody;
+    const authHeader = req.headers.get("Authorization");
+    const { formData, systemPrompt, companyName, userName, length = "long", sessionId } = (await req.json()) as RequestBody;
 
     console.log("Generating ad for:", formData.car, `length: ${length}`, companyName ? `(${companyName})` : "(anonymous)");
+
+    // Check credits first
+    const creditCheck = await checkAndUseCredit(authHeader, sessionId, false);
+    if (!creditCheck.allowed) {
+      console.log("Credit check failed:", creditCheck);
+      return new Response(
+        JSON.stringify({ 
+          error: creditCheck.error || "Du har använt alla credits för idag. Återställs vid midnatt.",
+          creditExhausted: true,
+          remaining: 0
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!lovableApiKey) {
       console.error("LOVABLE_API_KEY is not configured");
@@ -92,10 +121,8 @@ serve(async (req) => {
       );
     }
 
-    // Personalize the system prompt with length instructions
     const finalSystemPrompt = personalizePrompt(systemPrompt, companyName, userName, length);
 
-    // Build the user prompt with car information including financing
     const userPrompt = `Skapa en bilannons för följande bil:
 
 Bilen: ${formData.car}
@@ -169,10 +196,17 @@ Generera en professionell och säljande annons baserat på denna information. F�
     const data = await response.json();
     const generatedAd = data.choices?.[0]?.message?.content || "";
 
+    // Consume credit after successful generation
+    const consumeResult = await checkAndUseCredit(authHeader, sessionId, true);
+    console.log("Credit consumed:", consumeResult);
+
     console.log("Ad generated successfully with Lovable AI");
 
     return new Response(
-      JSON.stringify({ generatedAd }),
+      JSON.stringify({ 
+        generatedAd,
+        creditsRemaining: consumeResult.remaining
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

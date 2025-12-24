@@ -81,11 +81,11 @@ const AdminRoles = () => {
     switch (role) {
       case "admin":
         return "bg-purple-100 text-purple-800 border-purple-200";
-      case "pro":
+      case "gen_3":
         return "bg-blue-100 text-blue-800 border-blue-200";
-      case "beginner":
+      case "gen_2":
         return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      case "ai_email":
+      case "gen_1":
         return "bg-teal-100 text-teal-800 border-teal-200";
       case "intro":
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -98,11 +98,11 @@ const AdminRoles = () => {
     switch (role) {
       case "admin":
         return "Admin";
-      case "pro":
+      case "gen_3":
         return "Gen 3";
-      case "beginner":
+      case "gen_2":
         return "Gen 2";
-      case "ai_email":
+      case "gen_1":
         return "Gen 1";
       case "intro":
         return "Intro";
@@ -185,7 +185,7 @@ const AdminRoles = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">
-                  {userRoles.filter((r) => r.role === "beginner" || r.role === "pro").length}
+                  {userRoles.filter((r) => r.role === "gen_2" || r.role === "gen_3").length}
                 </p>
                 <p className="text-sm text-muted-foreground">Gen 2/Gen 3</p>
               </div>

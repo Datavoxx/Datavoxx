@@ -7,11 +7,11 @@ type AppRole = Database["public"]["Enums"]["app_role"];
 
 const ROLE_LEVELS: Record<AppRole, number> = {
   admin: 4,
-  pro: 3,
-  beginner: 2,
+  gen_3: 3,
+  gen_2: 2,
+  gen_1: 2,
   intro: 1,
   user: 0,
-  ai_email: 2, // Legacy, same as beginner
 };
 
 interface UserRoleState {
@@ -76,14 +76,14 @@ export const useUserRole = (): UserRoleState => {
   return {
     role,
     isAdmin: role === "admin",
-    isPro: hasMinRole("pro"),
-    isBeginner: hasMinRole("beginner"),
+    isPro: hasMinRole("gen_3"),
+    isBeginner: hasMinRole("gen_2"),
     isIntro: hasMinRole("intro"),
     isLoading,
     hasMinRole,
     // Legacy support
-    hasAIEmail: hasMinRole("beginner"),
-    // AI Email Summary - only Pro and Admin
-    hasAIEmailSummary: hasMinRole("pro"),
+    hasAIEmail: hasMinRole("gen_2"),
+    // AI Email Summary - only Gen 3 and Admin
+    hasAIEmailSummary: hasMinRole("gen_3"),
   };
 };

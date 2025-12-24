@@ -394,12 +394,12 @@ const AnnonsGenerator = () => {
 
   // Step Indicator Component
   const StepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 mb-2">
+    <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2">
       {STEPS.map((step, index) => (
         <Fragment key={step.num}>
           <div className="flex flex-col items-center">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                 step.num < currentStep
                   ? "bg-foreground text-background"
                   : step.num === currentStep
@@ -408,13 +408,13 @@ const AnnonsGenerator = () => {
               }`}
             >
               {step.num < currentStep ? (
-                <Check className="h-5 w-5" />
+                <Check className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
-                <step.icon className="h-5 w-5" />
+                <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </div>
             <span
-              className={`text-xs mt-1.5 font-medium transition-colors duration-300 ${
+              className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 font-medium transition-colors duration-300 ${
                 step.num <= currentStep ? "text-foreground" : "text-muted-foreground"
               }`}
             >
@@ -423,7 +423,7 @@ const AnnonsGenerator = () => {
           </div>
           {index < STEPS.length - 1 && (
             <div
-              className={`w-8 h-0.5 mb-6 transition-all duration-300 ${
+              className={`hidden sm:block w-6 sm:w-8 h-0.5 mb-6 transition-all duration-300 ${
                 step.num < currentStep ? "bg-foreground" : "bg-muted-foreground/30"
               }`}
             />
@@ -532,16 +532,16 @@ const AnnonsGenerator = () => {
         />
       )}
       
-      <div className="mx-auto max-w-3xl relative z-10 p-6">
+      <div className="mx-auto max-w-3xl relative z-10 px-4 py-5 sm:p-6">
 
         {/* Title */}
-        <div className="mb-6 text-center animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Annonstextgenerator</h1>
-          <p className="text-muted-foreground mb-6">Skapa professionella annonstextar på sekunder</p>
+        <div className="mb-4 sm:mb-6 text-center animate-fade-in">
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Annonstextgenerator</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">Skapa professionella annonstextar på sekunder</p>
           
           {/* Step Indicator */}
           <StepIndicator />
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
             Steg {currentStep} av {totalSteps}
           </p>
         </div>
@@ -551,9 +551,9 @@ const AnnonsGenerator = () => {
           {/* Step 1: Car Information */}
           {currentStep === 1 && (
             <div className="animate-fade-in">
-              <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-                <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-                  <Car className="h-6 w-6 text-foreground" />
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h2 className="mb-4 sm:mb-6 flex items-center gap-2 text-lg sm:text-2xl font-semibold tracking-tight text-foreground">
+                  <Car className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   Bilinformation
                 </h2>
                 
@@ -563,17 +563,17 @@ const AnnonsGenerator = () => {
                     <Label htmlFor="regNumber" className="text-sm text-muted-foreground">
                       Registreringsnummer
                     </Label>
-                    <div className="flex gap-3 items-stretch">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       {/* Swedish license plate styled input */}
                       <div className="flex-1 flex rounded-lg overflow-hidden border-2 border-foreground/20 bg-white shadow-sm hover:border-foreground/40 transition-colors focus-within:border-foreground focus-within:ring-2 focus-within:ring-foreground/20">
                         {/* EU Blue stripe with Swedish flag */}
-                        <div className="w-10 bg-[#003399] flex flex-col items-center justify-center gap-0.5 py-2">
+                        <div className="w-8 sm:w-10 bg-[#003399] flex flex-col items-center justify-center gap-0.5 py-2">
                           {/* EU stars circle */}
-                          <div className="text-[8px] text-yellow-400 leading-none">★★★</div>
-                          <div className="text-[8px] text-yellow-400 leading-none">★ ★</div>
-                          <div className="text-[8px] text-yellow-400 leading-none">★★★</div>
+                          <div className="text-[6px] sm:text-[8px] text-yellow-400 leading-none">★★★</div>
+                          <div className="text-[6px] sm:text-[8px] text-yellow-400 leading-none">★ ★</div>
+                          <div className="text-[6px] sm:text-[8px] text-yellow-400 leading-none">★★★</div>
                           {/* S letter */}
-                          <span className="text-white font-bold text-sm mt-0.5">S</span>
+                          <span className="text-white font-bold text-xs sm:text-sm mt-0.5">S</span>
                         </div>
                         {/* Registration number input */}
                         <input
@@ -582,7 +582,7 @@ const AnnonsGenerator = () => {
                           placeholder="ABC 123"
                           value={formData.registrationNumber}
                           onChange={(e) => handleRegNumberChange(e.target.value)}
-                          className="flex-1 px-4 py-3 text-2xl font-bold tracking-widest text-center bg-white text-foreground placeholder:text-muted-foreground/40 focus:outline-none uppercase"
+                          className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-xl sm:text-2xl font-bold tracking-widest text-center bg-white text-foreground placeholder:text-muted-foreground/40 focus:outline-none uppercase"
                           style={{ fontFamily: "'DIN Alternate', 'Arial Black', sans-serif" }}
                           maxLength={7}
                         />
@@ -592,7 +592,7 @@ const AnnonsGenerator = () => {
                         type="button"
                         onClick={handleCarLookup}
                         disabled={isLookingUp || formData.registrationNumber.replace(/\s/g, '').length !== 6}
-                        className="px-6 h-auto"
+                        className="w-full sm:w-auto px-6 py-3 sm:h-auto"
                       >
                         {isLookingUp ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -621,7 +621,7 @@ const AnnonsGenerator = () => {
                     <p className="text-xs text-muted-foreground mb-3">
                       Eller ange manuellt:
                     </p>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="car" className="text-sm text-muted-foreground">
                           Bilen <span className="text-red-500">*</span>
@@ -653,10 +653,10 @@ const AnnonsGenerator = () => {
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end mt-4 sm:mt-6">
                 <Button
                   onClick={handleNext}
-                  className="w-full max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
+                  className="w-full sm:max-w-[380px] py-4 sm:py-6 text-base sm:text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
                 >
                   Nästa
                   <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
@@ -668,16 +668,16 @@ const AnnonsGenerator = () => {
           {/* Step 2: Financing & Insurance */}
           {currentStep === 2 && (
             <div className="animate-fade-in">
-              <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-                <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-                  <CreditCard className="h-6 w-6 text-foreground" />
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h2 className="mb-1 sm:mb-2 flex items-center gap-2 text-lg sm:text-2xl font-semibold tracking-tight text-foreground">
+                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   Finansiering & Försäkring
                 </h2>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
                   Lägg till information om ränta, kampanjer och försäkringserbjudanden
                 </p>
                 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="interestRate" className="text-sm text-muted-foreground">
                       Ränta <span className="text-muted-foreground/60">(valfritt)</span>
@@ -726,7 +726,7 @@ const AnnonsGenerator = () => {
                       placeholder="t.ex. Trygghetspaket, DNB Finans, Santander..."
                       value={formData.financing}
                       onChange={(e) => handleInputChange("financing", e.target.value)}
-                      className="min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                      className="min-h-[70px] sm:min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                     />
                   </div>
                   
@@ -746,21 +746,21 @@ const AnnonsGenerator = () => {
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-6 gap-4">
+              <div className="flex justify-between mt-4 sm:mt-6 gap-3 sm:gap-4">
                 <Button
                   variant="outline"
                   onClick={handleBack}
-                  className="py-6 px-8 text-lg font-semibold rounded-xl transition-all duration-300"
+                  className="py-3 sm:py-6 px-4 sm:px-8 text-sm sm:text-lg font-semibold rounded-xl transition-all duration-300"
                 >
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Tillbaka
+                  <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Tillbaka</span>
                 </Button>
                 <Button
                   onClick={handleNext}
-                  className="flex-1 max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
+                  className="flex-1 sm:max-w-[380px] py-3 sm:py-6 text-sm sm:text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
                 >
                   Nästa
-                  <ArrowLeft className="ml-2 h-5 w-5 rotate-180" />
+                  <ArrowLeft className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rotate-180" />
                 </Button>
               </div>
             </div>
@@ -769,18 +769,18 @@ const AnnonsGenerator = () => {
           {/* Step 3: Focus Selection with Visual Preview */}
           {currentStep === 3 && (
             <div className="animate-fade-in">
-              <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md">
-                <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-                  <Focus className="h-6 w-6 text-foreground" />
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h2 className="mb-1 sm:mb-2 flex items-center gap-2 text-lg sm:text-2xl font-semibold tracking-tight text-foreground">
+                  <Focus className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   Vad vill du lyfta upp mest?
                 </h2>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
                   Välj vad som ska synas först och mest i din annons
                 </p>
                 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
                   {/* Focus Options */}
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {FOCUS_OPTIONS.map((focus) => {
                       const colors = FOCUS_COLORS[focus.id];
                       const isSelected = selectedFocus === focus.id;
@@ -789,7 +789,7 @@ const AnnonsGenerator = () => {
                         <button
                           key={focus.id}
                           onClick={() => handleFocusChange(focus.id)}
-                          className={`relative w-full group flex items-center gap-4 rounded-xl p-4 text-left transition-all duration-300 border-l-4 ${colors.border} ${
+                          className={`relative w-full group flex items-center gap-3 sm:gap-4 rounded-xl p-3 sm:p-4 text-left transition-all duration-300 border-l-4 ${colors.border} ${
                             isSelected
                               ? `border-2 ${colors.border} bg-card shadow-md`
                               : "border border-border hover:border-foreground/50 bg-card"
@@ -797,49 +797,49 @@ const AnnonsGenerator = () => {
                         >
                           {/* Populärt val badge for financing */}
                           {focus.id === "financing" && (
-                            <span className="absolute -top-2 right-3 bg-red-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full shadow-sm">
-                              ⭐ Populärt val
+                            <span className="absolute -top-2 right-2 sm:right-3 bg-red-500 text-white text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full shadow-sm">
+                              ⭐ Populärt
                             </span>
                           )}
-                          <span className="text-3xl">{focus.icon}</span>
-                          <div className="flex-1">
-                            <span className="block text-base font-medium text-foreground">
+                          <span className="text-2xl sm:text-3xl">{focus.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="block text-sm sm:text-base font-medium text-foreground">
                               {focus.label}
                             </span>
-                            <span className="block text-sm text-muted-foreground mt-0.5">
+                            <span className="block text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-2">
                               {focus.description}
                             </span>
                           </div>
                           {isSelected && (
-                            <Check className={`h-5 w-5 ${colors.border.replace('border-', 'text-')}`} />
+                            <Check className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${colors.border.replace('border-', 'text-')}`} />
                           )}
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Visual Preview */}
-                  <div className="lg:sticky lg:top-4">
+                  {/* Visual Preview - hidden on mobile */}
+                  <div className="hidden sm:block lg:sticky lg:top-4">
                     <FocusPreview />
                   </div>
                 </div>
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-6 gap-4">
+              <div className="flex justify-between mt-4 sm:mt-6 gap-3 sm:gap-4">
                 <Button
                   variant="outline"
                   onClick={handleBack}
-                  className="py-6 px-8 text-lg font-semibold rounded-xl transition-all duration-300"
+                  className="py-3 sm:py-6 px-4 sm:px-8 text-sm sm:text-lg font-semibold rounded-xl transition-all duration-300"
                 >
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Tillbaka
+                  <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Tillbaka</span>
                 </Button>
                 <Button
                   onClick={handleGenerate}
-                  className="flex-1 max-w-[380px] py-6 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
+                  className="flex-1 sm:max-w-[380px] py-3 sm:py-6 text-sm sm:text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
                 >
-                  <Sparkles className="mr-2 h-5 w-5" />
+                  <Sparkles className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Generera Annons
                 </Button>
               </div>

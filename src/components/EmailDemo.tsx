@@ -265,7 +265,7 @@ const EmailDemo = ({ onStepChange }: EmailDemoProps = {}) => {
 
   const handleCreateReal = () => {
     trackDemoAction("create_real");
-    navigate('/email');
+    navigate('/email-assistent');
   };
 
   return (

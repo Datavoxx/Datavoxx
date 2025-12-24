@@ -85,6 +85,8 @@ const AdminRoles = () => {
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "beginner":
         return "bg-emerald-100 text-emerald-800 border-emerald-200";
+      case "ai_email":
+        return "bg-teal-100 text-teal-800 border-teal-200";
       case "intro":
         return "bg-gray-100 text-gray-800 border-gray-200";
       default:
@@ -97,11 +99,15 @@ const AdminRoles = () => {
       case "admin":
         return "Admin";
       case "pro":
-        return "Pro";
+        return "Gen 3";
       case "beginner":
-        return "Beginner";
+        return "Gen 2";
+      case "ai_email":
+        return "Gen 1";
       case "intro":
         return "Intro";
+      case "user":
+        return "User";
       default:
         return role || "-";
     }
@@ -181,7 +187,7 @@ const AdminRoles = () => {
                 <p className="text-2xl font-bold text-foreground">
                   {userRoles.filter((r) => r.role === "beginner" || r.role === "pro").length}
                 </p>
-                <p className="text-sm text-muted-foreground">Pro/Beginner</p>
+                <p className="text-sm text-muted-foreground">Gen 2/Gen 3</p>
               </div>
             </div>
           </div>

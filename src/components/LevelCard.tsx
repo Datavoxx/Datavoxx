@@ -26,8 +26,11 @@ const LevelCard = ({ title, description, onClick, className, timeBadge }: LevelC
     >
       {/* Time Badge */}
       {timeBadge && (
-        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium">
-          {timeBadge}
+        <div className="absolute top-4 right-4 flex flex-col items-end gap-0.5">
+          <div className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium">
+            {timeBadge}
+          </div>
+          <span className="text-[10px] text-muted-foreground">istället för 5 min</span>
         </div>
       )}
 

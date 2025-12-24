@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { CreditDisplay } from "@/components/CreditDisplay";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 interface AppHeaderProps {
@@ -93,7 +94,10 @@ const AppHeader = ({
         </button>
 
         {/* Right side - Actions */}
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 sm:gap-3">
+          {/* Credit display */}
+          <CreditDisplay compact />
+          
           {showClearButton && onClearClick && (
             <button
               onClick={onClearClick}

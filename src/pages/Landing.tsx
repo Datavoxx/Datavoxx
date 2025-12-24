@@ -52,7 +52,7 @@ Med vänliga hälsningar`
   const benefits = [
     {
       icon: Zap,
-      title: "Sälj bilar snabbare",
+      title: "Lägg upp annonser snabbare",
       description: "Färdiga bilannonser på 10 sekunder istället för 15 minuter.",
       timeSaved: "15 min/annons"
     },

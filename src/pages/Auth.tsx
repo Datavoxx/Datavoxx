@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Mail, Lock, User, Building, Loader2, ArrowRight, FileText, Search, Mail as MailIcon } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, FileText, Search, Mail as MailIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,22 +12,17 @@ import bilgenLogo from "@/assets/bilgen-logo.png";
 // Validation schemas
 const emailSchema = z.string().email("Ogiltig e-postadress");
 const passwordSchema = z.string().min(6, "Lösenordet måste vara minst 6 tecken");
-const displayNameSchema = z.string().min(2, "Namnet måste vara minst 2 tecken").optional();
-const companyNameSchema = z.string().min(2, "Företagsnamnet måste vara minst 2 tecken");
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isLoading: authLoading, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, isLoading: authLoading, signIn, signInWithGoogle } = useAuth();
   
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [companyName, setCompanyName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string; companyName?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   // Redirect if already logged in
   useEffect(() => {
@@ -37,7 +32,7 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; displayName?: string; companyName?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -47,20 +42,6 @@ const Auth = () => {
     const passwordResult = passwordSchema.safeParse(password);
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
-    }
-    
-    if (isSignUp && displayName) {
-      const nameResult = displayNameSchema.safeParse(displayName);
-      if (!nameResult.success) {
-        newErrors.displayName = nameResult.error.errors[0].message;
-      }
-    }
-    
-    if (isSignUp) {
-      const companyResult = companyNameSchema.safeParse(companyName);
-      if (!companyResult.success) {
-        newErrors.companyName = companyResult.error.errors[0].message;
-      }
     }
     
     setErrors(newErrors);
@@ -75,57 +56,30 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      if (isSignUp) {
-        const { error } = await signUp(email, password, displayName || undefined, companyName);
-        
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast({
-              title: "Kontot finns redan",
-              description: "Denna e-postadress är redan registrerad. Prova att logga in istället.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Registreringsfel",
-              description: error.message,
-              variant: "destructive",
-            });
-          }
-          return;
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            title: "Fel inloggningsuppgifter",
+            description: "E-postadressen eller lösenordet är fel.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Inloggningsfel",
+            description: error.message,
+            variant: "destructive",
+          });
         }
-        
-        toast({
-          title: "Konto skapat!",
-          description: "Du är nu inloggad.",
-        });
-        navigate("/");
-      } else {
-        const { error } = await signIn(email, password);
-        
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast({
-              title: "Fel inloggningsuppgifter",
-              description: "E-postadressen eller lösenordet är fel.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Inloggningsfel",
-              description: error.message,
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-        
-        toast({
-          title: "Välkommen tillbaka!",
-          description: "Du är nu inloggad.",
-        });
-        navigate("/");
+        return;
       }
+      
+      toast({
+        title: "Välkommen tillbaka!",
+        description: "Du är nu inloggad.",
+      });
+      navigate("/");
     } finally {
       setIsLoading(false);
     }
@@ -240,62 +194,14 @@ const Auth = () => {
         >
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              {isSignUp ? "Skapa konto" : "Logga in"}
+              Logga in
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {isSignUp 
-                ? "Fyll i dina uppgifter för att komma igång" 
-                : "Välkommen tillbaka!"}
+              Välkommen tillbaka!
             </p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="displayName" className="text-sm font-medium">
-                    Visningsnamn <span className="text-muted-foreground">(valfritt)</span>
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="displayName"
-                      type="text"
-                      placeholder="Ditt namn"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {errors.displayName && (
-                    <p className="text-xs text-red-500">{errors.displayName}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="companyName" className="text-sm font-medium">
-                    Företagsnamn <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="companyName"
-                      type="text"
-                      placeholder="Ditt företag"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {errors.companyName && (
-                    <p className="text-xs text-red-500">{errors.companyName}</p>
-                  )}
-                </div>
-              </>
-            )}
-            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 E-postadress
@@ -347,7 +253,7 @@ const Auth = () => {
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  {isSignUp ? "Skapa konto" : "Logga in"}
+                  Logga in
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -400,22 +306,6 @@ const Auth = () => {
               </>
             )}
           </Button>
-          
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setErrors({});
-                setCompanyName("");
-              }}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {isSignUp 
-                ? "Har du redan ett konto? Logga in" 
-                : "Har du inget konto? Skapa ett"}
-            </button>
-          </div>
         </div>
       </div>
     </div>

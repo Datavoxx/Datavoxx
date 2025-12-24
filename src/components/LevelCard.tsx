@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 
 interface LevelCardProps {
   title: string;
@@ -7,9 +7,10 @@ interface LevelCardProps {
   onClick?: () => void;
   className?: string;
   timeBadge?: string;
+  locked?: boolean;
 }
 
-const LevelCard = ({ title, description, onClick, className, timeBadge }: LevelCardProps) => {
+const LevelCard = ({ title, description, onClick, className, timeBadge, locked }: LevelCardProps) => {
   return (
     <button
       onClick={onClick}
@@ -24,8 +25,16 @@ const LevelCard = ({ title, description, onClick, className, timeBadge }: LevelC
         className
       )}
     >
+      {/* Lock Badge */}
+      {locked && (
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+          <Lock className="h-3 w-3" />
+          <span>Låst</span>
+        </div>
+      )}
+
       {/* Time Badge */}
-      {timeBadge && (
+      {timeBadge && !locked && (
         <div className="absolute top-4 right-4 flex flex-col items-end gap-0.5">
           <div className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium">
             {timeBadge}

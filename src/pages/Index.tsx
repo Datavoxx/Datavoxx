@@ -74,6 +74,7 @@ const Index = () => {
               title="Bildgenerator"
               description="Generera professionella bilder med AI"
               onClick={() => navigate("/bildgenerator")}
+              locked
             />
           )}
         </div>

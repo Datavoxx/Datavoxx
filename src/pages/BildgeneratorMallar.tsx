@@ -31,7 +31,6 @@ interface UserTemplate {
 }
 
 const genericTemplates = [
-  { id: "generic-1", name: "Showroom Grå", image: genericMall1, isGeneric: true },
   { id: "generic-2", name: "Showroom Mörk", image: genericMall2, isGeneric: true },
   { id: "generic-3", name: "Showroom Premium", image: genericMall3, isGeneric: true },
   { id: "generic-4", name: "Showroom Ljus", image: genericMall4, isGeneric: true },

@@ -7,7 +7,15 @@ import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import TemplateRequestForm from "@/components/TemplateRequestForm";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Sparkles, ImageIcon, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Loader2, Sparkles, ImageIcon, Lock, Eye } from "lucide-react";
 
 // Generic templates for users without custom templates
 import genericMall1 from "@/assets/generic-mall-1.png";
@@ -29,6 +37,14 @@ const genericTemplates = [
   { id: "generic-4", name: "Showroom Ljus", image: genericMall4, isGeneric: true },
 ];
 
+// A2BIL example templates (public URLs from storage)
+const exampleTemplates = [
+  { name: "A2BIL Showroom Dark", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-1.png.png" },
+  { name: "A2BIL Showroom Ljus", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-2.png.png" },
+  { name: "A2BIL Showroom Mörk trä", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-3.png.png" },
+  { name: "A2BIL Showroom Grå", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-4.png.png" },
+];
+
 const BildgeneratorMallar = () => {
   const navigate = useNavigate();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
@@ -38,6 +54,7 @@ const BildgeneratorMallar = () => {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [requestFormOpen, setRequestFormOpen] = useState(false);
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
+  const [exampleDialogOpen, setExampleDialogOpen] = useState(false);
 
   // Fetch user-specific templates from database
   useEffect(() => {
@@ -189,6 +206,18 @@ const BildgeneratorMallar = () => {
                       <p className="text-sm text-muted-foreground text-center mt-1">
                         Beställ med din logga
                       </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExampleDialogOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Se exempel
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -215,6 +244,34 @@ const BildgeneratorMallar = () => {
         onOpenChange={setRequestFormOpen}
         templateName={selectedTemplateName}
       />
+
+      {/* Example Gallery Dialog */}
+      <Dialog open={exampleDialogOpen} onOpenChange={setExampleDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Exempel på kundmallar</DialogTitle>
+            <DialogDescription>
+              Så här kan din mall se ut med din logga
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {exampleTemplates.map((example) => (
+              <div key={example.name} className="space-y-2">
+                <div className="relative aspect-video overflow-hidden rounded-lg border">
+                  <img
+                    src={example.url}
+                    alt={example.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <p className="text-sm font-medium text-center text-foreground">
+                  {example.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

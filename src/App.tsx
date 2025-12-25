@@ -26,6 +26,7 @@ import PaymentCanceled from "./pages/PaymentCanceled";
 import ProduktAnnonsgenerator from "./pages/produkter/Annonsgenerator";
 import ProduktBilResearch from "./pages/produkter/BilResearch";
 import ProduktEmailAssistent from "./pages/produkter/EmailAssistent";
+import ProduktBildgenerator from "./pages/produkter/Bildgenerator";
 import Integritetspolicy from "./pages/Integritetspolicy";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/produkt/annonsgenerator" element={<ProtectedRoute><ProduktAnnonsgenerator /></ProtectedRoute>} />
               <Route path="/produkt/bil-research" element={<ProtectedRoute><ProduktBilResearch /></ProtectedRoute>} />
               <Route path="/produkt/email-assistent" element={<ProtectedRoute><ProduktEmailAssistent /></ProtectedRoute>} />
+              <Route path="/produkt/bildgenerator" element={<ProtectedRoute><ProduktBildgenerator /></ProtectedRoute>} />
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>

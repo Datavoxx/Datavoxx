@@ -30,25 +30,34 @@ const steps = [
   },
 ];
 
-const PaddingExplainer = () => {
+interface PaddingExplainerProps {
+  onStepChange?: (step: number) => void;
+}
+
+const PaddingExplainer = ({ onStepChange }: PaddingExplainerProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [paddingSize, setPaddingSize] = useState([0.25]);
   const [paddingBottom, setPaddingBottom] = useState([0.15]);
   const [isRemoving, setIsRemoving] = useState(false);
 
+  const updateStep = (step: number) => {
+    setCurrentStep(step);
+    onStepChange?.(step);
+  };
+
   const handleNext = () => {
     if (currentStep === 1) {
-      setCurrentStep(2);
+      updateStep(2);
       setIsRemoving(true);
       setTimeout(() => setIsRemoving(false), 1500);
     } else if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+      updateStep(currentStep + 1);
     }
   };
 
   const handlePrev = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      updateStep(currentStep - 1);
     }
   };
 
@@ -65,7 +74,7 @@ const PaddingExplainer = () => {
         {steps.map((step) => (
           <button
             key={step.id}
-            onClick={() => setCurrentStep(step.id)}
+            onClick={() => updateStep(step.id)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               currentStep === step.id
                 ? "bg-purple-600 scale-125"

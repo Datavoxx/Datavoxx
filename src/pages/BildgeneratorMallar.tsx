@@ -157,48 +157,59 @@ const BildgeneratorMallar = () => {
               Välj bakgrundsmall
             </h1>
             <p className="text-lg text-muted-foreground">
-              {hasCustomTemplates 
-                ? "Välj en av dina showroom-bakgrunder" 
-                : "Beställ din egen skräddarsydda mall"}
+              Välj en av dina mallar eller beställ en ny
             </p>
           </div>
 
-          {/* Template Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {hasCustomTemplates ? (
-              // Show user's custom templates
-              userTemplates.map((template) => (
-                <Card
-                  key={template.id}
-                  onClick={() => handleSelectTemplate(template.id, false, template.name)}
-                  className="group cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
-                >
-                  <CardContent className="p-0">
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={template.template_url}
-                        alt={template.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <div className="flex items-center gap-2 text-white">
-                          <ImageIcon className="h-4 w-4" />
-                          <span className="font-medium">Välj denna mall</span>
+          {/* User's Custom Templates Section */}
+          {hasCustomTemplates && (
+            <div className="mb-10">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-purple-600" />
+                Dina mallar
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {userTemplates.map((template) => (
+                  <Card
+                    key={template.id}
+                    onClick={() => handleSelectTemplate(template.id, false, template.name)}
+                    className="group cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
+                  >
+                    <CardContent className="p-0">
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={template.template_url}
+                          alt={template.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <div className="flex items-center gap-2 text-white">
+                            <ImageIcon className="h-4 w-4" />
+                            <span className="font-medium">Välj denna mall</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="p-4 bg-card">
-                      <h3 className="font-semibold text-foreground text-center">
-                        {template.name}
-                      </h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              // Show generic templates with lock/request functionality
-              genericTemplates.map((template) => (
+                      <div className="p-4 bg-card">
+                        <h3 className="font-semibold text-foreground text-center">
+                          {template.name}
+                        </h3>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Generic Templates Section - Always visible */}
+          <div>
+            <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+              Beställ fler mallar
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {genericTemplates.map((template) => (
                 <Card
                   key={template.id}
                   onClick={() => handleSelectTemplate(template.id, true, template.name)}
@@ -246,20 +257,9 @@ const BildgeneratorMallar = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
-          </div>
-
-          {/* Info for users without templates */}
-          {!hasCustomTemplates && (
-            <div className="mt-8 text-center">
-              <p className="text-muted-foreground">
-                Klicka på en mall för att beställa din egen version med din logga.
-                <br />
-                Vi skapar den åt dig inom kort!
-              </p>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </main>
 

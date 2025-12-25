@@ -7,7 +7,7 @@ import BilResearchDemo from "@/components/BilResearchDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
@@ -113,6 +113,13 @@ Med vänliga hälsningar`
                       <Mail className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">Email-assistent</span>
                     </button>
+                    <button
+                      onClick={() => navigate("/produkt/bildgenerator")}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-muted transition-colors"
+                    >
+                      <Image className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Bildgenerator</span>
+                    </button>
                     <div className="pt-4 border-t border-border mt-4">
                       <button
                         onClick={() => navigate("/paket")}
@@ -195,6 +202,16 @@ Med vänliga hälsningar`
                     <div>
                       <p className="text-sm font-medium text-foreground">Email-assistent</p>
                       <p className="text-xs text-muted-foreground">Svara på kundmejl snabbt</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate("/produkt/bildgenerator")}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-primary/10 transition-colors group/item"
+                  >
+                    <Image className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Bildgenerator</p>
+                      <p className="text-xs text-muted-foreground">Professionella bilbilder</p>
                     </div>
                   </button>
                 </div>

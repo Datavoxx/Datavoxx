@@ -22,10 +22,10 @@ const VadArPadding = () => {
               <span className="text-sm font-medium">Hjälp</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">
-              Vad är padding?
+              Hur fungerar bildgenerator?
             </h1>
             <p className="text-muted-foreground">
-              Se hur padding påverkar din bild steg för steg
+              Se hur processen fungerar steg för steg
             </p>
           </div>
 

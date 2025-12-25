@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn } from "lucide-react";
+import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditDisplay } from "@/components/CreditDisplay";
+import { useCredits } from "@/hooks/useCredits";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 interface AppHeaderProps {
@@ -24,6 +25,7 @@ const AppHeader = ({
 }: AppHeaderProps) => {
   const navigate = useNavigate();
   const { user, profile, isLoading, signOut } = useAuth();
+  const { remaining, limit, tier } = useCredits();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -128,10 +130,25 @@ const AppHeader = ({
               
               {/* Dropdown menu */}
               {showMenu && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg animate-fade-in">
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white py-1 shadow-lg animate-fade-in z-50">
                   <div className="border-b border-gray-100 px-4 py-2">
                     <p className="text-xs text-gray-500">Inloggad som</p>
                     <p className="truncate text-sm font-medium text-gray-900">{user.email}</p>
+                  </div>
+                  {/* Credits section */}
+                  <div className="border-b border-gray-100 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm text-gray-700">Credits</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {remaining}/{limit}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {tier === "anonymous" ? "Gratis" : tier === "free_logged_in" ? "Inloggad" : tier.replace("_", " ").toUpperCase()} • Återställs dagligen
+                    </p>
                   </div>
                   {isAdmin && (
                     <button

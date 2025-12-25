@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
@@ -10,17 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
-import mall1 from "@/assets/mall-1.png";
-import mall2 from "@/assets/mall-2.png";
-import mall3 from "@/assets/mall-3.png";
-import mall4 from "@/assets/mall-4.png";
-
-const templates: Record<string, { name: string; image: string }> = {
-  "1": { name: "A2BIL Showroom Dark", image: mall1 },
-  "2": { name: "A2BIL Showroom Grå", image: mall2 },
-  "3": { name: "A2BIL Showroom Ljus", image: mall3 },
-  "4": { name: "A2BIL Mörk", image: mall4 },
-};
+interface UserTemplate {
+  id: string;
+  name: string;
+  template_url: string;
+}
 
 const Bildgenerator = () => {
   const navigate = useNavigate();
@@ -30,8 +25,9 @@ const Bildgenerator = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const mallId = searchParams.get("mall");
-  const selectedTemplate = mallId ? templates[mallId] : null;
 
+  const [selectedTemplate, setSelectedTemplate] = useState<UserTemplate | null>(null);
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [padding, setPadding] = useState(0.25);
@@ -39,12 +35,42 @@ const Bildgenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
+  // Fetch template from database
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      if (!mallId || !user) {
+        setIsLoadingTemplate(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("user_templates")
+          .select("*")
+          .eq("id", mallId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        setSelectedTemplate(data);
+      } catch (error) {
+        console.error("Error fetching template:", error);
+      } finally {
+        setIsLoadingTemplate(false);
+      }
+    };
+
+    if (user && !authLoading) {
+      fetchTemplate();
+    }
+  }, [mallId, user, authLoading]);
+
   // Redirect to template selector if no template is selected
   useEffect(() => {
-    if (!authLoading && !roleLoading && user && isAdmin && !mallId) {
+    if (!authLoading && !roleLoading && !isLoadingTemplate && user && isAdmin && !mallId) {
       navigate("/bildgenerator-mallar");
     }
-  }, [authLoading, roleLoading, user, isAdmin, mallId, navigate]);
+  }, [authLoading, roleLoading, isLoadingTemplate, user, isAdmin, mallId, navigate]);
 
   // Redirect non-admin users
   if (!authLoading && !roleLoading) {
@@ -58,7 +84,7 @@ const Bildgenerator = () => {
     }
   }
 
-  if (authLoading || roleLoading) {
+  if (authLoading || roleLoading || isLoadingTemplate) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -111,7 +137,7 @@ const Bildgenerator = () => {
 
     try {
       // Hämta mall-bilden och konvertera till blob
-      const templateResponse = await fetch(selectedTemplate.image);
+      const templateResponse = await fetch(selectedTemplate.template_url);
       const templateBlob = await templateResponse.blob();
 
       const formData = new FormData();

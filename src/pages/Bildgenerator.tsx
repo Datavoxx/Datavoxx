@@ -99,14 +99,34 @@ const Bildgenerator = () => {
       return;
     }
 
+    if (!mallId || !selectedTemplate) {
+      toast.error("Ingen mall vald");
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedImage(null);
 
     try {
+      // Hämta mall-bilden och konvertera till blob
+      const templateResponse = await fetch(selectedTemplate.image);
+      const templateBlob = await templateResponse.blob();
+
       const formData = new FormData();
+      formData.append("template_id", mallId);
+      formData.append("template_image", templateBlob, "template.png");
       formData.append("data", uploadedImage);
       formData.append("padding", padding.toString());
       formData.append("padding_bottom", paddingBottom.toString());
+
+      // Logga vad som skickas
+      console.log("Skickar till webhook:", {
+        template_id: mallId,
+        template_image: `${templateBlob.size} bytes (${templateBlob.type})`,
+        data: `${uploadedImage.name} - ${uploadedImage.size} bytes`,
+        padding: padding,
+        padding_bottom: paddingBottom
+      });
 
       const response = await fetch("https://datavox.app.n8n.cloud/webhook-test/bildgenerator", {
         method: "POST",

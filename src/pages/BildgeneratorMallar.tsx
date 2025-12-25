@@ -31,10 +31,19 @@ interface UserTemplate {
 }
 
 const genericTemplates = [
+  { id: "generic-1", name: "Showroom Grå", image: genericMall1, isGeneric: true },
   { id: "generic-2", name: "Showroom Mörk", image: genericMall2, isGeneric: true },
   { id: "generic-3", name: "Showroom Premium", image: genericMall3, isGeneric: true },
   { id: "generic-4", name: "Showroom Ljus", image: genericMall4, isGeneric: true },
 ];
+
+// Mapping from generic template names to keywords for matching user templates
+const genericNameKeywords: Record<string, string[]> = {
+  "Showroom Grå": ["grå", "gra", "grey", "gray"],
+  "Showroom Mörk": ["mörk", "mork", "dark"],
+  "Showroom Premium": ["premium"],
+  "Showroom Ljus": ["ljus", "light"],
+};
 
 // Mapping between generic templates and their A2BIL example counterparts
 const templateExamples: Record<string, {
@@ -128,6 +137,16 @@ const BildgeneratorMallar = () => {
 
   const hasCustomTemplates = userTemplates.length > 0;
 
+  // Filter out generic templates that the user already has unlocked
+  const filteredGenericTemplates = genericTemplates.filter(generic => {
+    const keywords = genericNameKeywords[generic.name] || [];
+    // Check if any user template name contains any of the keywords for this generic template
+    return !userTemplates.some(userTemplate => {
+      const userTemplateLower = userTemplate.name.toLowerCase();
+      return keywords.some(keyword => userTemplateLower.includes(keyword));
+    });
+  });
+
   const handleSelectTemplate = (templateId: string, isGeneric: boolean, templateName: string) => {
     if (isGeneric) {
       // Open request form for generic templates
@@ -208,7 +227,7 @@ const BildgeneratorMallar = () => {
               Beställ fler mallar
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {genericTemplates.map((template) => (
+              {filteredGenericTemplates.map((template) => (
                 <Card
                   key={template.id}
                   onClick={() => handleSelectTemplate(template.id, true, template.name)}

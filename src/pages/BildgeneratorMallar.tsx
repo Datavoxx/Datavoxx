@@ -37,13 +37,38 @@ const genericTemplates = [
   { id: "generic-4", name: "Showroom Ljus", image: genericMall4, isGeneric: true },
 ];
 
-// A2BIL example templates (public URLs from storage)
-const exampleTemplates = [
-  { name: "A2BIL Showroom Dark", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-1.png.png" },
-  { name: "A2BIL Showroom Ljus", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-2.png.png" },
-  { name: "A2BIL Showroom Mörk trä", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-3.png.png" },
-  { name: "A2BIL Showroom Grå", url: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-4.png.png" },
-];
+// Mapping between generic templates and their A2BIL example counterparts
+const templateExamples: Record<string, {
+  genericImage: string;
+  genericName: string;
+  exampleUrl: string;
+  exampleName: string;
+}> = {
+  "generic-1": {
+    genericImage: genericMall1,
+    genericName: "Showroom Grå",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-4.png.png",
+    exampleName: "A2BIL Showroom Grå"
+  },
+  "generic-2": {
+    genericImage: genericMall2,
+    genericName: "Showroom Mörk",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-1.png.png",
+    exampleName: "A2BIL Showroom Dark"
+  },
+  "generic-3": {
+    genericImage: genericMall3,
+    genericName: "Showroom Premium",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-3.png.png",
+    exampleName: "A2BIL Showroom Mörk trä"
+  },
+  "generic-4": {
+    genericImage: genericMall4,
+    genericName: "Showroom Ljus",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-2.png.png",
+    exampleName: "A2BIL Showroom Ljus"
+  }
+};
 
 const BildgeneratorMallar = () => {
   const navigate = useNavigate();
@@ -54,7 +79,7 @@ const BildgeneratorMallar = () => {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [requestFormOpen, setRequestFormOpen] = useState(false);
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
-  const [exampleDialogOpen, setExampleDialogOpen] = useState(false);
+  const [selectedExampleTemplate, setSelectedExampleTemplate] = useState<string | null>(null);
 
   // Fetch user-specific templates from database
   useEffect(() => {
@@ -212,7 +237,7 @@ const BildgeneratorMallar = () => {
                         className="mt-3 w-full"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExampleDialogOpen(true);
+                          setSelectedExampleTemplate(template.id);
                         }}
                       >
                         <Eye className="h-4 w-4 mr-2" />
@@ -245,31 +270,57 @@ const BildgeneratorMallar = () => {
         templateName={selectedTemplateName}
       />
 
-      {/* Example Gallery Dialog */}
-      <Dialog open={exampleDialogOpen} onOpenChange={setExampleDialogOpen}>
+      {/* Example Comparison Dialog */}
+      <Dialog 
+        open={selectedExampleTemplate !== null} 
+        onOpenChange={(open) => !open && setSelectedExampleTemplate(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Exempel på kundmallar</DialogTitle>
+            <DialogTitle>
+              Exempel: {selectedExampleTemplate ? templateExamples[selectedExampleTemplate]?.genericName : ""}
+            </DialogTitle>
             <DialogDescription>
-              Så här kan din mall se ut med din logga
+              Jämför malldesignen med ett färdigt kundexempel
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {exampleTemplates.map((example) => (
-              <div key={example.name} className="space-y-2">
-                <div className="relative aspect-video overflow-hidden rounded-lg border">
+          {selectedExampleTemplate && templateExamples[selectedExampleTemplate] && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              {/* Left - Generic template (clean, no lock) */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground text-center">
+                  Malldesign
+                </p>
+                <div className="relative aspect-video overflow-hidden rounded-lg border-2 border-dashed border-muted">
                   <img
-                    src={example.url}
-                    alt={example.name}
+                    src={templateExamples[selectedExampleTemplate].genericImage}
+                    alt={templateExamples[selectedExampleTemplate].genericName}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-sm font-medium text-center text-foreground">
-                  {example.name}
+                <p className="text-xs text-muted-foreground text-center">
+                  Med "DIN LOGGA" placeholder
                 </p>
               </div>
-            ))}
-          </div>
+              
+              {/* Right - A2BIL finished example */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-purple-600 text-center">
+                  Med din logga
+                </p>
+                <div className="relative aspect-video overflow-hidden rounded-lg border-2 border-purple-500">
+                  <img
+                    src={templateExamples[selectedExampleTemplate].exampleUrl}
+                    alt={templateExamples[selectedExampleTemplate].exampleName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {templateExamples[selectedExampleTemplate].exampleName}
+                </p>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

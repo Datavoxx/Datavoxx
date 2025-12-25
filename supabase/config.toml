@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.check-and-use-credit]
 verify_jwt = false
+
+[functions.add-user-template]
+verify_jwt = false

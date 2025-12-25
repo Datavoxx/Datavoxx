@@ -91,8 +91,8 @@ const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateReque
 
       const logoUrl = urlData.publicUrl;
 
-      // Save to database
-      const { error: dbError } = await supabase
+      // Save to database and get the request ID
+      const { data: requestData, error: dbError } = await supabase
         .from("template_requests")
         .insert({
           user_id: user?.id,
@@ -101,13 +101,15 @@ const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateReque
           phone: phone || null,
           logo_url: logoUrl,
           status: "pending",
-        });
+        })
+        .select('id')
+        .single();
 
       if (dbError) {
         throw new Error("Kunde inte spara förfrågan");
       }
 
-      // Send to webhook
+      // Send to webhook with request_id for callback
       const formData = new FormData();
       formData.append("company_name", companyName);
       formData.append("email", email);
@@ -115,6 +117,7 @@ const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateReque
       formData.append("template_name", templateName);
       formData.append("logo_url", logoUrl);
       formData.append("user_id", user?.id || "anonymous");
+      formData.append("request_id", requestData.id);
       formData.append("logo", logoFile);
 
       await fetch(WEBHOOK_URL, {

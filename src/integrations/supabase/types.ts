@@ -415,6 +415,42 @@ export type Database = {
         }
         Relationships: []
       }
+      template_requests: {
+        Row: {
+          company_name: string
+          created_at: string
+          email: string
+          id: string
+          logo_url: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          email: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -463,6 +499,36 @@ export type Database = {
           session_id?: string
           updated_at?: string
           user_name?: string
+        }
+        Relationships: []
+      }
+      user_templates: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          template_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          template_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          template_url?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

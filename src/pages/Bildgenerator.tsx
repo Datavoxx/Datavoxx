@@ -256,11 +256,11 @@ const Bildgenerator = () => {
                   Ladda upp bild
                 </span>
                 <Link 
-                  to="/vad-ar-padding" 
+                  to="/hur-fungerar-bildgenerator" 
                   className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1 font-normal"
                 >
                   <HelpCircle className="h-4 w-4" />
-                  Vad är padding?
+                  Hur fungerar bildgenerator?
                 </Link>
               </CardTitle>
             </CardHeader>

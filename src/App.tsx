@@ -57,7 +57,7 @@ const App = () => (
               <Route path="/admin/roles" element={<ProtectedRoute><AdminRoles /></ProtectedRoute>} />
               <Route path="/bildgenerator-mallar" element={<ProtectedRoute><BildgeneratorMallar /></ProtectedRoute>} />
               <Route path="/bildgenerator" element={<ProtectedRoute><Bildgenerator /></ProtectedRoute>} />
-              <Route path="/vad-ar-padding" element={<ProtectedRoute><VadArPadding /></ProtectedRoute>} />
+              <Route path="/hur-fungerar-bildgenerator" element={<ProtectedRoute><VadArPadding /></ProtectedRoute>} />
               {/* Product pages */}
               <Route path="/produkt/annonsgenerator" element={<ProtectedRoute><ProduktAnnonsgenerator /></ProtectedRoute>} />
               <Route path="/produkt/bil-research" element={<ProtectedRoute><ProduktBilResearch /></ProtectedRoute>} />

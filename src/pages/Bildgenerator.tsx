@@ -13,11 +13,13 @@ import { toast } from "sonner";
 import mall1 from "@/assets/mall-1.png";
 import mall2 from "@/assets/mall-2.png";
 import mall3 from "@/assets/mall-3.png";
+import mall4 from "@/assets/mall-4.png";
 
 const templates: Record<string, { name: string; image: string }> = {
   "1": { name: "A2BIL Showroom Dark", image: mall1 },
   "2": { name: "A2BIL Showroom Grå", image: mall2 },
   "3": { name: "A2BIL Showroom Ljus", image: mall3 },
+  "4": { name: "A2BIL Mörk", image: mall4 },
 };
 
 const Bildgenerator = () => {

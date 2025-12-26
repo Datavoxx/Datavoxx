@@ -79,7 +79,7 @@ const Bildgenerator = () => {
     if (!authLoading && !roleLoading && !isLoadingTemplate && user && isBeginner && !mallId) {
       navigate("/bildgenerator-mallar");
     }
-  }, [authLoading, roleLoading, isLoadingTemplate, user, isAdmin, mallId, navigate]);
+  }, [authLoading, roleLoading, isLoadingTemplate, user, isBeginner, mallId, navigate]);
 
   // Redirect users without gen_2+ access
   if (!authLoading && !roleLoading) {
@@ -277,7 +277,7 @@ const Bildgenerator = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-700 mb-4">
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Admin-verktyg</span>
+              <span className="text-sm font-medium">Pro-verktyg</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">
               Bildgenerator

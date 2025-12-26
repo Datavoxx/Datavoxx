@@ -300,46 +300,6 @@ const Bildgenerator = () => {
                 )}
               </div>
 
-              {/* Padding Slider */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium text-foreground">
-                    Padding
-                  </label>
-                  <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                    {padding.toFixed(2)}
-                  </span>
-                </div>
-                <Slider
-                  value={[padding]}
-                  onValueChange={(val) => setPadding(val[0])}
-                  min={0.01}
-                  max={0.49}
-                  step={0.01}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Padding Bottom Slider */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium text-foreground">
-                    Padding Bottom
-                  </label>
-                  <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                    {paddingBottom.toFixed(2)}
-                  </span>
-                </div>
-                <Slider
-                  value={[paddingBottom]}
-                  onValueChange={(val) => setPaddingBottom(val[0])}
-                  min={0.01}
-                  max={0.49}
-                  step={0.01}
-                  className="w-full"
-                />
-              </div>
-
               {/* Generate Button */}
               <Button
                 onClick={handleGenerate}
@@ -373,12 +333,80 @@ const Bildgenerator = () => {
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
                 <img
                   src={generatedImage}
                   alt="Generated"
                   className="w-full rounded-lg shadow-md"
                 />
+
+                {/* Adjustment Section */}
+                <div className="pt-4 border-t border-border space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Justera bilens storlek och position, klicka sedan "Uppdatera bild"
+                  </p>
+
+                  {/* Padding Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-foreground">
+                        Padding (storlek)
+                      </label>
+                      <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                        {padding.toFixed(2)}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[padding]}
+                      onValueChange={(val) => setPadding(val[0])}
+                      min={0.01}
+                      max={0.49}
+                      step={0.01}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground">Lägre värde = större bil</p>
+                  </div>
+
+                  {/* Padding Bottom Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-foreground">
+                        Padding Bottom (position)
+                      </label>
+                      <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                        {paddingBottom.toFixed(2)}
+                      </span>
+                    </div>
+                    <Slider
+                      value={[paddingBottom]}
+                      onValueChange={(val) => setPaddingBottom(val[0])}
+                      min={0.01}
+                      max={0.49}
+                      step={0.01}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground">Lägre värde = bil längre ner</p>
+                  </div>
+
+                  {/* Update Button */}
+                  <Button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uppdaterar...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Uppdatera bild
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

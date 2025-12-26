@@ -412,13 +412,13 @@ const AnnonsResultat = () => {
                     {/* Subtle inner glow */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
                     
-                    <div className="relative bg-secondary/50 backdrop-blur-sm border border-border/30 rounded-xl p-4 sm:p-6 md:p-8">
+                    <div className="relative bg-secondary/50 backdrop-blur-sm border border-border/30 rounded-xl p-6 sm:p-8 md:p-10">
                       {isEditing ? (
-                        <div className="space-y-3 sm:space-y-4">
+                        <div className="space-y-4 sm:space-y-6">
                           <textarea
                             value={editedAd}
                             onChange={(e) => setEditedAd(e.target.value)}
-                            className="w-full min-h-[200px] sm:min-h-[300px] bg-background/50 border border-border/50 rounded-lg p-3 sm:p-4 text-sm sm:text-base text-foreground leading-relaxed font-normal resize-y focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                            className="w-full min-h-[200px] sm:min-h-[300px] bg-background/50 border border-border/50 rounded-lg p-4 sm:p-5 text-sm sm:text-base text-foreground leading-loose font-normal resize-y focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                             placeholder="Redigera din annons här..."
                           />
                           <div className="flex justify-end gap-2">
@@ -442,7 +442,7 @@ const AnnonsResultat = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="whitespace-pre-wrap text-foreground leading-relaxed font-normal text-sm sm:text-base">
+                        <div className="whitespace-pre-wrap text-foreground leading-loose font-normal text-sm sm:text-base">
                           {generatedAd}
                         </div>
                       )}

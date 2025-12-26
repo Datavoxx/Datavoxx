@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { History, MessageSquare, Mail, FileText, ChevronRight, X } from "lucide-react";
+import { History, MessageSquare, Mail, FileText, ChevronRight, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,12 +23,23 @@ interface HistoryPanelProps {
   onSelect?: (item: HistoryItem) => void;
 }
 
+interface FilterState {
+  ad: boolean;
+  research: boolean;
+  email: boolean;
+}
+
 const HistoryPanel = ({ type, isOpen, onClose, onSelect }: HistoryPanelProps) => {
   const { user } = useAuth();
   const [researchItems, setResearchItems] = useState<HistoryItem[]>([]);
   const [emailItems, setEmailItems] = useState<HistoryItem[]>([]);
   const [adItems, setAdItems] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<FilterState>({
+    ad: true,
+    research: true,
+    email: true,
+  });
 
   useEffect(() => {
     if (!user || !isOpen) return;
@@ -228,6 +239,39 @@ const HistoryPanel = ({ type, isOpen, onClose, onSelect }: HistoryPanelProps) =>
     </div>
   );
 
+  const toggleFilter = (key: keyof FilterState) => {
+    setFilters(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const FilterCheckbox = ({ 
+    label, 
+    icon, 
+    checked, 
+    onChange 
+  }: { 
+    label: string; 
+    icon: React.ReactNode; 
+    checked: boolean; 
+    onChange: () => void; 
+  }) => (
+    <button
+      onClick={onChange}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${
+        checked 
+          ? "bg-primary/10 text-primary border border-primary/30" 
+          : "bg-gray-100 text-gray-400 border border-transparent"
+      }`}
+    >
+      <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+        checked ? "bg-primary border-primary" : "border-gray-300 bg-white"
+      }`}>
+        {checked && <Check className="h-3 w-3 text-white" />}
+      </div>
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+
   if (!isOpen) return null;
 
   // Get items for single-type mode
@@ -249,6 +293,30 @@ const HistoryPanel = ({ type, isOpen, onClose, onSelect }: HistoryPanelProps) =>
         </Button>
       </div>
 
+      {/* Filter chips - only show in "all" mode */}
+      {type === "all" && (
+        <div className="flex flex-wrap gap-2 p-4 border-b border-gray-100">
+          <FilterCheckbox
+            label="Annonser"
+            icon={<FileText className="h-3.5 w-3.5" />}
+            checked={filters.ad}
+            onChange={() => toggleFilter("ad")}
+          />
+          <FilterCheckbox
+            label="Research"
+            icon={<MessageSquare className="h-3.5 w-3.5" />}
+            checked={filters.research}
+            onChange={() => toggleFilter("research")}
+          />
+          <FilterCheckbox
+            label="Email"
+            icon={<Mail className="h-3.5 w-3.5" />}
+            checked={filters.email}
+            onChange={() => toggleFilter("email")}
+          />
+        </div>
+      )}
+
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
@@ -256,11 +324,16 @@ const HistoryPanel = ({ type, isOpen, onClose, onSelect }: HistoryPanelProps) =>
             <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600" />
           </div>
         ) : type === "all" ? (
-          // All mode - show sections
+          // All mode - show sections based on filters
           <div>
-            {renderSection("Annonstextgenerator", <FileText className="h-4 w-4 text-primary" />, adItems)}
-            {renderSection("Bil Research", <MessageSquare className="h-4 w-4 text-primary" />, researchItems)}
-            {renderSection("Email Assistent", <Mail className="h-4 w-4 text-primary" />, emailItems)}
+            {filters.ad && renderSection("Annonstextgenerator", <FileText className="h-4 w-4 text-primary" />, adItems)}
+            {filters.research && renderSection("Bil Research", <MessageSquare className="h-4 w-4 text-primary" />, researchItems)}
+            {filters.email && renderSection("Email Assistent", <Mail className="h-4 w-4 text-primary" />, emailItems)}
+            {!filters.ad && !filters.research && !filters.email && (
+              <div className="flex flex-col items-center justify-center h-32 text-gray-400">
+                <p className="text-sm">Välj minst en kategori</p>
+              </div>
+            )}
           </div>
         ) : singleTypeItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 text-gray-500">

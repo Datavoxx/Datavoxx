@@ -54,16 +54,21 @@ const AnnonsResultat = () => {
     setGeneratedAd("");
 
     try {
+      // Get session ID for anonymous credit tracking
+      const sessionId = localStorage.getItem('bilgen_session_id');
+      
       const requestBody: { 
         formData: FormData; 
         systemPrompt: string; 
         companyName?: string; 
         userName?: string;
         length: AdLength;
+        sessionId?: string;
       } = {
         formData: state.formData,
         systemPrompt: state.systemPrompt,
         length,
+        sessionId: sessionId || undefined,
       };
       
       if (user && profile) {

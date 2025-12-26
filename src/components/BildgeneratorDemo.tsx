@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Upload, Palette, ChevronRight, ChevronLeft, Sparkles, RotateCcw, Download, Check, Lightbulb } from "lucide-react";
+import { Upload, Palette, ChevronRight, ChevronLeft, Sparkles, RotateCcw, Download, Check, Lightbulb, Maximize2, Move, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,8 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [loadingStepIndex, setLoadingStepIndex] = useState(0);
+  const [paddingSize, setPaddingSize] = useState([0.25]);
+  const [paddingBottom, setPaddingBottom] = useState([0.15]);
   const navigate = useNavigate();
 
   const setCurrentStep = (step: number) => {
@@ -118,6 +121,12 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
 
   const totalSteps = 2;
   const progressPercentage = showResult ? 100 : ((currentStep - 1) / totalSteps) * 100 + (100 / totalSteps / 2);
+
+  // Calculate car size based on padding (inverted: lower padding = bigger car)
+  const carScale = showResult ? (1.5 - paddingSize[0] * 2) : (currentStep >= 2 ? 1.2 : 1);
+  
+  // Calculate car position based on padding bottom (inverted: lower = further down)
+  const carPositionY = showResult ? paddingBottom[0] * 100 : 15;
 
   // Get current template colors
   const currentTemplateColors = templateOptions.find(t => t.id === selectedTemplate)?.color || "from-slate-700 to-slate-800";
@@ -249,9 +258,10 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
 
                 {/* Car illustration */}
                 <div
-                  className="absolute left-1/2 bottom-[15%] transition-all duration-500 ease-out"
+                  className="absolute left-1/2 transition-all duration-500 ease-out"
                   style={{
-                    transform: `translateX(-50%) scale(${showResult || currentStep >= 2 ? 1.2 : 1})`,
+                    transform: `translateX(-50%) scale(${carScale})`,
+                    bottom: `${carPositionY}%`,
                   }}
                 >
                   {/* Car SVG - same as PaddingExplainer */}
@@ -377,7 +387,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary" />
                     <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                      Din genererade bild
+                      Justera din bild
                     </span>
                   </div>
                   <button
@@ -387,6 +397,61 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                     <Download className="w-3.5 h-3.5 text-primary" />
                     <span className="text-xs font-medium text-primary">Ladda ner</span>
                   </button>
+                </div>
+                
+                {/* Padding sliders */}
+                <div className="space-y-4 mb-4">
+                  {/* Size slider */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Maximize2 className="w-4 h-4 text-primary" />
+                        <label className="text-sm font-medium text-foreground">Storlek (Padding)</label>
+                      </div>
+                      <span className="text-sm font-mono bg-primary/10 px-2 py-0.5 rounded text-primary">
+                        {paddingSize[0].toFixed(2)}
+                      </span>
+                    </div>
+                    <Slider
+                      value={paddingSize}
+                      onValueChange={setPaddingSize}
+                      min={0.05}
+                      max={0.45}
+                      step={0.01}
+                      className="mb-2"
+                    />
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <ArrowLeft className="h-3 w-3" /> Större bil
+                      <span className="mx-auto">|</span>
+                      Mindre bil <ArrowRight className="h-3 w-3" />
+                    </p>
+                  </div>
+
+                  {/* Position slider */}
+                  <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Move className="w-4 h-4 text-accent-foreground" />
+                        <label className="text-sm font-medium text-foreground">Position (Padding Bottom)</label>
+                      </div>
+                      <span className="text-sm font-mono bg-accent/10 px-2 py-0.5 rounded text-accent-foreground">
+                        {paddingBottom[0].toFixed(2)}
+                      </span>
+                    </div>
+                    <Slider
+                      value={paddingBottom}
+                      onValueChange={setPaddingBottom}
+                      min={0}
+                      max={0.30}
+                      step={0.01}
+                      className="mb-2"
+                    />
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <ArrowLeft className="h-3 w-3" /> Längre ner
+                      <span className="mx-auto">|</span>
+                      Högre upp <ArrowRight className="h-3 w-3" />
+                    </p>
+                  </div>
                 </div>
                 
                 {/* AI Tips */}

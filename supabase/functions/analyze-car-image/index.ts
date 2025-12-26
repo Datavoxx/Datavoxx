@@ -5,6 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Reference image and optimal padding values
+const REFERENCE_IMAGE_URL = 'https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/referensbild//referens.png';
+const OPTIMAL_PADDING = 0.26;
+const OPTIMAL_PADDING_BOTTOM = 0.06;
+
 interface AnalysisResult {
   status: 'good' | 'needs_adjustment';
   message: string;
@@ -29,29 +34,36 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Du är en expert på bilredigering och bildkomposition. Din uppgift är att analysera en genererad bildbild och bedöma om den ser professionell ut.
+    const systemPrompt = `Du är en expert på bilredigering och bildkomposition. Din uppgift är att jämföra en genererad bildbild mot en referensbild och bedöma om den ser lika professionell ut.
+
+DU FÅR TVÅ BILDER:
+1. BILD 1 (REFERENSBILD): Detta är ett PERFEKT exempel på hur en välkomponerad bilannons ska se ut. Denna bild skapades med följande inställningar:
+   - Padding (storlek): ${OPTIMAL_PADDING}
+   - Padding Bottom (position): ${OPTIMAL_PADDING_BOTTOM}
+
+2. BILD 2 (BILD ATT BEDÖMA): Detta är den genererade bilden som användaren vill ha feedback på.
 
 VIKTIGT - Förstå padding-systemet:
-- "Padding" kontrollerar bilens STORLEK: Lägre värde (t.ex. 0.10) = STÖRRE bil. Högre värde (t.ex. 0.40) = MINDRE bil.
-- "Padding Bottom" kontrollerar bilens VERTIKAL POSITION: Lägre värde (t.ex. 0.10) = bil längre NER. Högre värde (t.ex. 0.40) = bil längre UPP.
+- "Padding" kontrollerar bilens STORLEK: Lägre värde = STÖRRE bil. Högre värde = MINDRE bil.
+- "Padding Bottom" kontrollerar bilens VERTIKAL POSITION: Lägre värde = bil längre NER. Högre värde = bil längre UPP.
 - Värdena går från 0.01 till 0.49.
 
-BEDÖMNINGSKRITERIER:
+JÄMFÖR BILD 2 MOT REFERENSBILDEN:
 
-✅ POSITIVA TECKEN (status: "good"):
-- Bilen är helt synlig utan att skäras av i kanterna
-- Det finns lagom utrymme ovanför och under bilen
-- Bilen ser naturligt placerad ut i förhållande till bakgrunden
-- Kompositionen ser balanserad och professionell ut
-- Bilen fyller bilden på ett tilltalande sätt
+✅ GE STATUS "good" OM:
+- Bilens storlek liknar referensbilden (lagom stor, inte för liten/stor)
+- Bilen sitter naturligt placerad som i referensen
+- Kompositionen ser lika professionell ut som referensen
+- Det finns liknande balans och utrymme som i referensen
 
-⚠️ BEHÖVER JUSTERING (status: "needs_adjustment"):
-- Bilen är för liten och ser "borttappad" ut i bilden
-- Bilen är så stor att den skärs av i kanterna
-- Bilen svävar onaturligt högt eller sjunker för långt ner
-- Det ser obalanserat ut med för mycket tomrum på en sida
+⚠️ GE STATUS "needs_adjustment" OM:
+- Bilen är märkbart större eller mindre än i referensen
+- Bilen sitter högre eller lägre än i referensen
+- Kompositionen ser obalanserad ut jämfört med referensen
 
-VIKTIGT: Var GENERÖS med positiv feedback! Om bilden ser professionell ut och bilen är väl placerad, ge status "good" med uppmuntrande feedback. Endast om det finns uppenbara problem ska du ge "needs_adjustment".
+NÄR DU GER TIPS:
+- Referera alltid till de optimala värdena (padding: ${OPTIMAL_PADDING}, padding bottom: ${OPTIMAL_PADDING_BOTTOM})
+- Ge konkreta förslag som "Prova att öka padding till ca ${OPTIMAL_PADDING} för att matcha referensen"
 
 Svara ALLTID i detta JSON-format (och inget annat):
 {
@@ -60,14 +72,20 @@ Svara ALLTID i detta JSON-format (och inget annat):
   "tips": ["Tips 1", "Tips 2", "Tips 3"]
 }
 
-Om status är "good", ge tips som bekräftar vad som är bra med bilden.
-Om status är "needs_adjustment", ge specifika förslag med ungefärliga padding-värden.`;
+Om status är "good", bekräfta att bilden liknar referensen.
+Om status är "needs_adjustment", ge specifika förslag med de optimala padding-värdena.`;
 
-    const userPrompt = `Analysera denna genererade bildbild. Nuvarande inställningar är:
+    const userPrompt = `Jämför den genererade bilden (Bild 2) mot referensbilden (Bild 1).
+
+Nuvarande inställningar för den genererade bilden:
 - Padding (storlek): ${currentPadding}
 - Padding Bottom (position): ${currentPaddingBottom}
 
-Titta på bilen i bilden och bedöm om storleken och positionen är optimal, eller om justeringar behövs.`;
+Optimala inställningar (från referensbilden):
+- Padding (storlek): ${OPTIMAL_PADDING}
+- Padding Bottom (position): ${OPTIMAL_PADDING_BOTTOM}
+
+Bedöm om den genererade bilden ser lika professionell ut som referensen, och ge tips för att förbättra om det behövs.`;
 
     console.log("Calling Lovable AI for image analysis...");
 
@@ -88,7 +106,13 @@ Titta på bilen i bilden och bedöm om storleken och positionen är optimal, ell
               { 
                 type: 'image_url', 
                 image_url: { 
-                  url: imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`
+                  url: REFERENCE_IMAGE_URL  // Bild 1: Referensbild
+                } 
+              },
+              { 
+                type: 'image_url', 
+                image_url: { 
+                  url: imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`  // Bild 2: Genererad bild
                 } 
               }
             ]

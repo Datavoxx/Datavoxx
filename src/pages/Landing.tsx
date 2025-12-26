@@ -4,6 +4,7 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import TerminalDemo from "@/components/TerminalDemo";
 import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
+import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
@@ -16,7 +17,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
-  const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research'>('annons');
+  const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
   const outputExamples = [
     {
@@ -344,10 +345,11 @@ Med vänliga hälsningar`
           {/* Demo Selector Tabs */}
           <div id="demo" className="mb-8">
             <div className="flex justify-start md:justify-center gap-2 mb-6 md:mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-              {[
+            {[
                 { id: 'annons' as const, label: 'Annons', labelFull: 'Annonstext', icon: FileText },
                 { id: 'email' as const, label: 'E-mail', labelFull: 'E-mail', icon: Mail },
-                { id: 'research' as const, label: 'Research', labelFull: 'Bil Research', icon: Search }
+                { id: 'research' as const, label: 'Research', labelFull: 'Bil Research', icon: Search },
+                { id: 'bildgenerator' as const, label: 'Bild', labelFull: 'Bildgenerator', icon: Image }
               ].map((demo) => (
                 <button
                   key={demo.id}
@@ -369,6 +371,7 @@ Med vänliga hälsningar`
             {selectedDemo === 'annons' && <TerminalDemo />}
             {selectedDemo === 'email' && <EmailDemo />}
             {selectedDemo === 'research' && <BilResearchDemo />}
+            {selectedDemo === 'bildgenerator' && <BildgeneratorDemo />}
           </div>
 
           {/* Account CTA - moved below demo on mobile */}

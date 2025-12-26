@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
+import { CreditExhaustedModal } from "@/components/CreditExhaustedModal";
 
 type AdLength = "short" | "long";
 
@@ -43,6 +44,7 @@ const AnnonsResultat = () => {
   const [selectedLength, setSelectedLength] = useState<AdLength>("short");
   const [isEditing, setIsEditing] = useState(false);
   const [editedAd, setEditedAd] = useState("");
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const hasGeneratedRef = useRef(false);
   
   const MAX_REGENERATIONS = 3;
@@ -81,12 +83,22 @@ const AnnonsResultat = () => {
       });
 
       if (response.error) {
+        // Check if it's a credit exhausted error
+        const errorBody = response.error.message;
+        if (errorBody && errorBody.includes('creditExhausted')) {
+          setShowCreditModal(true);
+          return;
+        }
         throw new Error(response.error.message || "Failed to generate ad");
       }
 
       const data = response.data;
       
       if (data.error) {
+        if (data.creditExhausted) {
+          setShowCreditModal(true);
+          return;
+        }
         throw new Error(data.error);
       }
 
@@ -526,6 +538,11 @@ const AnnonsResultat = () => {
           </div>
         </div>
       </div>
+      
+      <CreditExhaustedModal 
+        open={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

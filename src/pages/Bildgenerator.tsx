@@ -167,7 +167,7 @@ const Bildgenerator = () => {
         padding_bottom: paddingBottom
       });
 
-      const response = await fetch("https://datavox.app.n8n.cloud/webhook-test/bildgenerator", {
+      const response = await fetch("https://datavox.app.n8n.cloud/webhook/bildgenerator", {
         method: "POST",
         body: formData
       });

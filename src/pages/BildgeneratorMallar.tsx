@@ -14,8 +14,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, Sparkles, ImageIcon, Lock, Eye } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Sparkles, ImageIcon, Lock, Eye, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Generic templates for users without custom templates
 import genericMall1 from "@/assets/generic-mall-1.png";
@@ -88,6 +100,8 @@ const BildgeneratorMallar = () => {
   const [requestFormOpen, setRequestFormOpen] = useState(false);
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [selectedExampleTemplate, setSelectedExampleTemplate] = useState<string | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<UserTemplate | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch user-specific templates from database
   useEffect(() => {
@@ -158,6 +172,49 @@ const BildgeneratorMallar = () => {
     }
   };
 
+  const handleDeleteTemplate = async () => {
+    if (!templateToDelete || !user) return;
+
+    setIsDeleting(true);
+    try {
+      // Extract the storage path from the template_url
+      // URL format: https://xxx.supabase.co/storage/v1/object/public/templates/user_id/filename
+      const url = new URL(templateToDelete.template_url);
+      const pathParts = url.pathname.split("/storage/v1/object/public/templates/");
+      const storagePath = pathParts[1]; // user_id/filename
+
+      // Delete from storage
+      if (storagePath) {
+        const { error: storageError } = await supabase.storage
+          .from("templates")
+          .remove([storagePath]);
+
+        if (storageError) {
+          console.error("Error deleting from storage:", storageError);
+          // Continue with database deletion even if storage fails
+        }
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("user_templates")
+        .delete()
+        .eq("id", templateToDelete.id);
+
+      if (dbError) throw dbError;
+
+      // Update UI state
+      setUserTemplates((prev) => prev.filter((t) => t.id !== templateToDelete.id));
+      toast.success("Mallen har tagits bort");
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      toast.error("Kunde inte ta bort mallen");
+    } finally {
+      setIsDeleting(false);
+      setTemplateToDelete(null);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-background via-muted/30 to-background animate-fade-in">
       <DecorativeBackground />
@@ -200,6 +257,17 @@ const BildgeneratorMallar = () => {
                           alt={template.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTemplateToDelete(template);
+                          }}
+                          className="absolute top-2 right-2 p-2 rounded-full bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                          title="Ta bort mall"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                           <div className="flex items-center gap-2 text-white">
@@ -341,6 +409,35 @@ const BildgeneratorMallar = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={templateToDelete !== null} onOpenChange={(open) => !open && setTemplateToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort mall</AlertDialogTitle>
+            <AlertDialogDescription>
+              Är du säker på att du vill ta bort "{templateToDelete?.name}"? Detta går inte att ångra.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTemplate}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Tar bort...
+                </>
+              ) : (
+                "Ta bort"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -6,9 +6,9 @@ import type { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 const ROLE_LEVELS: Record<AppRole, number> = {
-  admin: 4,
-  gen_3: 3,
-  gen_2: 2,
+  admin: 5,
+  gen_3: 4,
+  gen_2: 3,
   gen_1: 2,
   intro: 1,
   user: 0,

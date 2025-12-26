@@ -553,7 +553,7 @@ Med vänliga hälsningar`
                   className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-transparent border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-lg transition-all duration-300 hover:bg-primary-foreground/10 hover:border-primary-foreground/50 cursor-pointer"
                 >
                   <Mail className="h-5 w-5" />
-                  Boka demo
+                  Boka nulägesanalys
                 </button>
               </div>
               

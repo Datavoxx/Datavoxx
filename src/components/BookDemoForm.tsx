@@ -85,9 +85,9 @@ const BookDemoForm = ({ open, onClose }: BookDemoFormProps) => {
           <div className="mx-auto mb-3 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Car className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-2xl font-bold">Boka en demo</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Boka nulägesanalys</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Fyll i dina uppgifter så hör vi av oss inom 24 timmar
+            Boka en kostnadsfri genomgång av era behov – vi hör av oss inom 24 timmar
           </DialogDescription>
         </DialogHeader>
 

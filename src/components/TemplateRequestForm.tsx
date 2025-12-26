@@ -20,7 +20,7 @@ interface TemplateRequestFormProps {
   templateName: string;
 }
 
-const WEBHOOK_URL = "https://datavox.app.n8n.cloud/webhook/mallbestallning";
+const WEBHOOK_URL = "https://datavox.app.n8n.cloud/webhook/mallvaljande";
 
 const getResponseTimeMessage = (): string => {
   const now = new Date();

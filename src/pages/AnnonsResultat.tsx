@@ -217,7 +217,58 @@ const AnnonsResultat = () => {
   };
 
   if (!state) {
-    return null;
+    return (
+      <div className="relative min-h-screen bg-background">
+        <DecorativeBackground />
+        <AppHeader />
+        
+        <div className="mx-auto max-w-xl relative z-10 px-4 py-12 sm:py-20">
+          <div className="text-center space-y-6">
+            {/* Icon */}
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-2">
+              <FileText className="w-8 h-8 text-primary" />
+            </div>
+            
+            <div className="space-y-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                Ingen annons att visa
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto">
+                Det verkar som att du inte har genererat någon annons ännu. Börja med att fylla i biluppgifterna så skapar vi en proffsig annons åt dig!
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+              <Button
+                onClick={() => navigate("/annons-generator")}
+                size="lg"
+                className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                Skapa annons
+              </Button>
+              
+              {!user && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate("/auth")}
+                  className="w-full sm:w-auto border-border/50 hover:border-primary/50 hover:bg-primary/5"
+                >
+                  Skapa konto
+                </Button>
+              )}
+            </div>
+            
+            {!user && (
+              <p className="text-xs text-muted-foreground pt-2">
+                Skapa ett konto för att spara dina annonser och få tillgång till fler funktioner
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

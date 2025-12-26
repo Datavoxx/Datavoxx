@@ -54,7 +54,7 @@ const BookDemoForm = ({ open, onClose }: BookDemoFormProps) => {
     };
 
     try {
-      await fetch("https://datavox.app.n8n.cloud/webhook-test/formular-bilgen", {
+      await fetch("https://datavox.app.n8n.cloud/webhook/formular-bilgen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         mode: "no-cors",

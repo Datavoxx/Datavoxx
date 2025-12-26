@@ -30,7 +30,6 @@ export const AccessRequestModal = ({
   const { user, profile } = useAuth();
   const { hasMinRole, isGuest } = useUserRole();
   const [antalAnnonser, setAntalAnnonser] = useState("");
-  const [varfor, setVarfor] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -38,7 +37,7 @@ export const AccessRequestModal = ({
   const isGen1 = hasMinRole("gen_1") && !hasMinRole("gen_2");
 
   // Validation
-  const isFormValid = antalAnnonser.trim() !== "" && varfor.trim() !== "";
+  const isFormValid = antalAnnonser.trim() !== "";
 
   const handleSubmit = async () => {
     if (!user || !isFormValid) return;
@@ -61,7 +60,6 @@ export const AccessRequestModal = ({
             name: userName,
             email: userEmail,
             antalAnnonser: antalAnnonser.trim(),
-            varfor: varfor.trim(),
             toolName: toolName,
           }),
         }
@@ -75,7 +73,7 @@ export const AccessRequestModal = ({
       const { error } = await supabase.from("tool_access_requests").insert({
         user_id: user.id,
         tool_name: toolName,
-        note: `Antal annonser: ${antalAnnonser.trim()}\nVarför: ${varfor.trim()}`,
+        note: `Antal annonser per vecka: ${antalAnnonser.trim()}`,
       });
 
       if (error) throw error;
@@ -92,7 +90,6 @@ export const AccessRequestModal = ({
 
   const handleClose = () => {
     setAntalAnnonser("");
-    setVarfor("");
     setIsSubmitted(false);
     onClose();
   };
@@ -135,7 +132,7 @@ export const AccessRequestModal = ({
               </div>
               <DialogTitle className="text-center">Förfrågan skickad!</DialogTitle>
               <DialogDescription className="text-center">
-                Vi har tagit emot din förfrågan om tillgång till Leadgenerator. Vi
+                Vi har tagit emot din förfrågan om tillgång till Bildgenerator. Vi
                 återkommer så snart som möjligt.
               </DialogDescription>
             </DialogHeader>
@@ -153,34 +150,22 @@ export const AccessRequestModal = ({
               <Lock className="h-6 w-6 text-primary" />
             </div>
             <DialogTitle className="text-center">
-              Be om tillgång till Leadgenerator
+              Be om tillgång till Bildgenerator
             </DialogTitle>
             <DialogDescription className="text-center">
               Fyll i informationen nedan så återkommer vi så snart som möjligt.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4 space-y-4">
+          <div className="py-4">
             <div>
               <label className="text-sm font-medium text-foreground mb-2 block">
                 Antal annonser per vecka <span className="text-destructive">*</span>
               </label>
               <Input
-                placeholder="Skriv hur många annonser du publicerar i veckan..."
+                placeholder="t.ex. 8"
                 value={antalAnnonser}
                 onChange={(e) => setAntalAnnonser(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Varför vill du ha tillgång? <span className="text-destructive">*</span>
-              </label>
-              <Textarea
-                placeholder="Berätta kort varför du vill ha tillgång till Leadgenerator..."
-                value={varfor}
-                onChange={(e) => setVarfor(e.target.value)}
-                className="resize-none"
-                rows={3}
               />
             </div>
           </div>

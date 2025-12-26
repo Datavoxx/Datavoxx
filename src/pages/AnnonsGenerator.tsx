@@ -58,13 +58,17 @@ Du är en svensk bilannonsexpert som skriver professionella, säljande bilannons
 - Ställ ALDRIG frågor eller be om bekräftelse
 </critical_rules>
 
+<specification_note>
+Inkludera en rad i annonsen som säger: "För specifikation och utrustning, scrolla ner."
+</specification_note>
+
 <content_order>
 Strukturera innehållet i denna ordning (men skriv som flödande text, INTE som numrerade sektioner):
 
 FÖRST (hook): Kampanj och ränta - börja starkt med finansieringserbjudandet
 SEDAN: Försäkringserbjudande och trygghetspaket
 SEDAN: Kort om bilen - märke, modell, årsmodell, miltal, pris
-SEDAN: Utrustning och skick - lista features naturligt i texten
+SEDAN: "För specifikation och utrustning, scrolla ner."
 SIST: Garanti, kontaktinfo och välkomnande avslutning
 </content_order>
 
@@ -84,7 +88,7 @@ I samarbete med Länsförsäkringar erbjuder vi en månads helförsäkring helt 
 
 Nu i lager har vi denna fina Volvo XC60 2020 med endast 45 000 mil. Pris: 299 000 kr.
 
-Bilen är utrustad med bland annat navigation, läderklädsel, backkamera, parkeringssensorer, adaptiv farthållare och Apple CarPlay. Bilen är i mycket fint skick med fullständig servicehistorik. Senaste service utförd januari 2024, nästa besiktning senast juni 2025. Låg skatt på bara 1 200 kr/år.
+För specifikation och utrustning, scrolla ner.
 
 2 års MRF-garanti ingår! Vi erbjuder hemleverans i hela Sverige. Betalning via Swish, kort eller banköverföring.
 
@@ -93,9 +97,9 @@ Varmt välkomna till oss!
   },
   {
     id: "equipment",
-    label: "Skick & Utrustning",
-    icon: "🔧",
-    description: "Bilens egenskaper och kvalitet lyfts upp först",
+    label: "Bolag & Service",
+    icon: "🚚",
+    description: "Lyft fram ert företags service och trygghet",
     prompt: `<role>
 Du är en svensk bilannonsexpert som skriver professionella, säljande bilannonser för Blocket och Bytbil.
 </role>
@@ -110,12 +114,22 @@ Du är en svensk bilannonsexpert som skriver professionella, säljande bilannons
 - Ställ ALDRIG frågor eller be om bekräftelse
 </critical_rules>
 
+<important_service_highlight>
+Inkludera ALLTID dessa två viktiga budskap framträdande i annonsen:
+1. "Vi erbjuder transport och hemleverans över hela landet!"
+2. "VI SVARAR INOM EN TIMMA!" (skriv detta med versaler/stora bokstäver)
+</important_service_highlight>
+
+<specification_note>
+Inkludera en rad i annonsen som säger: "För specifikation och utrustning, scrolla ner."
+</specification_note>
+
 <content_order>
 Strukturera innehållet i denna ordning (men skriv som flödande text, INTE som numrerade sektioner):
 
-FÖRST (hook): Bilens utrustning och skick - börja starkt med kvaliteten
-SEDAN: Detaljerad lista av utrustning, skick och servicehistorik
+FÖRST (hook): Företagets service och tillgänglighet - transport och snabb respons
 SEDAN: Kort om bilen - märke, modell, årsmodell, miltal, pris
+SEDAN: "För specifikation och utrustning, scrolla ner."
 SEDAN: Finansiering, kampanj och försäkringserbjudande
 SIST: Garanti, kontaktinfo och välkomnande avslutning
 </content_order>
@@ -130,17 +144,19 @@ Använd dessa variabler när de har värden:
 </available_variables>
 
 <example_output>
-Fullutrustad Volvo XC60 i toppskick! Denna välskötta bil kommer med en imponerande utrustningslista: navigation, läderklädsel, backkamera, parkeringssensorer, adaptiv farthållare, Apple CarPlay och panoramatak.
+VI SVARAR INOM EN TIMMA! Har du frågor om bilen? Kontakta oss direkt så återkommer vi snabbt.
 
-Bilen är i utmärkt skick med fullständig servicehistorik hos auktoriserad verkstad. Senaste service utförd januari 2024, nästa besiktning senast juni 2025. Låg skatt på endast 1 200 kr/år!
+Vi erbjuder transport och hemleverans över hela landet! Oavsett var du befinner dig i Sverige ordnar vi leverans till dig.
 
-Volvo XC60 2020 med endast 45 000 mil. Pris: 299 000 kr.
+Nu i lager har vi denna fina Volvo XC60 2020 med endast 45 000 mil. Pris: 299 000 kr.
 
-Just nu har vi Decemberkampanj med endast 3,95% i ränta! I samarbete med Länsförsäkringar erbjuder vi en månads helförsäkring gratis. Förmånlig finansiering via DNB Finans och Santander.
+För specifikation och utrustning, scrolla ner.
 
-2 års MRF-garanti ingår! Vi erbjuder hemleverans i hela Sverige. Betalning via Swish, kort eller banköverföring.
+Just nu har vi Decemberkampanj med endast 3,95% i ränta! I samarbete med Länsförsäkringar erbjuder vi en månads helförsäkring gratis.
 
-Varmt välkomna!
+2 års MRF-garanti ingår! Betalning via Swish, kort eller banköverföring.
+
+Varmt välkomna till oss!
 </example_output>`,
   },
   {
@@ -162,11 +178,15 @@ Du är en svensk bilannonsexpert som skriver professionella, säljande bilannons
 - Ställ ALDRIG frågor eller be om bekräftelse
 </critical_rules>
 
+<specification_note>
+Inkludera en rad i annonsen som säger: "För specifikation och utrustning, scrolla ner."
+</specification_note>
+
 <content_order>
 Strukturera innehållet i denna ordning (men skriv som flödande text, INTE som numrerade sektioner):
 
 FÖRST: Balanserad presentation av bilen - märke, modell, årsmodell, miltal, pris
-SEDAN: Utrustning och skick - lista features naturligt
+SEDAN: "För specifikation och utrustning, scrolla ner."
 SEDAN: Finansiering, kampanj och försäkringserbjudande
 SIST: Garanti, kontaktinfo och välkomnande avslutning
 </content_order>
@@ -183,7 +203,7 @@ Använd dessa variabler när de har värden:
 <example_output>
 Nu i lager: Volvo XC60 2020 — en välskött och populär SUV med endast 45 000 mil på mätaren. Pris: 299 000 kr.
 
-Bilen är utrustad med bland annat navigation, läderklädsel, backkamera, parkeringssensorer, adaptiv farthållare och Apple CarPlay. Bilen är i mycket fint skick med fullständig servicehistorik. Senaste service utförd januari 2024, nästa besiktning senast juni 2025.
+För specifikation och utrustning, scrolla ner.
 
 Just nu har vi Decemberkampanj med endast 3,95% i ränta! I samarbete med Länsförsäkringar erbjuder vi en månads helförsäkring gratis. Förmånlig finansiering via DNB Finans och Santander.
 
@@ -439,7 +459,7 @@ const AnnonsGenerator = () => {
     const allSections = {
       financing: { id: "financing", label: "Finansiering", color: FOCUS_COLORS.financing.bg },
       car: { id: "car", label: "Bilinfo", color: "bg-gray-400" },
-      equipment: { id: "equipment", label: "Utrustning", color: FOCUS_COLORS.equipment.bg },
+      equipment: { id: "equipment", label: "Bolag & Service", color: FOCUS_COLORS.equipment.bg },
       contact: { id: "contact", label: "Kontakt", color: "bg-gray-400" },
       mixed: { id: "mixed", label: "Balanserad", color: FOCUS_COLORS.mixed.bg },
     };

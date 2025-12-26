@@ -60,14 +60,14 @@ Med vänliga hälsningar`
     {
       step: 2,
       icon: Search,
-      title: "Granskning & analys",
-      description: "Vi går igenom er nuvarande situation, identifierar flaskhalsar och hittar förbättringsmöjligheter."
+      title: "Djupdykning i era processer",
+      description: "Vi kartlägger hur ni lägger upp bilar, hanterar inkommande förfrågningar och driver försäljningen framåt – från första mejl till avslutad affär."
     },
     {
       step: 3,
       icon: Sparkles,
       title: "Skräddarsydd lösning",
-      description: "Vi anpassar en av våra lösningar specifikt för er – eller bygger något helt nytt som kan integreras i valfri plattform."
+      description: "Baserat på var ni står i säljprocessen – inbound, outbound eller båda – bygger vi en lösning som passar just era flöden."
     }
   ];
 

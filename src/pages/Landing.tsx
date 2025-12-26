@@ -8,7 +8,7 @@ import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
-import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X, Image } from "lucide-react";
+import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X, Image, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
@@ -50,24 +50,24 @@ Med vänliga hälsningar`
     }
   ];
 
-  const benefits = [
+  const processSteps = [
     {
-      icon: Zap,
-      title: "Lägg upp annonser snabbare",
-      description: "Färdiga bilannonser på 10 sekunder istället för 15 minuter.",
-      timeSaved: "15 min/annons"
+      step: 1,
+      icon: Calendar,
+      title: "Boka en tid",
+      description: "Välj en tid som passar dig för en kostnadsfri nulägesanalys – 30 eller 60 minuter."
     },
     {
+      step: 2,
       icon: Search,
-      title: "Få svar direkt",
-      description: "Slipp googla. Fråga om problem, service och teknisk info.",
-      timeSaved: "10 min/fråga"
+      title: "Granskning & analys",
+      description: "Vi går igenom er nuvarande situation, identifierar flaskhalsar och hittar förbättringsmöjligheter."
     },
     {
-      icon: Mail,
-      title: "Svara professionellt",
-      description: "Generera mejlsvar på sekunder. Rätt ton, rätt innehåll.",
-      timeSaved: "5 min/mejl"
+      step: 3,
+      icon: Sparkles,
+      title: "Skräddarsydd lösning",
+      description: "Vi anpassar en av våra lösningar specifikt för er – eller bygger något helt nytt som kan integreras i valfri plattform."
     }
   ];
 
@@ -456,41 +456,59 @@ Med vänliga hälsningar`
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Nulägesanalys Section */}
       <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
-              Fördelar
+              Nulägesanalys
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Resultat – inte funktioner
+              Tre enkla steg
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Fokusera på att sälja bilar. Låt Bilgen ta hand om skrivandet.
+              Från samtal till lösning – så fungerar det
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* Connecting lines for desktop */}
+            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+            
+            {processSteps.map((step, index) => (
               <div
                 key={index}
-                className="group text-center p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-card/60"
+                className="group text-center p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-card/60 relative"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6 transition-transform group-hover:scale-110">
-                  <benefit.icon className="h-7 w-7 text-primary" />
+                {/* Step number */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-lg">
+                  {step.step}
+                </div>
+                
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6 mt-2 transition-transform group-hover:scale-110">
+                  <step.icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {benefit.title}
+                  {step.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed mb-5">
-                  {benefit.description}
+                <p className="text-muted-foreground leading-relaxed">
+                  {step.description}
                 </p>
-                <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-green-500/10 text-green-600">
-                  Spara {benefit.timeSaved}
-                </span>
               </div>
             ))}
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center mt-12">
+            <Button 
+              onClick={() => setShowBookDemoForm(true)} 
+              size="lg" 
+              className="gap-2 px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <Calendar className="h-5 w-5" />
+              Boka nulägesanalys
+              <ArrowRight className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Mail, Lock, Loader2, ArrowRight, FileText, Search, Mail as MailIcon } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, FileText, Search, Mail as MailIcon, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,9 +97,10 @@ const Auth = () => {
   }
 
   const tools = [
-    { icon: FileText, title: "Annonstextgenerator" },
-    { icon: Search, title: "Bil Research Expert" },
-    { icon: MailIcon, title: "Email Assistent" },
+    { icon: FileText, title: "Annonstextgenerator", locked: false },
+    { icon: Search, title: "Bil Research Expert", locked: false },
+    { icon: MailIcon, title: "Email Assistent", locked: true },
+    { icon: Image, title: "Bildgenerator", locked: true },
   ];
 
   return (
@@ -130,14 +131,14 @@ const Auth = () => {
         <div className="flex flex-wrap justify-center gap-3 mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s" }}>
           {tools.map((tool, index) => (
             <div key={index} className="relative">
-              {tool.title === "Email Assistent" && (
+              {tool.locked && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <Lock className="h-4 w-4 text-foreground" />
                 </div>
               )}
               <div
                 className={`flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/50 shadow-sm ${
-                  tool.title === "Email Assistent" ? "blur-[6px] opacity-40" : ""
+                  tool.locked ? "blur-[6px] opacity-40" : ""
                 }`}
               >
                 <tool.icon className="h-4 w-4 text-foreground" />

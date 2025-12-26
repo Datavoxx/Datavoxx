@@ -7,7 +7,7 @@ import FeedbackWidget from "@/components/FeedbackWidget";
 import HelpWidget from "@/components/HelpWidget";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
-import { History } from "lucide-react";
+import { History, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HistoryPanel from "@/components/HistoryPanel";
 import { LockedToolModal } from "@/components/LockedToolModal";
@@ -73,6 +73,30 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16">
+        {/* Guest Banner */}
+        {isGuest && (
+          <div className="w-full max-w-md mx-auto mb-6 animate-fade-in">
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-center sm:text-left">
+                <Sparkles className="h-5 w-5 text-primary shrink-0" />
+                <div>
+                  <p className="font-semibold text-foreground">Lås upp alla verktyg</p>
+                  <p className="text-sm text-muted-foreground">
+                    Skapa konto gratis för full tillgång
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => navigate("/auth")}
+                size="sm"
+                className="shrink-0"
+              >
+                Skapa konto
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Hero Section */}
         <div className="text-center mb-10 sm:mb-20">
           <button

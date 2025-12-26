@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import GuestAllowedRoute from "@/components/GuestAllowedRoute";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import AnnonsGenerator from "./pages/AnnonsGenerator";
@@ -44,12 +45,14 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/integritetspolicy" element={<Integritetspolicy />} />
               
+              {/* Guest-allowed routes - accessible to both logged-in users and guests */}
+              <Route path="/" element={<GuestAllowedRoute><Landing /></GuestAllowedRoute>} />
+              <Route path="/start" element={<GuestAllowedRoute><Index /></GuestAllowedRoute>} />
+              <Route path="/annons-generator" element={<GuestAllowedRoute><AnnonsGenerator /></GuestAllowedRoute>} />
+              <Route path="/annons-resultat" element={<GuestAllowedRoute><AnnonsResultat /></GuestAllowedRoute>} />
+              <Route path="/bil-research" element={<GuestAllowedRoute><BilResearch /></GuestAllowedRoute>} />
+              
               {/* Protected routes - require authentication */}
-              <Route path="/" element={<ProtectedRoute><Landing /></ProtectedRoute>} />
-              <Route path="/start" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/annons-generator" element={<ProtectedRoute><AnnonsGenerator /></ProtectedRoute>} />
-              <Route path="/annons-resultat" element={<ProtectedRoute><AnnonsResultat /></ProtectedRoute>} />
-              <Route path="/bil-research" element={<ProtectedRoute><BilResearch /></ProtectedRoute>} />
               <Route path="/email-assistent" element={<ProtectedRoute><EmailAssistent /></ProtectedRoute>} />
               <Route path="/paket" element={<ProtectedRoute><Paket /></ProtectedRoute>} />
               <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />

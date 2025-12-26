@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, Loader2, Car, History, Check, Search, ArrowLeft } from "lucide-react";
+import { Send, Loader2, Car, History, Check, Search, ArrowLeft, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "@/hooks/use-toast";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
@@ -33,6 +34,7 @@ const STEPS = [
 const BilResearch = () => {
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
+  const { isGuest } = useUserRole();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
   const [messages, setMessages] = useState<Message[]>([]);
@@ -661,6 +663,23 @@ const BilResearch = () => {
                     )}
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {/* Guest CTA */}
+            {isGuest && (
+              <div className="mt-6 text-center p-4 bg-muted/50 rounded-xl border border-border/50 animate-fade-in">
+                <p className="text-sm text-muted-foreground mb-2">
+                  🎉 Gäst-läge — logga in för att spara sökhistorik
+                </p>
+                <Button 
+                  variant="link" 
+                  onClick={() => navigate("/auth")}
+                  className="gap-1"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Logga in eller skapa konto
+                </Button>
               </div>
             )}
           </div>

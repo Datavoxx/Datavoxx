@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Bot, CheckCircle, AlertTriangle, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
-import demoCarBefore from "@/assets/demo-car-before.png";
 
 interface AIAnalysis {
   status: 'good' | 'needs_adjustment';
@@ -36,8 +35,7 @@ const Bildgenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<UserTemplate | null>(null);
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(demoCarBefore);
-  const [isUsingDemoImage, setIsUsingDemoImage] = useState(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [padding, setPadding] = useState(0.25);
   const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -107,7 +105,6 @@ const Bildgenerator = () => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage(file);
-      setIsUsingDemoImage(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -121,7 +118,6 @@ const Bildgenerator = () => {
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
       setUploadedImage(file);
-      setIsUsingDemoImage(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -135,22 +131,7 @@ const Bildgenerator = () => {
   };
 
   const handleGenerate = async () => {
-    // If using demo image, we need to fetch and convert it to a File
-    let imageToUpload = uploadedImage;
-    
-    if (isUsingDemoImage && !uploadedImage) {
-      try {
-        const response = await fetch(demoCarBefore);
-        const blob = await response.blob();
-        imageToUpload = new File([blob], "demo-car.png", { type: "image/png" });
-      } catch (error) {
-        console.error("Error loading demo image:", error);
-        toast.error("Kunde inte ladda demo-bilden");
-        return;
-      }
-    }
-    
-    if (!imageToUpload) {
+    if (!uploadedImage) {
       toast.error("Ladda upp en bild först");
       return;
     }
@@ -173,7 +154,7 @@ const Bildgenerator = () => {
       const formData = new FormData();
       formData.append("template_id", mallId);
       formData.append("template_image", templateBlob, "template.png");
-      formData.append("data", imageToUpload);
+      formData.append("data", uploadedImage);
       formData.append("padding", padding.toString());
       formData.append("padding_bottom", paddingBottom.toString());
 
@@ -181,7 +162,7 @@ const Bildgenerator = () => {
       console.log("Skickar till webhook:", {
         template_id: mallId,
         template_image: `${templateBlob.size} bytes (${templateBlob.type})`,
-        data: `${imageToUpload.name} - ${imageToUpload.size} bytes`,
+        data: `${uploadedImage.name} - ${uploadedImage.size} bytes`,
         padding: padding,
         padding_bottom: paddingBottom
       });
@@ -376,7 +357,7 @@ const Bildgenerator = () => {
               {/* Generate Button */}
               <Button
                 onClick={handleGenerate}
-                disabled={isGenerating || (!uploadedImage && !isUsingDemoImage)}
+                disabled={isGenerating || !uploadedImage}
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
                 {isGenerating ? (

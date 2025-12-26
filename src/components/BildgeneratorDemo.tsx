@@ -9,8 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import mall1 from "@/assets/mall-1.png";
 import mall2 from "@/assets/mall-2.png";
 import mall3 from "@/assets/mall-3.png";
-import demoCarBefore from "@/assets/demo-car-before.png";
-import demoCarResult from "@/assets/demo-car-result.png";
 
 interface BildgeneratorDemoProps {
   onStepChange?: (step: number) => void;
@@ -51,7 +49,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
     { id: 'minimal' as const, label: "Minimalistisk", description: "Clean och modern", image: mall3 },
   ];
 
-  const resultImage = demoCarResult;
+  const resultImage = templateOptions.find(t => t.id === selectedTemplate)?.image || mall1;
 
   const aiTips = {
     professional: { status: 'good', message: 'Bilen är rätt positionerad!', tips: ['Storleken passar perfekt i mallen', 'Bra centrering av fordonet'] },
@@ -195,12 +193,14 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                 {/* Demo car image preview */}
                 <div className="flex justify-center py-4">
                   <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-primary/30 bg-muted/20 p-2">
-                    <img 
-                      src={demoCarBefore} 
-                      alt="Volvo XC60 2019" 
-                      className="w-full max-w-sm rounded-lg object-cover"
-                    />
-                    <div className="absolute top-4 right-4 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
+                    <div className="aspect-video w-full max-w-sm bg-gradient-to-br from-muted/50 to-muted rounded-lg flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <Image className="w-12 h-12 mx-auto text-primary/60 mb-2" />
+                        <p className="text-sm text-muted-foreground">Volvo XC60 2019</p>
+                        <p className="text-xs text-muted-foreground/60">Demo-bild uppladdad</p>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
                       <span className="flex items-center gap-1 text-xs text-green-600">
                         <Check className="w-3 h-3" />
                         Klar

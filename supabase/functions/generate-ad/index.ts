@@ -41,7 +41,10 @@ Skriv en KORTFATTAD annons på max 150 ord. Fokusera på:
 - En catchy rubrik
 - De 3-4 viktigaste försäljningspunkterna
 - Pris och kontaktinfo
-Var koncis och säljande utan att vara för ordrik.`;
+Var koncis och säljande utan att vara för ordrik.
+
+FORMATERING:
+Dela upp texten i tydliga stycken med radbrytningar mellan varje sektion. Använd aldrig långa textblock - varje stycke ska vara max 2-3 meningar.`;
   }
   return `
 VIKTIGT - LÅNG VERSION:
@@ -52,7 +55,10 @@ Skriv en UTFÖRLIG och detaljerad annons på 250-400 ord. Inkludera:
 - Finansieringsmöjligheter om tillgängligt
 - Garanti och serviceinformation
 - Pris och kontaktinfo
-Var säljande och professionell med rik detaljnivå.`;
+Var säljande och professionell med rik detaljnivå.
+
+FORMATERING:
+Dela upp texten i tydliga stycken med tomrad mellan varje sektion. Varje stycke ska ha ett tydligt fokus (t.ex. bilinfo, utrustning, finansiering, kontakt). Använd aldrig långa sammanhängande textblock.`;
 };
 
 const personalizePrompt = (basePrompt: string, companyName?: string, userName?: string, length: AdLength = "long"): string => {

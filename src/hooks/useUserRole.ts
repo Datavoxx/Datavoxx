@@ -16,10 +16,12 @@ const ROLE_LEVELS: Record<AppRole, number> = {
 
 interface UserRoleState {
   role: AppRole | null;
+  effectiveRole: AppRole;
   isAdmin: boolean;
   isPro: boolean;
   isBeginner: boolean;
   isIntro: boolean;
+  isGuest: boolean;
   isLoading: boolean;
   hasMinRole: (minRole: AppRole) => boolean;
   // Legacy support
@@ -65,20 +67,29 @@ export const useUserRole = (): UserRoleState => {
     fetchUserRole();
   }, [user?.id]);
 
+  // Guest mode: user is null (not logged in)
+  const isGuest = !user;
+  
+  // Effective role: defaults to "user" for guests
+  const effectiveRole: AppRole = role || "user";
+
   const hasMinRole = useCallback(
     (minRole: AppRole): boolean => {
-      if (!role) return false;
-      return ROLE_LEVELS[role] >= ROLE_LEVELS[minRole];
+      // Guests have "user" role (level 0)
+      const currentLevel = role ? ROLE_LEVELS[role] : ROLE_LEVELS["user"];
+      return currentLevel >= ROLE_LEVELS[minRole];
     },
     [role]
   );
 
   return {
     role,
+    effectiveRole,
     isAdmin: role === "admin",
     isPro: hasMinRole("gen_3"),
     isBeginner: hasMinRole("gen_2"),
     isIntro: hasMinRole("intro"),
+    isGuest,
     isLoading,
     hasMinRole,
     // Legacy support

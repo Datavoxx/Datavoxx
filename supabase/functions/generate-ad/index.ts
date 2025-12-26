@@ -75,13 +75,20 @@ async function checkAndUseCredit(
   consume: boolean
 ): Promise<{ allowed: boolean; remaining: number; error?: string }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "apikey": supabaseAnonKey,
+  };
+  
+  if (authHeader) {
+    headers["Authorization"] = authHeader;
+  }
   
   const response = await fetch(`${supabaseUrl}/functions/v1/check-and-use-credit`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(authHeader ? { Authorization: authHeader } : {}),
-    },
+    headers,
     body: JSON.stringify({ consume, sessionId }),
   });
 

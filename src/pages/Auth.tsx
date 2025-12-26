@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Mail, Lock, Loader2, ArrowRight, FileText, Search, Mail as MailIcon, Image } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, FileText, Search, Mail as MailIcon, Image, User, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,17 +14,21 @@ import bilgenLogo from "@/assets/bilgen-logo.png";
 // Validation schemas
 const emailSchema = z.string().email("Ogiltig e-postadress");
 const passwordSchema = z.string().min(6, "Lösenordet måste vara minst 6 tecken");
+const displayNameSchema = z.string().min(2, "Namnet måste vara minst 2 tecken");
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isLoading: authLoading, signIn } = useAuth();
+  const { user, isLoading: authLoading, signIn, signUp } = useAuth();
   
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
 
   // Redirect if already logged in
   useEffect(() => {
@@ -34,7 +38,7 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; displayName?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -44,6 +48,13 @@ const Auth = () => {
     const passwordResult = passwordSchema.safeParse(password);
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
+    }
+    
+    if (isSignUp) {
+      const displayNameResult = displayNameSchema.safeParse(displayName);
+      if (!displayNameResult.success) {
+        newErrors.displayName = displayNameResult.error.errors[0].message;
+      }
     }
     
     setErrors(newErrors);
@@ -58,35 +69,66 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
-      
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          toast({
-            title: "Fel inloggningsuppgifter",
-            description: "E-postadressen eller lösenordet är fel.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Inloggningsfel",
-            description: error.message,
-            variant: "destructive",
-          });
+      if (isSignUp) {
+        const { error } = await signUp(email, password, displayName, companyName || undefined);
+        
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast({
+              title: "Kontot finns redan",
+              description: "Det finns redan ett konto med denna e-postadress. Försök logga in istället.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Registreringsfel",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+          return;
         }
-        return;
+        
+        toast({
+          title: "Konto skapat!",
+          description: "Välkommen till BILGEN.",
+        });
+        navigate("/");
+      } else {
+        const { error } = await signIn(email, password);
+        
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              title: "Fel inloggningsuppgifter",
+              description: "E-postadressen eller lösenordet är fel.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Inloggningsfel",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+          return;
+        }
+        
+        toast({
+          title: "Välkommen tillbaka!",
+          description: "Du är nu inloggad.",
+        });
+        navigate("/");
       }
-      
-      toast({
-        title: "Välkommen tillbaka!",
-        description: "Du är nu inloggad.",
-      });
-      navigate("/");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setErrors({});
+  };
 
   if (authLoading) {
     return (
@@ -155,14 +197,57 @@ const Auth = () => {
         >
           <div className="mb-6 text-center">
             <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Logga in
+              {isSignUp ? "Skapa konto" : "Logga in"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Välkommen tillbaka!
+              {isSignUp ? "Kom igång gratis" : "Välkommen tillbaka!"}
             </p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignUp && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="displayName" className="text-sm font-medium">
+                    Ditt namn
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder="Anna Andersson"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="pl-10 bg-background/50"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.displayName && (
+                    <p className="text-xs text-destructive">{errors.displayName}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="text-sm font-medium">
+                    Företagsnamn <span className="text-muted-foreground">(valfritt)</span>
+                  </Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="companyName"
+                      type="text"
+                      placeholder="Bilhandlare AB"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="pl-10 bg-background/50"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 E-postadress
@@ -214,12 +299,28 @@ const Auth = () => {
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  Logga in
+                  {isSignUp ? "Skapa konto" : "Logga in"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
             </Button>
           </form>
+
+          {/* Toggle between login and signup */}
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              disabled={isLoading}
+            >
+              {isSignUp ? (
+                <>Har du redan ett konto? <span className="font-medium text-foreground">Logga in</span></>
+              ) : (
+                <>Har du inget konto? <span className="font-medium text-foreground">Skapa ett</span></>
+              )}
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="relative my-6">

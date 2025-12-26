@@ -82,23 +82,20 @@ const AnnonsResultat = () => {
         body: requestBody,
       });
 
+      // FÖRST: Kolla response.data för creditExhausted (oavsett error-status)
+      const data = response.data;
+      if (data?.creditExhausted) {
+        setShowCreditModal(true);
+        return;
+      }
+
+      // SEDAN: Hantera generella fel
       if (response.error) {
-        // Check if it's a credit exhausted error
-        const errorBody = response.error.message;
-        if (errorBody && errorBody.includes('creditExhausted')) {
-          setShowCreditModal(true);
-          return;
-        }
         throw new Error(response.error.message || "Failed to generate ad");
       }
 
-      const data = response.data;
-      
-      if (data.error) {
-        if (data.creditExhausted) {
-          setShowCreditModal(true);
-          return;
-        }
+      // SIST: Kolla om data innehåller ett vanligt error
+      if (data?.error) {
         throw new Error(data.error);
       }
 

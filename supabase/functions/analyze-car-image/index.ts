@@ -29,17 +29,29 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Du är en expert på bilredigering och bildkomposition. Din uppgift är att analysera en genererad bildbild och ge feedback om bilens storlek och position i bilden.
+    const systemPrompt = `Du är en expert på bilredigering och bildkomposition. Din uppgift är att analysera en genererad bildbild och bedöma om den ser professionell ut.
 
 VIKTIGT - Förstå padding-systemet:
 - "Padding" kontrollerar bilens STORLEK: Lägre värde (t.ex. 0.10) = STÖRRE bil. Högre värde (t.ex. 0.40) = MINDRE bil.
 - "Padding Bottom" kontrollerar bilens VERTIKAL POSITION: Lägre värde (t.ex. 0.10) = bil längre NER. Högre värde (t.ex. 0.40) = bil längre UPP.
 - Värdena går från 0.01 till 0.49.
 
-Analysera bilden och ge konkreta tips om:
-1. Är bilen för stor eller för liten i förhållande till mallen/bakgrunden?
-2. Är bilen rätt positionerad vertikalt (inte för högt eller för lågt)?
-3. Ser kompositionen professionell ut?
+BEDÖMNINGSKRITERIER:
+
+✅ POSITIVA TECKEN (status: "good"):
+- Bilen är helt synlig utan att skäras av i kanterna
+- Det finns lagom utrymme ovanför och under bilen
+- Bilen ser naturligt placerad ut i förhållande till bakgrunden
+- Kompositionen ser balanserad och professionell ut
+- Bilen fyller bilden på ett tilltalande sätt
+
+⚠️ BEHÖVER JUSTERING (status: "needs_adjustment"):
+- Bilen är för liten och ser "borttappad" ut i bilden
+- Bilen är så stor att den skärs av i kanterna
+- Bilen svävar onaturligt högt eller sjunker för långt ner
+- Det ser obalanserat ut med för mycket tomrum på en sida
+
+VIKTIGT: Var GENERÖS med positiv feedback! Om bilden ser professionell ut och bilen är väl placerad, ge status "good" med uppmuntrande feedback. Endast om det finns uppenbara problem ska du ge "needs_adjustment".
 
 Svara ALLTID i detta JSON-format (och inget annat):
 {
@@ -48,7 +60,8 @@ Svara ALLTID i detta JSON-format (och inget annat):
   "tips": ["Tips 1", "Tips 2", "Tips 3"]
 }
 
-Om bilden ser bra ut, ge positiv feedback. Om justeringar behövs, ge specifika förslag med ungefärliga padding-värden.`;
+Om status är "good", ge tips som bekräftar vad som är bra med bilden.
+Om status är "needs_adjustment", ge specifika förslag med ungefärliga padding-värden.`;
 
     const userPrompt = `Analysera denna genererade bildbild. Nuvarande inställningar är:
 - Padding (storlek): ${currentPadding}

@@ -8,8 +8,14 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle } from "lucide-react";
+import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Bot, CheckCircle, AlertTriangle, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
+
+interface AIAnalysis {
+  status: 'good' | 'needs_adjustment';
+  message: string;
+  tips: string[];
+}
 
 interface UserTemplate {
   id: string;
@@ -34,6 +40,9 @@ const Bildgenerator = () => {
   const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null);
 
   // Fetch template from database
   useEffect(() => {
@@ -134,6 +143,8 @@ const Bildgenerator = () => {
 
     setIsGenerating(true);
     setGeneratedImage(null);
+    setAiAnalysis(null);
+    setGeneratedImageBase64(null);
 
     try {
       // Hämta mall-bilden och konvertera till blob
@@ -178,12 +189,55 @@ const Bildgenerator = () => {
       // Skapa en URL för att visa bilden
       const imageUrl = URL.createObjectURL(blob);
       setGeneratedImage(imageUrl);
+      
+      // Konvertera blob till base64 för AI-analys
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setGeneratedImageBase64(base64);
+        // Starta AI-analys
+        analyzeImage(base64);
+      };
+      reader.readAsDataURL(blob);
+      
       toast.success("Bilden har genererats!");
     } catch (error) {
       console.error("Error:", error);
       toast.error("Ett fel uppstod. Försök igen.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const analyzeImage = async (imageBase64: string) => {
+    setIsAnalyzing(true);
+    setAiAnalysis(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-car-image', {
+        body: {
+          imageBase64,
+          currentPadding: padding,
+          currentPaddingBottom: paddingBottom
+        }
+      });
+
+      if (error) {
+        console.error("Error analyzing image:", error);
+        return;
+      }
+
+      if (data.error) {
+        console.error("AI analysis error:", data.error);
+        toast.error(data.error);
+        return;
+      }
+
+      setAiAnalysis(data);
+    } catch (error) {
+      console.error("Error calling analyze function:", error);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -339,6 +393,62 @@ const Bildgenerator = () => {
                   alt="Generated"
                   className="w-full rounded-lg shadow-md"
                 />
+
+                {/* AI Analysis Section */}
+                <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Bot className="h-5 w-5 text-purple-600" />
+                    <h3 className="font-semibold text-foreground">AI-analys</h3>
+                  </div>
+
+                  {isAnalyzing && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-sm">Analyserar bilden...</span>
+                    </div>
+                  )}
+
+                  {aiAnalysis && !isAnalyzing && (
+                    <div className="space-y-3">
+                      {/* Status indicator */}
+                      <div className={`flex items-start gap-2 p-3 rounded-md ${
+                        aiAnalysis.status === 'good' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {aiAnalysis.status === 'good' ? (
+                          <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                        )}
+                        <p className="text-sm font-medium">{aiAnalysis.message}</p>
+                      </div>
+
+                      {/* Tips */}
+                      {aiAnalysis.tips && aiAnalysis.tips.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                            <Lightbulb className="h-4 w-4 text-purple-600" />
+                            <span>Tips</span>
+                          </div>
+                          <ul className="space-y-1.5 pl-6">
+                            {aiAnalysis.tips.map((tip, index) => (
+                              <li key={index} className="text-sm text-muted-foreground list-disc">
+                                {tip}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!isAnalyzing && !aiAnalysis && (
+                    <p className="text-sm text-muted-foreground">
+                      AI-analysen kunde inte genomföras just nu.
+                    </p>
+                  )}
+                </div>
 
                 {/* Adjustment Section */}
                 <div className="pt-4 border-t border-border space-y-4">

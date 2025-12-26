@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LevelCard from "@/components/LevelCard";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -5,11 +6,18 @@ import AppHeader from "@/components/AppHeader";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import HelpWidget from "@/components/HelpWidget";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
+import { History } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import HistoryPanel from "@/components/HistoryPanel";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
+  const { user } = useAuth();
+  const [showHistory, setShowHistory] = useState(false);
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white animate-fade-in">
       <DecorativeBackground />
@@ -18,6 +26,28 @@ const Index = () => {
 
       {/* Header */}
       <AppHeader showBackButton={false} />
+
+      {/* History button - only visible when logged in */}
+      {user && (
+        <div className="fixed top-20 right-4 z-40">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowHistory(true)}
+            className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent"
+            title="Visa historik"
+          >
+            <History className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+
+      {/* History Panel */}
+      <HistoryPanel
+        type="all"
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
 
       {/* Main Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16">

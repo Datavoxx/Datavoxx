@@ -1,6 +1,7 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Sparkles, History, CreditCard, Focus, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Car, Check, Sparkles, History, CreditCard, Focus, Loader2, Search, LogIn } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -245,6 +246,7 @@ const STEPS = [
 const AnnonsGenerator = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
+  const { isGuest } = useUserRole();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   const [selectedFocus, setSelectedFocus] = useState<FocusType>("mixed");
@@ -863,6 +865,23 @@ const AnnonsGenerator = () => {
                   Generera Annons
                 </Button>
               </div>
+            </div>
+          )}
+
+          {/* Guest CTA */}
+          {isGuest && (
+            <div className="mt-6 text-center p-4 bg-muted/50 rounded-xl border border-border/50 animate-fade-in">
+              <p className="text-sm text-muted-foreground mb-2">
+                🎉 Gäst-läge — logga in för historik och fler funktioner
+              </p>
+              <Button 
+                variant="link" 
+                onClick={() => navigate("/auth")}
+                className="gap-1"
+              >
+                <LogIn className="h-4 w-4" />
+                Logga in eller skapa konto
+              </Button>
             </div>
           )}
         </div>

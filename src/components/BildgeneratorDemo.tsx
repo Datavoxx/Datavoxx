@@ -1,14 +1,9 @@
-import { useState } from "react";
-import { Image, Upload, Palette, ChevronRight, ChevronLeft, Sparkles, RotateCcw, Download, Check, Lightbulb } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Upload, Palette, ChevronRight, ChevronLeft, Sparkles, RotateCcw, Download, Check, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
-// Demo images
-import mall1 from "@/assets/mall-1.png";
-import mall2 from "@/assets/mall-2.png";
-import mall3 from "@/assets/mall-3.png";
 
 interface BildgeneratorDemoProps {
   onStepChange?: (step: number) => void;
@@ -16,15 +11,17 @@ interface BildgeneratorDemoProps {
 
 const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
   const [currentStep, setCurrentStepInternal] = useState(1);
-  
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'premium' | 'minimal'>('professional');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [loadingStepIndex, setLoadingStepIndex] = useState(0);
+  const navigate = useNavigate();
+
   const setCurrentStep = (step: number) => {
     setCurrentStepInternal(step);
     onStepChange?.(step);
   };
-  const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'premium' | 'minimal'>('professional');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-  const navigate = useNavigate();
 
   // Track demo actions
   const trackDemoAction = async (action: string, stepFrom: number) => {
@@ -44,12 +41,10 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
   };
 
   const templateOptions = [
-    { id: 'professional' as const, label: "Professionell", description: "Klassisk stil för Blocket/Bytbil", image: mall1 },
-    { id: 'premium' as const, label: "Premium", description: "Lyxig känsla med gradient", image: mall2 },
-    { id: 'minimal' as const, label: "Minimalistisk", description: "Clean och modern", image: mall3 },
+    { id: 'professional' as const, label: "Professionell", description: "Klassisk showroom-stil", color: "from-slate-700 to-slate-800" },
+    { id: 'premium' as const, label: "Premium", description: "Lyxig gradient", color: "from-slate-800 to-slate-900" },
+    { id: 'minimal' as const, label: "Minimalistisk", description: "Clean och modern", color: "from-gray-600 to-gray-700" },
   ];
-
-  const resultImage = templateOptions.find(t => t.id === selectedTemplate)?.image || mall1;
 
   const aiTips = {
     professional: { status: 'good', message: 'Bilen är rätt positionerad!', tips: ['Storleken passar perfekt i mallen', 'Bra centrering av fordonet'] },
@@ -59,13 +54,35 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
 
   const currentAiTips = aiTips[selectedTemplate];
 
+  const loadingSteps = [
+    "Analyserar bilbild...",
+    "Tar bort bakgrund...",
+    "Applicerar mall...",
+  ];
+
+  // Cycle through loading steps
+  useEffect(() => {
+    if (isGenerating) {
+      const interval = setInterval(() => {
+        setLoadingStepIndex(prev => (prev + 1) % loadingSteps.length);
+      }, 600);
+      return () => clearInterval(interval);
+    }
+  }, [isGenerating, loadingSteps.length]);
+
   const handleNext = async () => {
-    if (currentStep < 2) {
+    if (currentStep === 1) {
+      // Start background removal animation
       await trackDemoAction('next', currentStep);
-      setCurrentStep(currentStep + 1);
+      setIsRemoving(true);
+      setTimeout(() => {
+        setIsRemoving(false);
+        setCurrentStep(2);
+      }, 1500);
     } else if (currentStep === 2) {
       await trackDemoAction('generate', currentStep);
       setIsGenerating(true);
+      setLoadingStepIndex(0);
       setTimeout(() => {
         setIsGenerating(false);
         setShowResult(true);
@@ -75,7 +92,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
+    if (currentStep > 1 && !isRemoving) {
       setCurrentStep(currentStep - 1);
       setShowResult(false);
     }
@@ -86,6 +103,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
     setCurrentStep(1);
     setShowResult(false);
     setSelectedTemplate('professional');
+    setIsRemoving(false);
   };
 
   const handleDownload = async () => {
@@ -101,22 +119,8 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
   const totalSteps = 2;
   const progressPercentage = showResult ? 100 : ((currentStep - 1) / totalSteps) * 100 + (100 / totalSteps / 2);
 
-  const loadingSteps = [
-    "Analyserar bilbild...",
-    "Tar bort bakgrund...",
-    "Applicerar mall...",
-  ];
-  const [loadingStepIndex, setLoadingStepIndex] = useState(0);
-
-  // Cycle through loading steps
-  useState(() => {
-    if (isGenerating) {
-      const interval = setInterval(() => {
-        setLoadingStepIndex(prev => (prev + 1) % loadingSteps.length);
-      }, 600);
-      return () => clearInterval(interval);
-    }
-  });
+  // Get current template colors
+  const currentTemplateColors = templateOptions.find(t => t.id === selectedTemplate)?.color || "from-slate-700 to-slate-800";
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -175,61 +179,153 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
         <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent rounded-3xl blur-2xl" />
         
         <div className="relative rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-          <div className="p-6 md:p-8 min-h-[320px] flex flex-col">
+          <div className="p-6 md:p-8 min-h-[420px] flex flex-col">
             
-            {/* Step 1: Upload image */}
-            {currentStep === 1 && !showResult && (
-              <div className="flex-1 animate-fade-in">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            {/* Step header */}
+            {!showResult && !isGenerating && (
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  {currentStep === 1 ? (
                     <Upload className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Bilbild uppladdad</h3>
-                    <p className="text-sm text-muted-foreground">Din bild är redo för bearbetning</p>
-                  </div>
+                  ) : (
+                    <Palette className="w-6 h-6 text-primary" />
+                  )}
                 </div>
-                
-                {/* Demo car image preview */}
-                <div className="flex justify-center py-4">
-                  <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-primary/30 bg-muted/20 p-2">
-                    <div className="aspect-video w-full max-w-sm bg-gradient-to-br from-muted/50 to-muted rounded-lg flex items-center justify-center">
-                      <div className="text-center p-4">
-                        <Image className="w-12 h-12 mx-auto text-primary/60 mb-2" />
-                        <p className="text-sm text-muted-foreground">Volvo XC60 2019</p>
-                        <p className="text-xs text-muted-foreground/60">Demo-bild uppladdad</p>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
-                      <span className="flex items-center gap-1 text-xs text-green-600">
-                        <Check className="w-3 h-3" />
-                        Klar
-                      </span>
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">
+                    {currentStep === 1 ? "Bilbild uppladdad" : "Välj mall"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {currentStep === 1 ? "Din bild är redo för bearbetning" : "Hur ska din annons se ut?"}
+                  </p>
                 </div>
-                
-                <p className="text-center text-sm text-muted-foreground mt-4">
-                  Klicka "Nästa" för att välja mall
-                </p>
               </div>
             )}
 
-            {/* Step 2: Select template */}
-            {currentStep === 2 && !showResult && !isGenerating && (
-              <div className="flex-1 animate-fade-in">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <Palette className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Välj mall</h3>
-                    <p className="text-sm text-muted-foreground">Hur ska din annons se ut?</p>
-                  </div>
-                </div>
+            {/* Animation area - Car visualization */}
+            {!isGenerating && (
+              <div className="relative bg-gradient-to-b from-muted/50 to-muted rounded-xl overflow-hidden aspect-video mb-6 border border-border/50">
                 
-                {/* Template options */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4">
+                {/* Template background (showroom) - visible from step 2 onwards or result */}
+                {(currentStep >= 2 || showResult) && !isRemoving && (
+                  <div className={`absolute inset-0 bg-gradient-to-b ${currentTemplateColors} transition-all duration-500`}>
+                    {/* Floor reflection */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
+                    {/* Spotlight effect */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1/2 bg-gradient-to-b from-white/10 to-transparent rounded-b-full" />
+                  </div>
+                )}
+
+                {/* Transparent background indicator (during step 1 after removal) */}
+                {currentStep === 1 && !isRemoving && (
+                  <div
+                    className="absolute inset-0 opacity-0"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
+                        linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #e5e5e5 75%),
+                        linear-gradient(-45deg, transparent 75%, #e5e5e5 75%)
+                      `,
+                      backgroundSize: "20px 20px",
+                      backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+                    }}
+                  />
+                )}
+
+                {/* Original background (step 1 and during removal) */}
+                {(currentStep === 1 || isRemoving) && (
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-b from-blue-300 via-blue-400 to-green-400 transition-opacity duration-1000 ${
+                      isRemoving ? "opacity-0" : "opacity-100"
+                    }`}
+                  >
+                    {/* Simple background elements */}
+                    <div className="absolute top-8 right-12 w-16 h-10 bg-white/60 rounded-full" />
+                    <div className="absolute top-12 right-20 w-12 h-8 bg-white/40 rounded-full" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-green-500/50 to-transparent" />
+                  </div>
+                )}
+
+                {/* Car illustration */}
+                <div
+                  className="absolute left-1/2 bottom-[15%] transition-all duration-500 ease-out"
+                  style={{
+                    transform: `translateX(-50%) scale(${showResult || currentStep >= 2 ? 1.2 : 1})`,
+                  }}
+                >
+                  {/* Car SVG - same as PaddingExplainer */}
+                  <svg
+                    viewBox="0 0 200 80"
+                    className="w-48 h-auto drop-shadow-lg"
+                    style={{
+                      filter: (currentStep >= 2 || showResult) ? "drop-shadow(0 10px 20px rgba(0,0,0,0.3))" : "none",
+                    }}
+                  >
+                    {/* Car body */}
+                    <path
+                      d="M20 50 L35 50 L45 30 L90 25 L140 25 L160 35 L180 40 L180 55 L20 55 Z"
+                      fill="#1e40af"
+                      className="transition-all duration-300"
+                    />
+                    {/* Roof */}
+                    <path
+                      d="M50 30 L85 20 L130 20 L150 30"
+                      fill="none"
+                      stroke="#1e3a8a"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    {/* Windows */}
+                    <path
+                      d="M55 30 L65 22 L95 22 L95 30 Z"
+                      fill="#60a5fa"
+                      opacity="0.8"
+                    />
+                    <path
+                      d="M100 22 L100 30 L135 30 L125 22 Z"
+                      fill="#60a5fa"
+                      opacity="0.8"
+                    />
+                    {/* Wheels */}
+                    <circle cx="50" cy="55" r="12" fill="#1f2937" />
+                    <circle cx="50" cy="55" r="6" fill="#6b7280" />
+                    <circle cx="150" cy="55" r="12" fill="#1f2937" />
+                    <circle cx="150" cy="55" r="6" fill="#6b7280" />
+                    {/* Headlights */}
+                    <ellipse cx="175" cy="45" rx="4" ry="3" fill="#fbbf24" />
+                    <ellipse cx="25" cy="52" rx="3" ry="2" fill="#ef4444" />
+                    {/* Details */}
+                    <line x1="45" y1="45" x2="160" y2="45" stroke="#1e3a8a" strokeWidth="1" />
+                  </svg>
+                </div>
+
+                {/* Removal animation overlay */}
+                {isRemoving && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-background/90 rounded-full shadow-lg animate-pulse border border-primary/20">
+                      <Sparkles className="h-5 w-5 text-primary animate-spin" />
+                      <span className="text-sm font-medium text-primary">Tar bort bakgrund...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload badge (step 1) */}
+                {currentStep === 1 && !isRemoving && (
+                  <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
+                    <span className="flex items-center gap-1 text-xs text-green-600">
+                      <Check className="w-3 h-3" />
+                      Uppladdad
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Template selection (step 2) */}
+            {currentStep === 2 && !showResult && !isGenerating && (
+              <div className="animate-fade-in">
+                <div className="grid grid-cols-3 gap-3">
                   {templateOptions.map((option) => (
                     <button
                       key={option.id}
@@ -240,8 +336,11 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                           : 'border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40'
                       }`}
                     >
-                      <div className="aspect-video rounded-lg overflow-hidden mb-2 bg-muted/50">
-                        <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
+                      {/* Mini preview with gradient */}
+                      <div className={`aspect-video rounded-lg overflow-hidden mb-2 bg-gradient-to-b ${option.color}`}>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="w-8 h-3 bg-blue-700 rounded-sm" />
+                        </div>
                       </div>
                       <p className={`font-medium text-sm ${
                         selectedTemplate === option.id ? 'text-foreground' : 'text-foreground/80'
@@ -263,7 +362,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                 <div className="relative">
                   <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Image className="w-6 h-6 text-primary animate-pulse" />
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                   </div>
                 </div>
                 <p className="mt-6 text-foreground font-medium">{loadingSteps[loadingStepIndex]}</p>
@@ -288,11 +387,6 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                     <Download className="w-3.5 h-3.5 text-primary" />
                     <span className="text-xs font-medium text-primary">Ladda ner</span>
                   </button>
-                </div>
-                
-                {/* Generated image */}
-                <div className="rounded-xl overflow-hidden border border-border mb-4">
-                  <img src={resultImage} alt="Genererad bild" className="w-full aspect-video object-cover" />
                 </div>
                 
                 {/* AI Tips */}
@@ -335,7 +429,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
 
             {/* Navigation buttons */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
-              {currentStep > 1 && !showResult ? (
+              {currentStep > 1 && !showResult && !isRemoving ? (
                 <Button
                   variant="ghost"
                   onClick={handleBack}
@@ -348,7 +442,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                 <div />
               )}
               
-              {!showResult ? (
+              {!showResult && !isRemoving ? (
                 <Button
                   onClick={handleNext}
                   disabled={isGenerating}
@@ -366,8 +460,8 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                     </>
                   )}
                 </Button>
-              ) : (
-                <div className="flex items-center gap-3">
+              ) : showResult ? (
+                <div className="flex items-center gap-3 ml-auto">
                   <Button
                     variant="outline"
                     size="sm"
@@ -385,7 +479,7 @@ const BildgeneratorDemo = ({ onStepChange }: BildgeneratorDemoProps = {}) => {
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

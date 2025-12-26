@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -26,24 +27,55 @@ export const AccessRequestModal = ({
   onClose,
   toolName,
 }: AccessRequestModalProps) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { hasMinRole, isGuest } = useUserRole();
-  const [note, setNote] = useState("");
+  const [antalAnnonser, setAntalAnnonser] = useState("");
+  const [varfor, setVarfor] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Check if user is gen_1 (can request access)
   const isGen1 = hasMinRole("gen_1") && !hasMinRole("gen_2");
 
+  // Validation
+  const isFormValid = antalAnnonser.trim() !== "" && varfor.trim() !== "";
+
   const handleSubmit = async () => {
-    if (!user) return;
+    if (!user || !isFormValid) return;
 
     setIsSubmitting(true);
     try {
+      // Get user info from profile
+      const userName = profile?.display_name || user.email || "Okänd";
+      const userEmail = profile?.email || user.email || "";
+
+      // Send to n8n webhook
+      const webhookResponse = await fetch(
+        "https://datavox.app.n8n.cloud/webhook-test/atkomstbildgenerator",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: userName,
+            email: userEmail,
+            antalAnnonser: antalAnnonser.trim(),
+            varfor: varfor.trim(),
+            toolName: toolName,
+          }),
+        }
+      );
+
+      if (!webhookResponse.ok) {
+        throw new Error("Webhook request failed");
+      }
+
+      // Also save to database for backup/logging
       const { error } = await supabase.from("tool_access_requests").insert({
         user_id: user.id,
         tool_name: toolName,
-        note: note.trim() || null,
+        note: `Antal annonser: ${antalAnnonser.trim()}\nVarför: ${varfor.trim()}`,
       });
 
       if (error) throw error;
@@ -59,7 +91,8 @@ export const AccessRequestModal = ({
   };
 
   const handleClose = () => {
-    setNote("");
+    setAntalAnnonser("");
+    setVarfor("");
     setIsSubmitted(false);
     onClose();
   };
@@ -102,7 +135,7 @@ export const AccessRequestModal = ({
               </div>
               <DialogTitle className="text-center">Förfrågan skickad!</DialogTitle>
               <DialogDescription className="text-center">
-                Vi har tagit emot din förfrågan om tillgång till {toolName}. Vi
+                Vi har tagit emot din förfrågan om tillgång till Leadgenerator. Vi
                 återkommer så snart som möjligt.
               </DialogDescription>
             </DialogHeader>
@@ -120,32 +153,43 @@ export const AccessRequestModal = ({
               <Lock className="h-6 w-6 text-primary" />
             </div>
             <DialogTitle className="text-center">
-              Begär tillgång till {toolName}
+              Be om tillgång till Leadgenerator
             </DialogTitle>
             <DialogDescription className="text-center">
-              {toolName} är för närvarande låst för din roll. Skicka en förfrågan
-              så återkommer vi.
+              Fyll i informationen nedan så återkommer vi så snart som möjligt.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              Meddelande (valfritt)
-            </label>
-            <Textarea
-              placeholder="Berätta varför du vill ha tillgång..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="resize-none"
-              rows={3}
-            />
+          <div className="py-4 space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Antal annonser per vecka <span className="text-destructive">*</span>
+              </label>
+              <Input
+                placeholder="Skriv hur många annonser du publicerar i veckan..."
+                value={antalAnnonser}
+                onChange={(e) => setAntalAnnonser(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Varför vill du ha tillgång? <span className="text-destructive">*</span>
+              </label>
+              <Textarea
+                placeholder="Berätta kort varför du vill ha tillgång till Leadgenerator..."
+                value={varfor}
+                onChange={(e) => setVarfor(e.target.value)}
+                className="resize-none"
+                rows={3}
+              />
+            </div>
           </div>
 
           <DialogFooter className="sm:justify-center gap-2">
             <Button variant="outline" onClick={handleClose}>
               Avbryt
             </Button>
-            <Button onClick={handleSubmit} disabled={isSubmitting}>
+            <Button onClick={handleSubmit} disabled={isSubmitting || !isFormValid}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

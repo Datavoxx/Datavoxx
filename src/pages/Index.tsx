@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { History, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HistoryPanel from "@/components/HistoryPanel";
-import { LockedToolModal } from "@/components/LockedToolModal";
+import { AccessRequestModal } from "@/components/AccessRequestModal";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
@@ -25,9 +25,9 @@ const Index = () => {
 
   // Access rules:
   // - Email Assistent: locked for guests (user role), open for intro+
-  // - Bildgenerator: locked for guests AND intro, open for gen_1+
+  // - Bildgenerator: locked for guests, intro, and gen_1. Open for gen_2+
   const isEmailLocked = isGuest;
-  const isBildgenLocked = !hasMinRole("gen_1");
+  const isBildgenLocked = !hasMinRole("gen_2");
 
   const handleLockedToolClick = (toolName: string) => {
     setLockedToolModal({ open: true, toolName });
@@ -39,8 +39,8 @@ const Index = () => {
       <HelpWidget />
       <FeedbackWidget />
 
-      {/* Locked Tool Modal */}
-      <LockedToolModal
+      {/* Access Request Modal */}
+      <AccessRequestModal
         open={lockedToolModal.open}
         onClose={() => setLockedToolModal({ open: false, toolName: "" })}
         toolName={lockedToolModal.toolName}

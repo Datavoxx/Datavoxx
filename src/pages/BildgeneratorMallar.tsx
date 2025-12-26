@@ -80,7 +80,7 @@ const templateExamples: Record<string, {
 
 const BildgeneratorMallar = () => {
   const navigate = useNavigate();
-  const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { isBeginner, isLoading: roleLoading } = useUserRole();
   const { user, isLoading: authLoading } = useAuth();
   
   const [userTemplates, setUserTemplates] = useState<UserTemplate[]>([]);
@@ -115,13 +115,13 @@ const BildgeneratorMallar = () => {
     }
   }, [user, authLoading]);
 
-  // Redirect non-admin users
+  // Redirect users without gen_2+ access
   if (!authLoading && !roleLoading) {
     if (!user) {
       navigate("/auth");
       return null;
     }
-    if (!isAdmin) {
+    if (!isBeginner) {
       navigate("/start");
       return null;
     }
@@ -169,7 +169,7 @@ const BildgeneratorMallar = () => {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-700 mb-4">
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Admin-verktyg</span>
+              <span className="text-sm font-medium">Pro-verktyg</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">
               Välj bakgrundsmall

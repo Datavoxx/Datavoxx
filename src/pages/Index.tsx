@@ -10,19 +10,41 @@ import { useAuth } from "@/contexts/AuthContext";
 import { History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HistoryPanel from "@/components/HistoryPanel";
+import { LockedToolModal } from "@/components/LockedToolModal";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAdmin } = useUserRole();
+  const { hasMinRole, isGuest } = useUserRole();
   const { user } = useAuth();
   const [showHistory, setShowHistory] = useState(false);
+  const [lockedToolModal, setLockedToolModal] = useState<{ open: boolean; toolName: string }>({
+    open: false,
+    toolName: "",
+  });
+
+  // Access rules:
+  // - Email Assistent: locked for guests (user role), open for intro+
+  // - Bildgenerator: locked for guests AND intro, open for gen_1+
+  const isEmailLocked = isGuest;
+  const isBildgenLocked = !hasMinRole("gen_1");
+
+  const handleLockedToolClick = (toolName: string) => {
+    setLockedToolModal({ open: true, toolName });
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-white animate-fade-in">
       <DecorativeBackground />
       <HelpWidget />
       <FeedbackWidget />
+
+      {/* Locked Tool Modal */}
+      <LockedToolModal
+        open={lockedToolModal.open}
+        onClose={() => setLockedToolModal({ open: false, toolName: "" })}
+        toolName={lockedToolModal.toolName}
+      />
 
       {/* Header */}
       <AppHeader showBackButton={false} />
@@ -96,17 +118,16 @@ const Index = () => {
           <LevelCard
             title="Email Assistent"
             description="Skriv professionella e-postmeddelanden snabbt med AI-hjälp"
-            onClick={() => navigate("/email-assistent")}
-            timeBadge="5 sek"
+            onClick={isEmailLocked ? () => handleLockedToolClick("Email Assistent") : () => navigate("/email-assistent")}
+            timeBadge={!isEmailLocked ? "5 sek" : undefined}
+            blurred={isEmailLocked}
           />
-          {isAdmin && (
-            <LevelCard
-              title="Bildgenerator"
-              description="Generera professionella bilder med AI"
-              onClick={() => navigate("/bildgenerator")}
-              locked
-            />
-          )}
+          <LevelCard
+            title="Bildgenerator"
+            description="Generera professionella bilder med AI"
+            onClick={isBildgenLocked ? () => handleLockedToolClick("Bildgenerator") : () => navigate("/bildgenerator")}
+            blurred={isBildgenLocked}
+          />
         </div>
       </main>
     </div>

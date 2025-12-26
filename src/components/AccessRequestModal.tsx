@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Lock, Send, Loader2, CheckCircle } from "lucide-react";
+import { Lock, Send, Loader2, CheckCircle, LogIn, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface AccessRequestModalProps {
@@ -109,11 +109,19 @@ export const AccessRequestModal = ({
               Du måste skapa ett konto för att använda detta verktyg.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="sm:justify-center">
+          <DialogFooter className="sm:justify-center gap-2">
             <Button onClick={handleClose} variant="outline">
               Stäng
             </Button>
-            <Button onClick={() => (window.location.href = "/auth")}>
+            <Button 
+              onClick={() => (window.location.href = "/auth")} 
+              variant="secondary"
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Logga in
+            </Button>
+            <Button onClick={() => (window.location.href = "/auth?mode=signup")}>
+              <UserPlus className="h-4 w-4 mr-2" />
               Skapa konto
             </Button>
           </DialogFooter>

@@ -132,12 +132,25 @@ const EmailAssistent = () => {
     }
   };
 
+  // Helper function for session ID
+  const getOrCreateSessionId = (): string => {
+    let sessionId = localStorage.getItem('email_session_id');
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('email_session_id', sessionId);
+    }
+    return sessionId;
+  };
+
   const handleGenerateReply = async (directive: string): Promise<string> => {
     if (!selectedEmail) throw new Error("Inget mejl valt");
 
     setIsGeneratingReply(true);
 
     try {
+      // Get user session for proper auth
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const requestBody: {
         emailContext: {
           from: string;
@@ -148,6 +161,7 @@ const EmailAssistent = () => {
         directive: string;
         companyName?: string;
         userName?: string;
+        sessionId: string;
       } = {
         emailContext: {
           from: selectedEmail.from,
@@ -156,6 +170,7 @@ const EmailAssistent = () => {
           body: selectedEmail.body || selectedEmail.preview,
         },
         directive,
+        sessionId: getOrCreateSessionId(),
       };
 
       if (user && profile) {
@@ -167,7 +182,9 @@ const EmailAssistent = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: session 
+            ? `Bearer ${session.access_token}` 
+            : `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify(requestBody),
       });
@@ -289,8 +306,12 @@ const EmailAssistent = () => {
     setIsLoading(true);
 
     try {
-      const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
+      // Get user session for proper auth
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const requestBody: { messages: Message[]; companyName?: string; userName?: string; sessionId: string } = {
         messages: newMessages,
+        sessionId: getOrCreateSessionId(),
       };
 
       if (user && profile) {
@@ -302,13 +323,16 @@ const EmailAssistent = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: session 
+            ? `Bearer ${session.access_token}` 
+            : `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        throw new Error("Kunde inte generera e-post");
+        const data = await response.json();
+        throw new Error(data.error || "Kunde inte generera e-post");
       }
 
       const data = await response.json();
@@ -338,7 +362,7 @@ const EmailAssistent = () => {
       console.error("Error:", error);
       toast({
         title: "Fel",
-        description: "Något gick fel. Försök igen.",
+        description: error instanceof Error ? error.message : "Något gick fel. Försök igen.",
         variant: "destructive",
       });
     } finally {

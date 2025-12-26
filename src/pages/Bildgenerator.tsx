@@ -26,7 +26,7 @@ interface UserTemplate {
 const Bildgenerator = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { isAdmin, isBeginner, isLoading: roleLoading } = useUserRole();
   const { user, isLoading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,18 +76,18 @@ const Bildgenerator = () => {
 
   // Redirect to template selector if no template is selected
   useEffect(() => {
-    if (!authLoading && !roleLoading && !isLoadingTemplate && user && isAdmin && !mallId) {
+    if (!authLoading && !roleLoading && !isLoadingTemplate && user && isBeginner && !mallId) {
       navigate("/bildgenerator-mallar");
     }
   }, [authLoading, roleLoading, isLoadingTemplate, user, isAdmin, mallId, navigate]);
 
-  // Redirect non-admin users
+  // Redirect users without gen_2+ access
   if (!authLoading && !roleLoading) {
     if (!user) {
       navigate("/auth");
       return null;
     }
-    if (!isAdmin) {
+    if (!isBeginner) {
       navigate("/start");
       return null;
     }

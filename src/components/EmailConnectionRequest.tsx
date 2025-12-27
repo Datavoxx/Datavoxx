@@ -37,6 +37,26 @@ const EmailConnectionRequest: React.FC<EmailConnectionRequestProps> = ({ userId 
 
     setIsSubmitting(true);
     try {
+      // Send webhook to n8n
+      const webhookResponse = await fetch("https://datavox.app.n8n.cloud/webhook/emailskapa", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          type: "callback_request",
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (!webhookResponse.ok) {
+        console.error("Webhook failed:", webhookResponse.status);
+      }
+
+      // Also save to database
       const { error } = await supabase
         .from("email_connection_requests")
         .insert({

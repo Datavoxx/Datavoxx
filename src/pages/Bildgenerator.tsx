@@ -8,14 +8,8 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Bot, CheckCircle, AlertTriangle, Lightbulb } from "lucide-react";
+import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Eye, Car, ArrowUp, ArrowDown, ArrowLeftRight, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
-
-interface AIAnalysis {
-  status: 'good' | 'needs_adjustment';
-  message: string;
-  tips: string[];
-}
 
 interface UserTemplate {
   id: string;
@@ -40,9 +34,20 @@ const Bildgenerator = () => {
   const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null);
+  
+  // Spara padding-värden när bilden genereras för att kunna visa live-preview
+  const [generatedPadding, setGeneratedPadding] = useState(0.25);
+  const [generatedPaddingBottom, setGeneratedPaddingBottom] = useState(0.25);
+
+  // Beräkna om det finns osparade ändringar
+  const hasUnsavedChanges = generatedImage && (
+    Math.abs(padding - generatedPadding) > 0.001 || 
+    Math.abs(paddingBottom - generatedPaddingBottom) > 0.001
+  );
+
+  // Beräkna preview-transform baserat på padding-skillnad
+  const previewScale = 1 + (generatedPadding - padding) * 3;
+  const previewTranslateY = (paddingBottom - generatedPaddingBottom) * -150;
 
   // Fetch template from database
   useEffect(() => {
@@ -143,8 +148,6 @@ const Bildgenerator = () => {
 
     setIsGenerating(true);
     setGeneratedImage(null);
-    setAiAnalysis(null);
-    setGeneratedImageBase64(null);
 
     try {
       // Hämta mall-bilden och konvertera till blob
@@ -190,15 +193,9 @@ const Bildgenerator = () => {
       const imageUrl = URL.createObjectURL(blob);
       setGeneratedImage(imageUrl);
       
-      // Konvertera blob till base64 för AI-analys
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setGeneratedImageBase64(base64);
-        // Starta AI-analys
-        analyzeImage(base64);
-      };
-      reader.readAsDataURL(blob);
+      // Spara padding-värden som användes vid generering
+      setGeneratedPadding(padding);
+      setGeneratedPaddingBottom(paddingBottom);
       
       toast.success("Bilden har genererats!");
     } catch (error) {
@@ -206,38 +203,6 @@ const Bildgenerator = () => {
       toast.error("Ett fel uppstod. Försök igen.");
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const analyzeImage = async (imageBase64: string) => {
-    setIsAnalyzing(true);
-    setAiAnalysis(null);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('analyze-car-image', {
-        body: {
-          imageBase64,
-          currentPadding: padding,
-          currentPaddingBottom: paddingBottom
-        }
-      });
-
-      if (error) {
-        console.error("Error analyzing image:", error);
-        return;
-      }
-
-      if (data.error) {
-        console.error("AI analysis error:", data.error);
-        toast.error(data.error);
-        return;
-      }
-
-      setAiAnalysis(data);
-    } catch (error) {
-      console.error("Error calling analyze function:", error);
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -264,6 +229,11 @@ const Bildgenerator = () => {
         document.body.removeChild(link);
       }
     }
+  };
+
+  const handleResetPadding = () => {
+    setPadding(generatedPadding);
+    setPaddingBottom(generatedPaddingBottom);
   };
 
   return (
@@ -388,84 +358,81 @@ const Bildgenerator = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <img
-                  src={generatedImage}
-                  alt="Generated"
-                  className="w-full rounded-lg shadow-md"
-                />
-
-                {/* AI Analysis Section */}
-                <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Bot className="h-5 w-5 text-purple-600" />
-                    <h3 className="font-semibold text-foreground">AI-analys</h3>
-                  </div>
-
-                  {isAnalyzing && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Analyserar bilden...</span>
+                {/* Live Preview Image */}
+                <div className="relative overflow-hidden rounded-lg bg-muted/30">
+                  <img
+                    src={generatedImage}
+                    alt="Generated"
+                    className="w-full rounded-lg shadow-md transition-transform duration-300 ease-out"
+                    style={{
+                      transform: hasUnsavedChanges 
+                        ? `scale(${previewScale}) translateY(${previewTranslateY}px)`
+                        : 'none',
+                      transformOrigin: 'center bottom'
+                    }}
+                  />
+                  
+                  {/* Preview badge */}
+                  {hasUnsavedChanges && (
+                    <div className="absolute top-3 right-3 bg-amber-500/95 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-lg backdrop-blur-sm">
+                      <Eye className="h-3.5 w-3.5" />
+                      Förhandsvisning
                     </div>
-                  )}
-
-                  {aiAnalysis && !isAnalyzing && (
-                    <div className="space-y-3">
-                      {/* Status indicator */}
-                      <div className={`flex items-start gap-2 p-3 rounded-md ${
-                        aiAnalysis.status === 'good' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {aiAnalysis.status === 'good' ? (
-                          <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        )}
-                        <p className="text-sm font-medium">{aiAnalysis.message}</p>
-                      </div>
-
-                      {/* Tips */}
-                      {aiAnalysis.tips && aiAnalysis.tips.length > 0 && (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                            <Lightbulb className="h-4 w-4 text-purple-600" />
-                            <span>Tips</span>
-                          </div>
-                          <ul className="space-y-1.5 pl-6">
-                            {aiAnalysis.tips.map((tip, index) => (
-                              <li key={index} className="text-sm text-muted-foreground list-disc">
-                                {tip}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {!isAnalyzing && !aiAnalysis && (
-                    <p className="text-sm text-muted-foreground">
-                      AI-analysen kunde inte genomföras just nu.
-                    </p>
                   )}
                 </div>
 
                 {/* Adjustment Section */}
-                <div className="pt-4 border-t border-border space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Justera bilens storlek och position, klicka sedan "Uppdatera bild"
-                  </p>
+                <div className="pt-4 border-t border-border space-y-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Justera bilens storlek och position
+                    </p>
+                    {hasUnsavedChanges && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetPadding}
+                        className="text-muted-foreground hover:text-foreground h-8 px-2"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                        Återställ
+                      </Button>
+                    )}
+                  </div>
 
-                  {/* Padding Slider */}
+                  {/* Padding Slider with Visual Indicator */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-foreground">
-                        Padding (storlek)
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <ArrowLeftRight className="h-4 w-4 text-purple-600" />
+                        Storlek (padding)
                       </label>
                       <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
                         {padding.toFixed(2)}
                       </span>
                     </div>
+                    
+                    {/* Visual Size Indicator */}
+                    <div className="flex items-center justify-center gap-4 py-2 px-3 bg-purple-50 rounded-lg">
+                      <div className="flex items-center gap-1 text-purple-600">
+                        <span className="text-xs font-medium">Större</span>
+                      </div>
+                      
+                      <div className="relative w-20 h-12 flex items-end justify-center">
+                        <Car 
+                          className="text-purple-600 transition-all duration-200" 
+                          style={{ 
+                            width: `${20 + (0.49 - padding) * 50}px`,
+                            height: `${20 + (0.49 - padding) * 50}px` 
+                          }} 
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-purple-600">
+                        <span className="text-xs font-medium">Mindre</span>
+                      </div>
+                    </div>
+                    
                     <Slider
                       value={[padding]}
                       onValueChange={(val) => setPadding(val[0])}
@@ -474,19 +441,44 @@ const Bildgenerator = () => {
                       step={0.01}
                       className="w-full"
                     />
-                    <p className="text-xs text-muted-foreground">Lägre värde = större bil</p>
                   </div>
 
-                  {/* Padding Bottom Slider */}
+                  {/* Padding Bottom Slider with Visual Indicator */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-foreground">
-                        Padding Bottom (position)
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <ArrowUp className="h-4 w-4 text-green-600" />
+                        Position (padding bottom)
                       </label>
-                      <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                      <span className="text-sm font-mono text-green-600 bg-green-100 px-2 py-1 rounded">
                         {paddingBottom.toFixed(2)}
                       </span>
                     </div>
+                    
+                    {/* Visual Position Indicator */}
+                    <div className="flex items-center justify-center gap-4 py-2 px-3 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-1 text-green-600">
+                        <ArrowDown className="h-4 w-4" />
+                        <span className="text-xs font-medium">Ner</span>
+                      </div>
+                      
+                      <div className="relative w-16 h-14 border border-green-200 rounded bg-white overflow-hidden">
+                        <Car 
+                          className="absolute left-1/2 -translate-x-1/2 text-green-600 w-6 h-6 transition-all duration-200" 
+                          style={{ 
+                            bottom: `${paddingBottom * 80}%` 
+                          }} 
+                        />
+                        {/* Ground line */}
+                        <div className="absolute bottom-1.5 left-1.5 right-1.5 h-0.5 bg-green-300 rounded" />
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-green-600">
+                        <span className="text-xs font-medium">Upp</span>
+                        <ArrowUp className="h-4 w-4" />
+                      </div>
+                    </div>
+                    
                     <Slider
                       value={[paddingBottom]}
                       onValueChange={(val) => setPaddingBottom(val[0])}
@@ -495,14 +487,17 @@ const Bildgenerator = () => {
                       step={0.01}
                       className="w-full"
                     />
-                    <p className="text-xs text-muted-foreground">Lägre värde = bil längre ner</p>
                   </div>
 
                   {/* Update Button */}
                   <Button
                     onClick={handleGenerate}
                     disabled={isGenerating}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    className={`w-full transition-all ${
+                      hasUnsavedChanges 
+                        ? 'bg-amber-500 hover:bg-amber-600 animate-pulse' 
+                        : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
                   >
                     {isGenerating ? (
                       <>
@@ -512,10 +507,16 @@ const Bildgenerator = () => {
                     ) : (
                       <>
                         <Sparkles className="mr-2 h-4 w-4" />
-                        Uppdatera bild
+                        {hasUnsavedChanges ? 'Applicera ändringar' : 'Uppdatera bild'}
                       </>
                     )}
                   </Button>
+                  
+                  {hasUnsavedChanges && (
+                    <p className="text-xs text-center text-amber-600">
+                      Förhandsvisningen visar ungefär hur bilden kommer se ut
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

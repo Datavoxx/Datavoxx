@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +12,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Lock, Send, Loader2, CheckCircle, LogIn, UserPlus } from "lucide-react";
+import { Lock, Send, Loader2, CheckCircle, LogIn, UserPlus, Upload, Eye, X } from "lucide-react";
 import { toast } from "sonner";
+import mall1 from "@/assets/mall-1.png";
+import mall2 from "@/assets/mall-2.png";
 
 interface AccessRequestModalProps {
   open: boolean;
@@ -32,12 +33,35 @@ export const AccessRequestModal = ({
   const [antalAnnonser, setAntalAnnonser] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check if user is gen_1 (can request access)
   const isGen1 = hasMinRole("gen_1") && !hasMinRole("gen_2");
 
   // Validation
   const isFormValid = antalAnnonser.trim() !== "";
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user || !isFormValid) return;
@@ -47,6 +71,25 @@ export const AccessRequestModal = ({
       // Get user info from profile
       const userName = profile?.display_name || user.email || "Okänd";
       const userEmail = profile?.email || user.email || "";
+
+      // Upload logo to storage if provided
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const fileExt = logoFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('templates')
+          .upload(`logos/${fileName}`, logoFile);
+        
+        if (uploadError) {
+          console.error("Error uploading logo:", uploadError);
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('templates')
+            .getPublicUrl(`logos/${fileName}`);
+          logoUrl = urlData.publicUrl;
+        }
+      }
 
       // Send to n8n webhook
       const webhookResponse = await fetch(
@@ -61,6 +104,7 @@ export const AccessRequestModal = ({
             email: userEmail,
             antalAnnonser: antalAnnonser.trim(),
             toolName: toolName,
+            logoUrl: logoUrl,
           }),
         }
       );
@@ -91,6 +135,11 @@ export const AccessRequestModal = ({
   const handleClose = () => {
     setAntalAnnonser("");
     setIsSubmitted(false);
+    setLogoFile(null);
+    setLogoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     onClose();
   };
 
@@ -165,7 +214,7 @@ export const AccessRequestModal = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          <div className="py-4 space-y-4">
             <div>
               <label className="text-sm font-medium text-foreground mb-2 block">
                 Antal annonser per vecka <span className="text-destructive">*</span>
@@ -175,6 +224,70 @@ export const AccessRequestModal = ({
                 value={antalAnnonser}
                 onChange={(e) => setAntalAnnonser(e.target.value)}
               />
+            </div>
+
+            {/* Logo upload */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Ladda upp din logotyp
+              </label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleLogoUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              {logoPreview ? (
+                <div className="relative w-full h-24 border border-border rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={logoPreview}
+                    alt="Logo preview"
+                    className="w-full h-full object-contain p-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeLogo}
+                    className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                >
+                  <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Klicka för att ladda upp
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Se exempel */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Eye className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Se exempel</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <img
+                    src={mall1}
+                    alt="Exempel 1"
+                    className="w-full h-20 object-cover"
+                  />
+                </div>
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <img
+                    src={mall2}
+                    alt="Exempel 2"
+                    className="w-full h-20 object-cover"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

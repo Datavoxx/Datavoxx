@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Sparkles, ImageIcon, Lock, Eye, Trash2 } from "lucide-react";
+import { Loader2, Sparkles, ImageIcon, Lock, Eye, Trash2, Gift } from "lucide-react";
 import { toast } from "sonner";
 
 // Generic templates for users without custom templates
@@ -34,6 +34,8 @@ import genericMall1 from "@/assets/generic-mall-1.png";
 import genericMall2 from "@/assets/generic-mall-2.png";
 import genericMall3 from "@/assets/generic-mall-3.png";
 import genericMall4 from "@/assets/generic-mall-4.png";
+import bonusMall1 from "@/assets/bonus-mall-1.png";
+import bonusMall2 from "@/assets/bonus-mall-2.png";
 
 interface UserTemplate {
   id: string;
@@ -47,6 +49,11 @@ const genericTemplates = [
   { id: "generic-2", name: "Showroom Mörk", image: genericMall2, isGeneric: true },
   { id: "generic-3", name: "Showroom Premium", image: genericMall3, isGeneric: true },
   { id: "generic-4", name: "Showroom Ljus", image: genericMall4, isGeneric: true },
+];
+
+const bonusTemplates = [
+  { id: "bonus-1", name: "Gardin Brun", image: bonusMall1, isGeneric: true },
+  { id: "bonus-2", name: "Gardin Mörk", image: bonusMall2, isGeneric: true },
 ];
 
 // Mapping from generic template names to keywords for matching user templates
@@ -340,6 +347,53 @@ const BildgeneratorMallar = () => {
                         <Eye className="h-4 w-4 mr-2" />
                         Se exempel
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Bonus Templates Section */}
+          <div className="mt-10">
+            <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Gift className="h-5 w-5 text-amber-500" />
+              Bonus
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {bonusTemplates.map((template) => (
+                <Card
+                  key={template.id}
+                  onClick={() => handleSelectTemplate(template.id, true, template.name)}
+                  className="group cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
+                >
+                  <CardContent className="p-0">
+                    <div className="relative aspect-video overflow-hidden">
+                      <img
+                        src={template.image}
+                        alt={template.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {/* Overlay indicating this is a request */}
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-full p-3">
+                          <Gift className="h-6 w-6 text-amber-500" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <div className="flex items-center gap-2 text-white">
+                          <Sparkles className="h-4 w-4" />
+                          <span className="font-medium text-sm">Klicka för att beställa</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-card">
+                      <h3 className="font-semibold text-foreground text-center">
+                        {template.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground text-center mt-1">
+                        Beställ med din logga
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

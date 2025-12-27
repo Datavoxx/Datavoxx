@@ -106,6 +106,33 @@ export type Database = {
         }
         Relationships: []
       }
+      bonus_requests: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          template_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          template_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          template_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_credits: {
         Row: {
           created_at: string

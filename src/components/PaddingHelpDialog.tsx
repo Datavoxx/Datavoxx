@@ -64,10 +64,10 @@ const PaddingHelpDialog = () => {
                   />
                   {/* Arrow overlay - Nedåt */}
                   <div className="absolute left-8 top-[35%] flex flex-col items-center gap-1 animate-pulse">
-                    <div className="bg-red-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
+                    <div className="bg-green-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
                       Måste ner
                     </div>
-                    <svg className="w-8 h-12 text-red-500 drop-shadow-lg" viewBox="0 0 24 36" fill="currentColor">
+                    <svg className="w-8 h-12 text-green-500 drop-shadow-lg" viewBox="0 0 24 36" fill="currentColor">
                       <path d="M12 0 L12 28 M4 20 L12 32 L20 20" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>

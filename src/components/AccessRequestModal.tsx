@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Lock, Send, Loader2, CheckCircle, LogIn, UserPlus, Upload, Eye, X } from "lucide-react";
 import { toast } from "sonner";
-import mall1 from "@/assets/mall-1.png";
-import mall2 from "@/assets/mall-2.png";
+import genericMall4 from "@/assets/generic-mall-4.png";
+
+const a2bilShowroomLjus = "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/exempel/showroom_ljust";
 
 interface AccessRequestModalProps {
   open: boolean;
@@ -36,6 +37,7 @@ export const AccessRequestModal = ({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Check if user is gen_1 (can request access)
   const isGen1 = hasMinRole("gen_1") && !hasMinRole("gen_2");
@@ -272,23 +274,57 @@ export const AccessRequestModal = ({
                 <Eye className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">Se exempel</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <img
-                    src={mall1}
-                    alt="Exempel 1"
-                    className="w-full h-20 object-cover"
-                  />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <div 
+                    className="border border-border rounded-lg overflow-hidden bg-slate-100 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                    onClick={() => setLightboxImage(genericMall4)}
+                  >
+                    <img
+                      src={genericMall4}
+                      alt="Din logga exempel"
+                      className="w-full h-24 object-cover"
+                    />
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground">Din logga</p>
                 </div>
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <img
-                    src={mall2}
-                    alt="Exempel 2"
-                    className="w-full h-20 object-cover"
-                  />
+                <div className="space-y-1">
+                  <div 
+                    className="border border-border rounded-lg overflow-hidden bg-slate-100 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                    onClick={() => setLightboxImage(a2bilShowroomLjus)}
+                  >
+                    <img
+                      src={a2bilShowroomLjus}
+                      alt="A2BIL exempel"
+                      className="w-full h-24 object-cover"
+                    />
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground">A2BIL</p>
                 </div>
               </div>
             </div>
+
+            {/* Lightbox */}
+            {lightboxImage && (
+              <div 
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+                onClick={() => setLightboxImage(null)}
+              >
+                <div className="relative max-w-4xl max-h-[90vh]">
+                  <img
+                    src={lightboxImage}
+                    alt="Exempel i fullstorlek"
+                    className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                  />
+                  <button
+                    onClick={() => setLightboxImage(null)}
+                    className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="sm:justify-center gap-2">

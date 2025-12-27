@@ -85,7 +85,7 @@ export const AccessRequestModal = ({
       }
 
       const webhookResponse = await fetch(
-        "https://datavox.app.n8n.cloud/webhook-test/atkomstbildgenerator",
+        "https://datavox.app.n8n.cloud/webhook/atkomstbildgenerator",
         {
           method: "POST",
           body: formData, // Browser sätter rätt Content-Type: multipart/form-data

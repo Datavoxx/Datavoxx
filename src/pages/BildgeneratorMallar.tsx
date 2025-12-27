@@ -364,8 +364,7 @@ const BildgeneratorMallar = () => {
               {bonusTemplates.map((template) => (
                 <Card
                   key={template.id}
-                  onClick={() => handleSelectTemplate(template.id, true, template.name)}
-                  className="group cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
+                  className="group border-2 border-transparent hover:border-amber-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
                 >
                   <CardContent className="p-0">
                     <div className="relative aspect-video overflow-hidden">
@@ -374,16 +373,10 @@ const BildgeneratorMallar = () => {
                         alt={template.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      {/* Overlay indicating this is a request */}
+                      {/* Overlay with gift icon */}
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                         <div className="bg-white/90 backdrop-blur-sm rounded-full p-3">
                           <Gift className="h-6 w-6 text-amber-500" />
-                        </div>
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                        <div className="flex items-center gap-2 text-white">
-                          <Sparkles className="h-4 w-4" />
-                          <span className="font-medium text-sm">Klicka för att beställa</span>
                         </div>
                       </div>
                     </div>
@@ -391,9 +384,6 @@ const BildgeneratorMallar = () => {
                       <h3 className="font-semibold text-foreground text-center">
                         {template.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground text-center mt-1">
-                        Beställ med din logga
-                      </p>
                     </div>
                   </CardContent>
                 </Card>

@@ -26,7 +26,7 @@ const PaddingHelpDialog = () => {
           <span className="text-xs">Vad är padding?</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Så fungerar padding-justeringarna</DialogTitle>
         </DialogHeader>

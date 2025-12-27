@@ -22,6 +22,7 @@ import VadArPadding from "./pages/VadArPadding";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
+import OwnerDashboard from "./pages/OwnerDashboard";
 
 // Product pages
 import ProduktAnnonsgenerator from "./pages/produkter/Annonsgenerator";
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
               <Route path="/payment-canceled" element={<ProtectedRoute><PaymentCanceled /></ProtectedRoute>} />
               <Route path="/admin/roles" element={<ProtectedRoute><AdminRoles /></ProtectedRoute>} />
+              <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
               <Route path="/bildgenerator-mallar" element={<ProtectedRoute><BildgeneratorMallar /></ProtectedRoute>} />
               <Route path="/bildgenerator" element={<ProtectedRoute><Bildgenerator /></ProtectedRoute>} />
               <Route path="/hur-fungerar-bildgenerator" element={<ProtectedRoute><VadArPadding /></ProtectedRoute>} />

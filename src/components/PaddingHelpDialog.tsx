@@ -63,7 +63,7 @@ const PaddingHelpDialog = () => {
                     className="w-full rounded-lg"
                   />
                   {/* Arrow overlay - Nedåt */}
-                  <div className="absolute right-4 top-4 flex flex-col items-center gap-1 animate-pulse">
+                  <div className="absolute left-4 bottom-16 flex flex-col items-center gap-1 animate-pulse">
                     <div className="bg-red-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
                       Måste ner
                     </div>

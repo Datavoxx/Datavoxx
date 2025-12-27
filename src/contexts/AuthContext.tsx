@@ -131,6 +131,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     
+    // Skicka webhook vid lyckad registrering
+    if (!error) {
+      try {
+        const formData = new FormData();
+        formData.append("name", displayName || email.split("@")[0]);
+        formData.append("email", email);
+        formData.append("companyName", companyName || "");
+        formData.append("event", "new_signup");
+        formData.append("timestamp", new Date().toISOString());
+        
+        await fetch("https://datavox.app.n8n.cloud/webhook-test/nyttkonto", {
+          method: "POST",
+          body: formData,
+        });
+      } catch (webhookError) {
+        console.error("Webhook error:", webhookError);
+      }
+    }
+    
     return { error };
   };
 

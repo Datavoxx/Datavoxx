@@ -63,7 +63,7 @@ const PaddingHelpDialog = () => {
                     className="w-full rounded-lg"
                   />
                   {/* Arrow overlay - Nedåt */}
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 animate-pulse">
+                  <div className="absolute right-4 top-4 flex flex-col items-center gap-1 animate-pulse">
                     <div className="bg-red-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
                       Måste ner
                     </div>
@@ -73,8 +73,8 @@ const PaddingHelpDialog = () => {
                   </div>
                   {/* Arrow overlay - Större */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-pulse" style={{ animationDelay: '0.5s' }}>
-                    <svg className="w-16 h-8 text-green-500 drop-shadow-lg" viewBox="0 0 48 24" fill="currentColor">
-                      <path d="M8 12 L0 12 M40 12 L48 12 M8 6 L0 12 L8 18 M40 6 L48 12 L40 18" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg className="w-8 h-12 text-green-500 drop-shadow-lg" viewBox="0 0 24 36" fill="currentColor">
+                      <path d="M12 0 L12 28 M4 20 L12 32 L20 20" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div className="bg-green-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
                       Måste bli större

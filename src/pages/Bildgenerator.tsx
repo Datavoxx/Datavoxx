@@ -253,7 +253,25 @@ const Bildgenerator = () => {
               Bildgenerator
             </h1>
             {selectedTemplate && (
-              <div className="flex items-center justify-center gap-3 mt-4">
+              <div className="flex flex-col items-center gap-4 mt-4">
+                {/* Template Preview */}
+                <div className="relative group">
+                  <div className="w-32 h-20 rounded-lg overflow-hidden border-2 border-purple-200 shadow-md bg-muted/50">
+                    <img
+                      src={selectedTemplate.template_url}
+                      alt={selectedTemplate.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error("Failed to load template image:", selectedTemplate.template_url);
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
+                    {selectedTemplate.name}
+                  </div>
+                </div>
+                
                 <Button
                   variant="ghost"
                   size="sm"
@@ -263,10 +281,6 @@ const Bildgenerator = () => {
                   <ArrowLeft className="mr-1 h-4 w-4" />
                   Byt mall
                 </Button>
-                <span className="text-muted-foreground">|</span>
-                <span className="text-sm text-muted-foreground">
-                  Vald mall: <strong className="text-foreground">{selectedTemplate.name}</strong>
-                </span>
               </div>
             )}
           </div>

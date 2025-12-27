@@ -141,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         formData.append("event", "new_signup");
         formData.append("timestamp", new Date().toISOString());
         
-        await fetch("https://datavox.app.n8n.cloud/webhook-test/nyttkonto", {
+        await fetch("https://datavox.app.n8n.cloud/webhook/nyttkonto", {
           method: "POST",
           body: formData,
         });

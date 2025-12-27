@@ -74,22 +74,21 @@ export const AccessRequestModal = ({
       const userName = profile?.display_name || user.email || "Okänd";
       const userEmail = profile?.email || user.email || "";
 
-      // Send to n8n webhook with logo as Base64
+      // Send to n8n webhook with logo as binary file (FormData)
+      const formData = new FormData();
+      formData.append("name", userName);
+      formData.append("email", userEmail);
+      formData.append("antalAnnonser", antalAnnonser.trim());
+      formData.append("toolName", toolName);
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+
       const webhookResponse = await fetch(
         "https://datavox.app.n8n.cloud/webhook-test/atkomstbildgenerator",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: userName,
-            email: userEmail,
-            antalAnnonser: antalAnnonser.trim(),
-            toolName: toolName,
-            logoBase64: logoPreview, // Skickar bilden som Base64 data URL
-            logoFileName: logoFile?.name || null,
-          }),
+          body: formData, // Browser sätter rätt Content-Type: multipart/form-data
         }
       );
 

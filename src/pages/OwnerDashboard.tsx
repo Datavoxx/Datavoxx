@@ -56,6 +56,13 @@ interface TableData {
   profiles: any[];
 }
 
+interface PhotoroomCredits {
+  remaining: number;
+  total: number;
+  used: number;
+  plan: string;
+}
+
 const OwnerDashboard = () => {
   const navigate = useNavigate();
   const { isOwner, isLoading: roleLoading } = useUserRole();
@@ -66,6 +73,8 @@ const OwnerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalDataType | null>(null);
+  const [photoroomCredits, setPhotoroomCredits] = useState<PhotoroomCredits | null>(null);
+  const [photoroomLoading, setPhotoroomLoading] = useState(true);
 
   const fetchAllData = useCallback(async () => {
     if (!user || !isOwner) return;
@@ -147,11 +156,34 @@ const OwnerDashboard = () => {
     }
   }, [user, isOwner]);
 
+  const fetchPhotoroomCredits = useCallback(async () => {
+    try {
+      setPhotoroomLoading(true);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/photoroom-credits`,
+        {
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setPhotoroomCredits(data);
+      }
+    } catch (error) {
+      console.error("Error fetching Photoroom credits:", error);
+    } finally {
+      setPhotoroomLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!authLoading && !roleLoading && user) {
       fetchAllData();
+      fetchPhotoroomCredits();
     }
-  }, [user, isOwner, authLoading, roleLoading, fetchAllData]);
+  }, [user, isOwner, authLoading, roleLoading, fetchAllData, fetchPhotoroomCredits]);
 
   useEffect(() => {
     if (!authLoading && !roleLoading) {
@@ -346,6 +378,42 @@ const OwnerDashboard = () => {
               />
             </div>
           )}
+
+          {/* Photoroom Credits Card */}
+          <Card className="mb-8 bg-gradient-to-r from-purple-50 to-white dark:from-purple-950/30 dark:to-background border-purple-200 dark:border-purple-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                <Image className="h-5 w-5" />
+                Photoroom Credits
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {photoroomLoading ? (
+                <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+              ) : photoroomCredits ? (
+                <div className="space-y-3">
+                  <p className="text-2xl font-bold text-foreground">
+                    {photoroomCredits.remaining} av {photoroomCredits.total} bilder kvar
+                  </p>
+                  {/* Progress bar */}
+                  <div className="w-full h-3 bg-purple-100 dark:bg-purple-900/30 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-purple-600 rounded-full transition-all"
+                      style={{
+                        width: `${(photoroomCredits.remaining / photoroomCredits.total) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Använt: {photoroomCredits.used}</span>
+                    <span>Plan: {photoroomCredits.plan}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Kunde inte hämta credits</p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Role Distribution */}
           {stats && (

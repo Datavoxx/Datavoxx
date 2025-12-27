@@ -262,16 +262,16 @@ Med vänliga hälsningar`
                 <span className="text-foreground">Slipp skriva </span>
                 <span className="gradient-text">annonstext</span>
                 <span className="text-foreground">, </span>
-                <br />
                 <span className="gradient-text">mejl</span>
-                <span className="text-foreground"> och googla </span>
-                <span className="gradient-text">bilproblem</span>
+                <br />
+                <span className="text-foreground">och ta </span>
+                <span className="gradient-text">annonsbilder</span>
               </span>
             </h1>
 
             <p className="text-base md:text-xl text-muted-foreground max-w-md md:max-w-2xl mx-auto mb-6 md:mb-10">
-              <span className="md:hidden">Färdiga annonser, mejlsvar och bilinfo på sekunder.</span>
-              <span className="hidden md:inline">Bilgen skapar färdiga texter på sekunder – anpassat för svenska bilhandlare</span>
+              <span className="md:hidden">Färdiga annonser, bilder och mejlsvar på sekunder.</span>
+              <span className="hidden md:inline">Bilgen skapar färdiga texter och bilder på sekunder – anpassat för svenska bilhandlare</span>
             </p>
             
             {/* CTA Button - single on mobile */}

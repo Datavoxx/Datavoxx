@@ -80,9 +80,9 @@ const Index = () => {
               <div className="flex items-center gap-3 text-center sm:text-left">
                 <Sparkles className="h-5 w-5 text-primary shrink-0" />
                 <div>
-                  <p className="font-semibold text-foreground">Lås upp alla verktyg</p>
+                  <p className="font-semibold text-foreground">Lås upp EmailAssistent</p>
                   <p className="text-sm text-muted-foreground">
-                    Skapa konto gratis för full tillgång
+                    Skapa konto gratis för att använda EmailAssistent
                   </p>
                 </div>
               </div>

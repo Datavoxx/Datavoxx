@@ -67,25 +67,25 @@ const templateExamples: Record<string, {
   "generic-1": {
     genericImage: genericMall1,
     genericName: "Showroom Grå",
-    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-4.png.png",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/exempel/showroomgra",
     exampleName: "A2BIL Showroom Grå"
   },
   "generic-2": {
     genericImage: genericMall2,
     genericName: "Showroom Mörk",
-    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-1.png.png",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/exempel/showroom_mork",
     exampleName: "A2BIL Showroom Dark"
   },
   "generic-3": {
     genericImage: genericMall3,
     genericName: "Showroom Premium",
-    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-3.png.png",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/exempel/showroom_premium",
     exampleName: "A2BIL Showroom Mörk trä"
   },
   "generic-4": {
     genericImage: genericMall4,
     genericName: "Showroom Ljus",
-    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/0cd269f7-10e0-460b-80c2-5f4a6ef2e9f3/mall-2.png.png",
+    exampleUrl: "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/exempel/showroom_ljust",
     exampleName: "A2BIL Showroom Ljus"
   }
 };

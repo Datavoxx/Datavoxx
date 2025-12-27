@@ -8,6 +8,7 @@ import { Send, Loader2, Car, History, Check, Search, ArrowLeft, LogIn } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useUserSession } from "@/hooks/useUserSession";
 import { toast } from "@/hooks/use-toast";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import AppHeader from "@/components/AppHeader";
@@ -35,6 +36,7 @@ const BilResearch = () => {
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
   const { isGuest } = useUserRole();
+  const { sessionId } = useUserSession();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
   const [messages, setMessages] = useState<Message[]>([]);
@@ -189,8 +191,9 @@ const BilResearch = () => {
     setIsLoading(true);
 
     try {
-      const requestBody: { messages: Message[]; companyName?: string; userName?: string } = {
+      const requestBody: { messages: Message[]; companyName?: string; userName?: string; sessionId?: string } = {
         messages: [userMessage],
+        sessionId, // Inkludera sessionId för anonyma användare
       };
       
       if (user && profile) {
@@ -263,7 +266,8 @@ const BilResearch = () => {
         body: { 
           messages: updatedMessages,
           companyName: profile?.company_name || "Bilhandlare",
-          userName: profile?.display_name || user?.email || "Användare"
+          userName: profile?.display_name || user?.email || "Användare",
+          sessionId, // Inkludera sessionId för anonyma användare
         }
       });
       

@@ -71,14 +71,14 @@ const PaddingHelpDialog = () => {
                       <path d="M12 0 L12 28 M4 20 L12 32 L20 20" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  {/* Arrow overlay - Större */}
+                  {/* Arrow overlay - Sänk position */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-pulse" style={{ animationDelay: '0.5s' }}>
-                    <svg className="w-8 h-12 text-green-500 drop-shadow-lg" viewBox="0 0 24 36" fill="currentColor">
-                      <path d="M12 0 L12 28 M4 20 L12 32 L20 20" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
                     <div className="bg-green-500/90 text-white text-xs font-medium px-2 py-1 rounded shadow-lg">
-                      Måste bli större
+                      Sänk position
                     </div>
+                    <svg className="w-8 h-10 text-green-500 drop-shadow-lg" viewBox="0 0 24 30" fill="currentColor">
+                      <path d="M12 0 L12 22 M4 16 L12 26 L20 16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-b-lg">

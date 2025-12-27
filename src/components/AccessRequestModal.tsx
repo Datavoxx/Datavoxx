@@ -74,26 +74,7 @@ export const AccessRequestModal = ({
       const userName = profile?.display_name || user.email || "Okänd";
       const userEmail = profile?.email || user.email || "";
 
-      // Upload logo to storage if provided
-      let logoUrl: string | null = null;
-      if (logoFile) {
-        const fileExt = logoFile.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('templates')
-          .upload(`logos/${fileName}`, logoFile);
-        
-        if (uploadError) {
-          console.error("Error uploading logo:", uploadError);
-        } else {
-          const { data: urlData } = supabase.storage
-            .from('templates')
-            .getPublicUrl(`logos/${fileName}`);
-          logoUrl = urlData.publicUrl;
-        }
-      }
-
-      // Send to n8n webhook
+      // Send to n8n webhook with logo as Base64
       const webhookResponse = await fetch(
         "https://datavox.app.n8n.cloud/webhook-test/atkomstbildgenerator",
         {
@@ -106,7 +87,8 @@ export const AccessRequestModal = ({
             email: userEmail,
             antalAnnonser: antalAnnonser.trim(),
             toolName: toolName,
-            logoUrl: logoUrl,
+            logoBase64: logoPreview, // Skickar bilden som Base64 data URL
+            logoFileName: logoFile?.name || null,
           }),
         }
       );

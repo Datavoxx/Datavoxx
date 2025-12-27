@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn, Zap } from "lucide-react";
+import { ArrowLeft, User, RotateCcw, LogOut, Loader2, Mail, Shield, LogIn, Zap, Crown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { CreditDisplay } from "@/components/CreditDisplay";
 import { useCredits } from "@/hooks/useCredits";
 import bilgenLogo from "@/assets/bilgen-logo.png";
@@ -25,11 +26,12 @@ const AppHeader = ({
 }: AppHeaderProps) => {
   const navigate = useNavigate();
   const { user, profile, isLoading, signOut } = useAuth();
+  const { isOwner, isAdmin } = useUserRole();
   const { remaining, limit, tier } = useCredits();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
-  const isAdmin = user?.id === ADMIN_USER_ID;
+  const isAdminUser = user?.id === ADMIN_USER_ID || isAdmin;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -150,7 +152,16 @@ const AppHeader = ({
                       {tier === "anonymous" ? "Gratis" : tier === "free_logged_in" ? "Inloggad" : tier.replace("_", " ").toUpperCase()} • Återställs dagligen
                     </p>
                   </div>
-                  {isAdmin && (
+                  {isOwner && (
+                    <button
+                      onClick={() => navigate("/owner")}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-amber-700 transition-colors hover:bg-amber-50"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Owner Dashboard
+                    </button>
+                  )}
+                  {isAdminUser && (
                     <button
                       onClick={() => navigate("/admin/roles")}
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"

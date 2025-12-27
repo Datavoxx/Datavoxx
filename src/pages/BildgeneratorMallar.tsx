@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import TemplateRequestForm from "@/components/TemplateRequestForm";
+import BonusRequestDialog from "@/components/BonusRequestDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -109,6 +110,8 @@ const BildgeneratorMallar = () => {
   const [selectedExampleTemplate, setSelectedExampleTemplate] = useState<string | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<UserTemplate | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bonusDialogOpen, setBonusDialogOpen] = useState(false);
+  const [selectedBonusTemplate, setSelectedBonusTemplate] = useState("");
 
   // Fetch user-specific templates from database
   useEffect(() => {
@@ -364,7 +367,11 @@ const BildgeneratorMallar = () => {
               {bonusTemplates.map((template) => (
                 <Card
                   key={template.id}
-                  className="group border-2 border-transparent hover:border-amber-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
+                  onClick={() => {
+                    setSelectedBonusTemplate(template.name);
+                    setBonusDialogOpen(true);
+                  }}
+                  className="group cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl"
                 >
                   <CardContent className="p-0">
                     <div className="relative aspect-video overflow-hidden">
@@ -379,11 +386,20 @@ const BildgeneratorMallar = () => {
                           <Gift className="h-6 w-6 text-amber-500" />
                         </div>
                       </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <div className="flex items-center gap-2 text-white">
+                          <Sparkles className="h-4 w-4" />
+                          <span className="font-medium text-sm">Klicka för att önska</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4 bg-card">
                       <h3 className="font-semibold text-foreground text-center">
                         {template.name}
                       </h3>
+                      <p className="text-sm text-muted-foreground text-center mt-1">
+                        Önskar bonus
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -392,6 +408,13 @@ const BildgeneratorMallar = () => {
           </div>
         </div>
       </main>
+
+      {/* Bonus Request Dialog */}
+      <BonusRequestDialog
+        open={bonusDialogOpen}
+        onOpenChange={setBonusDialogOpen}
+        templateName={selectedBonusTemplate}
+      />
 
       {/* Template Request Form */}
       <TemplateRequestForm

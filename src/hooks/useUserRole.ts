@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 const ROLE_LEVELS: Record<AppRole, number> = {
+  owner: 6,
   admin: 5,
   gen_3: 4,
   gen_2: 3,
@@ -17,6 +18,7 @@ const ROLE_LEVELS: Record<AppRole, number> = {
 interface UserRoleState {
   role: AppRole | null;
   effectiveRole: AppRole;
+  isOwner: boolean;
   isAdmin: boolean;
   isPro: boolean;
   isBeginner: boolean;
@@ -85,7 +87,8 @@ export const useUserRole = (): UserRoleState => {
   return {
     role,
     effectiveRole,
-    isAdmin: role === "admin",
+    isOwner: role === "owner",
+    isAdmin: role === "admin" || role === "owner",
     isPro: hasMinRole("gen_3"),
     isBeginner: hasMinRole("gen_2"),
     isIntro: hasMinRole("intro"),

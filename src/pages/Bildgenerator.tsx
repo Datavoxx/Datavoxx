@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
+import PaddingHelpDialog from "@/components/PaddingHelpDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -398,9 +399,12 @@ const Bildgenerator = () => {
                 {/* Adjustment Section */}
                 <div className="pt-4 border-t border-border space-y-5">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      Justera bilens storlek och position
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground">
+                        Justera bilens storlek och position
+                      </p>
+                      <PaddingHelpDialog />
+                    </div>
                     {hasUnsavedChanges && (
                       <Button
                         variant="ghost"

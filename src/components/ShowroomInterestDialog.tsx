@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { createPortal } from "react-dom";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Send, Upload, X, ImageIcon } from "lucide-react";
+import { Loader2, Send, Upload, X, ImageIcon, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Import images
@@ -35,7 +34,7 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedLogo, setUploadedLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<{ src: string; name: string } | null>(null);
+  const [selectedBackground, setSelectedBackground] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -98,6 +97,11 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
       formData.append("timestamp", new Date().toISOString());
       formData.append("source", "landing_page_showroom");
       formData.append("hasLogo", uploadedLogo ? "true" : "false");
+      
+      if (selectedBackground) {
+        const bgName = showroomBackgrounds.find(bg => bg.id === selectedBackground)?.name || "";
+        formData.append("selectedBackground", bgName);
+      }
 
       if (uploadedLogo) {
         formData.append("logo", uploadedLogo, uploadedLogo.name);
@@ -119,6 +123,7 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
       setPhone("");
       setUploadedLogo(null);
       setLogoPreview(null);
+      setSelectedBackground(null);
       onOpenChange(false);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -133,8 +138,7 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
   };
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="text-xl">Skaffa din egna showroom</DialogTitle>
@@ -200,17 +204,30 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
                 </Label>
                 <div className="grid grid-cols-2 gap-4">
                   {showroomBackgrounds.map((bg) => (
-                    <div
+                    <button
+                      type="button"
                       key={bg.id}
-                      onClick={() => setSelectedImage({ src: bg.src, name: bg.name })}
-                      className="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all hover:shadow-lg"
+                      onClick={() => setSelectedBackground(bg.id)}
+                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all hover:shadow-lg text-left ${
+                        selectedBackground === bg.id
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-border hover:border-primary/50"
+                      }`}
                     >
                       <img
                         src={bg.src}
                         alt={bg.name}
                         className="w-full h-32 sm:h-48 object-cover"
                       />
-                    </div>
+                      {selectedBackground === bg.id && (
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <span className="text-white text-sm font-medium">{bg.name}</span>
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -274,35 +291,6 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
             </div>
           </ScrollArea>
         </DialogContent>
-      </Dialog>
-
-      {/* Fullscreen Image Lightbox - rendered in portal to avoid Radix Dialog conflicts */}
-      {selectedImage && createPortal(
-        <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedImage(null);
-          }}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedImage(null);
-            }}
-            className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <img
-            src={selectedImage.src}
-            alt={selectedImage.name}
-            className="max-w-full max-h-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>,
-        document.body
-      )}
-    </>
+    </Dialog>
   );
 }

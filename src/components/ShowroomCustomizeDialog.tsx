@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import showroomTemplate1 from "@/assets/showroom-template-1.png";
@@ -139,28 +139,35 @@ export function ShowroomCustomizeDialog({ open, onOpenChange, preselectedTemplat
           {/* Template Selection */}
           <div className="space-y-3">
             <Label>Välj mall *</Label>
-            <RadioGroup value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <div className="grid grid-cols-1 gap-3">
-                {templates.map((template) => (
-                  <label
-                    key={template.id}
-                    className={`flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-all ${
-                      selectedTemplate === template.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/30"
-                    }`}
-                  >
-                    <RadioGroupItem value={template.id} />
-                    <img
-                      src={template.image}
-                      alt={template.label}
-                      className="w-16 h-12 object-cover rounded"
-                    />
-                    <span className="text-sm font-medium">{template.label}</span>
-                  </label>
-                ))}
-              </div>
-            </RadioGroup>
+            <div className="grid grid-cols-2 gap-4">
+              {templates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  onClick={() => setSelectedTemplate(template.id)}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedTemplate === template.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <img
+                    src={template.image}
+                    alt={template.label}
+                    className="w-full h-32 sm:h-48 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span className="absolute bottom-2 left-2 text-white text-xs font-medium">
+                    {template.label}
+                  </span>
+                  {selectedTemplate === template.id && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Contact Info */}

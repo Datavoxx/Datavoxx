@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Upload, CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import showroomTemplate1 from "@/assets/showroom-template-1.png";
 import showroomTemplate2 from "@/assets/showroom-template-2.png";
@@ -32,34 +32,29 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setLogoFile(file);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setLogoFile(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedTemplate) {
       toast.error("Välj en mall");
+      return;
+    }
+
+    if (!name.trim()) {
+      toast.error("Fyll i ditt namn");
+      return;
+    }
+
+    if (!email.trim()) {
+      toast.error("Fyll i din e-post");
+      return;
+    }
+
+    if (!phone.trim()) {
+      toast.error("Fyll i ditt telefonnummer");
       return;
     }
 
@@ -72,10 +67,6 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
       formData.append("phone", phone);
       formData.append("selectedTemplate", templates.find(t => t.id === selectedTemplate)?.label || selectedTemplate);
       formData.append("timestamp", new Date().toISOString());
-      
-      if (logoFile) {
-        formData.append("logo", logoFile);
-      }
 
       const response = await fetch("https://datavox.app.n8n.cloud/webhook/skraddarsyddshowroom", {
         method: "POST",
@@ -101,7 +92,6 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
     setEmail("");
     setPhone("");
     setSelectedTemplate("");
-    setLogoFile(null);
     setIsSubmitted(false);
     onOpenChange(false);
   };
@@ -133,51 +123,14 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
         <DialogHeader>
           <DialogTitle>Skräddarsy din showroom</DialogTitle>
           <DialogDescription>
-            Ladda upp din logga och välj en mall så skapar vi din unika showroom.
+            Välj en mall och fyll i dina uppgifter så skapar vi din unika showroom.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          {/* Logo Upload */}
-          <div className="space-y-2">
-            <Label>Ladda upp din logga</Label>
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
-            >
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-                id="logo-upload"
-              />
-              <label htmlFor="logo-upload" className="cursor-pointer">
-                {logoFile ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <img
-                      src={URL.createObjectURL(logoFile)}
-                      alt="Uppladdad logga"
-                      className="max-h-20 object-contain"
-                    />
-                    <span className="text-sm text-muted-foreground">{logoFile.name}</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-8 h-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      Dra och släpp eller klicka för att ladda upp
-                    </span>
-                  </div>
-                )}
-              </label>
-            </div>
-          </div>
-
           {/* Template Selection */}
           <div className="space-y-3">
-            <Label>Välj mall</Label>
+            <Label>Välj mall *</Label>
             <RadioGroup value={selectedTemplate} onValueChange={setSelectedTemplate}>
               <div className="grid grid-cols-1 gap-3">
                 {templates.map((template) => (
@@ -205,7 +158,7 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
           {/* Contact Info */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Namn</Label>
+              <Label htmlFor="name">Namn *</Label>
               <Input
                 id="name"
                 value={name}
@@ -215,7 +168,7 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">E-post</Label>
+              <Label htmlFor="email">E-post *</Label>
               <Input
                 id="email"
                 type="email"
@@ -226,13 +179,14 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefon</Label>
+              <Label htmlFor="phone">Telefon *</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="070-123 45 67"
+                required
               />
             </div>
           </div>

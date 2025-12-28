@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Copy, ArrowLeft, User, Calendar, Loader2, Pencil, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,6 +33,27 @@ const fallbackDirectives: QuickDirective[] = [
   { label: "Neka bud", value: "Tacka artigt men avböj budet" },
 ];
 
+// Helper function to check if email body needs AI cleaning
+const checkNeedsCleaning = (rawBody: string): boolean => {
+  // Basic HTML/CSS patterns
+  const hasHtmlOrCss = /<[^>]+>|{[^}]+}|style=|class=|Content-Type:|MIME-Version:/i.test(rawBody);
+  
+  // Base64-like blocks (50+ consecutive base64 characters)
+  const hasBase64Pattern = /[A-Za-z0-9+/=]{50,}/.test(rawBody);
+  
+  // RFC 2047 encoded headers: =?UTF-8?B?... or =?ISO-8859-1?Q?...
+  const hasEncodedHeaders = /=\?[A-Za-z0-9-]+\?[BQ]\?/i.test(rawBody);
+  
+  // Quoted-printable: multiple =XX patterns (e.g., =20, =E5, =3D)
+  const quotedPrintableMatches = rawBody.match(/=[0-9A-F]{2}/gi) || [];
+  const hasQuotedPrintable = quotedPrintableMatches.length > 5;
+  
+  // MIME boundary patterns: --boundary123
+  const hasMimeBoundary = /^--[A-Za-z0-9_=-]+$/m.test(rawBody);
+  
+  return hasHtmlOrCss || hasBase64Pattern || hasEncodedHeaders || hasQuotedPrintable || hasMimeBoundary;
+};
+
 const EmailReplyPanel = ({
   email,
   onBack,
@@ -50,6 +71,7 @@ const EmailReplyPanel = ({
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [cleanedEmailBody, setCleanedEmailBody] = useState<string | null>(null);
   const [isCleaningEmail, setIsCleaningEmail] = useState(false);
+  const [wasManualClean, setWasManualClean] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const replyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -131,6 +153,42 @@ const EmailReplyPanel = ({
     fetchSuggestions();
   }, [email?.id, hasAIEmailAccess]);
 
+  // Function to clean email body with AI
+  const performAIClean = useCallback(async (rawBody: string) => {
+    setIsCleaningEmail(true);
+    setCleanedEmailBody(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("clean-email-body", {
+        body: { emailBody: rawBody },
+      });
+
+      if (error) throw error;
+
+      setCleanedEmailBody(data.cleanedBody || rawBody);
+    } catch (error) {
+      console.error("Failed to clean email body:", error);
+      // Fallback to raw body on error
+      setCleanedEmailBody(rawBody);
+      toast({
+        title: "Kunde inte rensa mejlet",
+        description: "AI-rensningen misslyckades. Visar originalmeddelandet.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCleaningEmail(false);
+    }
+  }, [toast]);
+
+  // Manual clean button handler
+  const handleManualClean = useCallback(() => {
+    const rawBody = email?.body || email?.preview || "";
+    if (!rawBody || isCleaningEmail) return;
+    
+    setWasManualClean(true);
+    performAIClean(rawBody);
+  }, [email?.body, email?.preview, isCleaningEmail, performAIClean]);
+
   // Clean email body when email changes (only if user has AI access)
   useEffect(() => {
     const cleanEmailBody = async () => {
@@ -147,36 +205,20 @@ const EmailReplyPanel = ({
         return;
       }
       
-      // Check if the body looks like it needs cleaning (contains HTML/CSS/code)
-      const needsCleaning = /<[^>]+>|{[^}]+}|style=|class=|Content-Type:|MIME-Version:|base64/i.test(rawBody);
+      // Check if the body looks like it needs cleaning using improved heuristics
+      const needsCleaning = checkNeedsCleaning(rawBody);
       
       if (!needsCleaning) {
         setCleanedEmailBody(rawBody);
         return;
       }
 
-      setIsCleaningEmail(true);
-      setCleanedEmailBody(null);
-
-      try {
-        const { data, error } = await supabase.functions.invoke("clean-email-body", {
-          body: { emailBody: rawBody },
-        });
-
-        if (error) throw error;
-
-        setCleanedEmailBody(data.cleanedBody || rawBody);
-      } catch (error) {
-        console.error("Failed to clean email body:", error);
-        // Fallback to raw body on error
-        setCleanedEmailBody(rawBody);
-      } finally {
-        setIsCleaningEmail(false);
-      }
+      performAIClean(rawBody);
     };
 
+    setWasManualClean(false);
     cleanEmailBody();
-  }, [email?.id, hasAIEmailAccess]);
+  }, [email?.id, hasAIEmailAccess, performAIClean]);
 
   // Reset state when email changes
   useEffect(() => {
@@ -260,15 +302,30 @@ const EmailReplyPanel = ({
         <div className="p-4 space-y-4">
           {/* Original Email */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-xs text-gray-400 mb-2 flex items-center gap-1.5">
-              Inkommande mejl:
-              {isCleaningEmail && (
-                <span className="flex items-center gap-1 text-primary">
-                  <Wand2 className="h-3 w-3 animate-pulse" />
-                  <span>AI formaterar...</span>
-                </span>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                Inkommande mejl:
+                {isCleaningEmail && (
+                  <span className="flex items-center gap-1 text-primary">
+                    <Wand2 className="h-3 w-3 animate-pulse" />
+                    <span>AI rensar mejlet...</span>
+                  </span>
+                )}
+              </p>
+              {/* Manual AI clean button - only for users with AI access */}
+              {hasAIEmailAccess && !isCleaningEmail && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleManualClean}
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                  title="Kör AI-rensning manuellt"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  Rensa med AI
+                </Button>
               )}
-            </p>
+            </div>
             {isCleaningEmail ? (
               <div className="space-y-2">
                 <Skeleton className="h-4 w-full" />

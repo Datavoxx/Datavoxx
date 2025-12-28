@@ -14,10 +14,6 @@ import { Loader2, Send, Upload, X, ImageIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Import images
-import mall1 from "@/assets/mall-1.png";
-import mall2 from "@/assets/mall-2.png";
-import mall3 from "@/assets/mall-3.png";
-import mall4 from "@/assets/mall-4.png";
 import showroomBg1 from "@/assets/showroom-bg-1.png";
 import showroomBg2 from "@/assets/showroom-bg-2.png";
 
@@ -25,13 +21,6 @@ interface ShowroomInterestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const templates = [
-  { id: 1, name: "Mall 1", src: mall1 },
-  { id: 2, name: "Mall 2", src: mall2 },
-  { id: 3, name: "Mall 3", src: mall3 },
-  { id: 4, name: "Mall 4", src: mall4 },
-];
 
 const showroomBackgrounds = [
   { id: 1, name: "Showroom 1", src: showroomBg1 },
@@ -197,29 +186,6 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
                     onChange={handleLogoUpload}
                     className="hidden"
                   />
-                </div>
-              </div>
-
-              {/* Templates Gallery */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  Våra mallar
-                </Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      onClick={() => setSelectedImage({ src: template.src, name: template.name })}
-                      className="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all hover:shadow-lg"
-                    >
-                      <img
-                        src={template.src}
-                        alt={template.name}
-                        className="w-full h-24 sm:h-32 object-cover"
-                      />
-                    </div>
-                  ))}
                 </div>
               </div>
 

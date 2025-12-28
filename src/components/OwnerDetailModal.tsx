@@ -32,7 +32,8 @@ export type ModalDataType =
   | "credits"
   | "email_connections"
   | "tool_requests"
-  | "profiles";
+  | "profiles"
+  | "email_access";
 
 interface OwnerDetailModalProps {
   isOpen: boolean;
@@ -111,7 +112,7 @@ const OwnerDetailModal = ({
     return result;
   }, [data, searchTerm, sortOrder]);
 
-  const getTitle = () => {
+const getTitle = () => {
     const titles: Record<ModalDataType, string> = {
       users: "Alla användare",
       ads: "Alla annonser",
@@ -125,6 +126,7 @@ const OwnerDetailModal = ({
       email_connections: "Email-kopplingar",
       tool_requests: "Verktygsförfrågningar",
       profiles: "Alla profiler",
+      email_access: "Email Access",
     };
     return titles[dataType];
   };
@@ -559,6 +561,60 @@ const OwnerDetailModal = ({
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        );
+
+      case "email_access":
+        return (
+          <div key={item.id} className="p-4 rounded-lg bg-muted/50">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="font-medium">{item.imap_username}</p>
+                <p className="text-sm text-muted-foreground">
+                  IMAP: {item.imap_host}:{item.imap_port}
+                </p>
+                {item.smtp_host && (
+                  <p className="text-sm text-muted-foreground">
+                    SMTP: {item.smtp_host}:{item.smtp_port}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  User ID: {item.user_id?.substring(0, 8)}...
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Skapad: {formatDate(item.created_at)}
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!confirm("Ta bort denna email-koppling?")) return;
+                  try {
+                    const { error } = await supabase
+                      .from("email_credentials")
+                      .delete()
+                      .eq("id", item.id);
+                    if (error) throw error;
+                    
+                    // Update profile
+                    await supabase
+                      .from("profiles")
+                      .update({ email_connected: false, connected_email: null })
+                      .eq("user_id", item.user_id);
+                    
+                    toast.success("Email-koppling borttagen");
+                    onDataUpdate?.();
+                  } catch (error) {
+                    console.error("Error deleting:", error);
+                    toast.error("Kunde inte ta bort");
+                  }
+                }}
+              >
+                Ta bort
+              </Button>
             </div>
           </div>
         );

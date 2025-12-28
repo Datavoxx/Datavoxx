@@ -8,6 +8,7 @@ import DecorativeBackground from "@/components/DecorativeBackground";
 import OwnerDetailModal, { ModalDataType } from "@/components/OwnerDetailModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Loader2,
   Users,
@@ -23,7 +24,10 @@ import {
   Crown,
   TrendingUp,
   Image,
+  KeyRound,
+  Plus,
 } from "lucide-react";
+import AddEmailCredentialsDialog from "@/components/AddEmailCredentialsDialog";
 
 interface DashboardStats {
   totalUsers: number;
@@ -38,6 +42,7 @@ interface DashboardStats {
   totalEmailConnections: number;
   totalToolRequests: number;
   totalProfiles: number;
+  totalEmailAccess: number;
   usersByRole: Record<string, number>;
 }
 
@@ -54,6 +59,7 @@ interface TableData {
   email_connection_requests: any[];
   tool_access_requests: any[];
   profiles: any[];
+  email_credentials: any[];
 }
 
 interface PhotoroomCredits {
@@ -75,6 +81,7 @@ const OwnerDashboard = () => {
   const [activeModal, setActiveModal] = useState<ModalDataType | null>(null);
   const [photoroomCredits, setPhotoroomCredits] = useState<PhotoroomCredits | null>(null);
   const [photoroomLoading, setPhotoroomLoading] = useState(true);
+  const [addEmailDialogOpen, setAddEmailDialogOpen] = useState(false);
 
   const fetchAllData = useCallback(async () => {
     if (!user || !isOwner) return;
@@ -93,6 +100,7 @@ const OwnerDashboard = () => {
         emailConnRes,
         toolReqRes,
         profilesRes,
+        emailCredRes,
       ] = await Promise.all([
         supabase.from("user_roles").select("*").order("created_at", { ascending: false }),
         supabase.from("ad_generations").select("*").order("created_at", { ascending: false }),
@@ -106,6 +114,7 @@ const OwnerDashboard = () => {
         supabase.from("email_connection_requests").select("*").order("created_at", { ascending: false }),
         supabase.from("tool_access_requests").select("*").order("created_at", { ascending: false }),
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+        supabase.from("email_credentials").select("*").order("created_at", { ascending: false }),
       ]);
 
       const userRoles = userRolesRes.data || [];
@@ -132,6 +141,7 @@ const OwnerDashboard = () => {
         totalEmailConnections: emailConnRes.data?.length || 0,
         totalToolRequests: toolReqRes.data?.length || 0,
         totalProfiles: profilesRes.data?.length || 0,
+        totalEmailAccess: emailCredRes.data?.length || 0,
         usersByRole,
       });
 
@@ -148,6 +158,7 @@ const OwnerDashboard = () => {
         email_connection_requests: emailConnRes.data || [],
         tool_access_requests: toolReqRes.data || [],
         profiles: profilesRes.data || [],
+        email_credentials: emailCredRes.data || [],
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -231,6 +242,7 @@ const OwnerDashboard = () => {
       email_connections: tableData.email_connection_requests,
       tool_requests: tableData.tool_access_requests,
       profiles: tableData.profiles,
+      email_access: tableData.email_credentials,
     };
 
     return dataMap[activeModal] || [];
@@ -376,8 +388,26 @@ const OwnerDashboard = () => {
                 color="text-violet-500"
                 onClick={() => openModal("profiles")}
               />
+              <StatCard
+                title="Email Access"
+                value={stats.totalEmailAccess}
+                icon={KeyRound}
+                color="text-emerald-500"
+                onClick={() => openModal("email_access")}
+              />
             </div>
           )}
+
+          {/* Add Email Access Button */}
+          <div className="mb-8">
+            <Button
+              onClick={() => setAddEmailDialogOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Lägg till Email Access
+            </Button>
+          </div>
 
           {/* Photoroom Credits Card */}
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-white dark:from-purple-950/30 dark:to-background border-purple-200 dark:border-purple-800">
@@ -448,6 +478,13 @@ const OwnerDashboard = () => {
           onDataUpdate={fetchAllData}
         />
       )}
+
+      {/* Add Email Credentials Dialog */}
+      <AddEmailCredentialsDialog
+        isOpen={addEmailDialogOpen}
+        onClose={() => setAddEmailDialogOpen(false)}
+        onSuccess={fetchAllData}
+      />
     </div>
   );
 };

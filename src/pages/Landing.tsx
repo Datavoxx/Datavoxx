@@ -12,6 +12,9 @@ import bilgenLogo from "@/assets/bilgen-logo.png";
 import showroomEmpty from "@/assets/showroom-empty.png";
 import showroomLogo from "@/assets/showroom-logo.png";
 import showroomComplete from "@/assets/showroom-complete.png";
+import showroomTemplate1 from "@/assets/showroom-template-1.png";
+import showroomTemplate2 from "@/assets/showroom-template-2.png";
+import showroomTemplate3 from "@/assets/showroom-template-3.png";
 import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X, Image, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -444,6 +447,46 @@ const Landing = () => {
               Skaffa din egna showroom
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Skräddarsy din showroom Section */}
+      <section className="relative px-6 py-20 md:py-28">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Skräddarsy din showroom
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Välj bland flera unika bakgrunder för att matcha ditt varumärke
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { image: showroomTemplate1, label: "Mall 1" },
+              { image: showroomTemplate2, label: "Mall 2" },
+              { image: showroomTemplate3, label: "Mall 3" }
+            ].map((template, index) => (
+              <div
+                key={index}
+                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={template.image} 
+                    alt={template.label}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <span className="text-sm font-medium text-foreground">
+                    {template.label}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

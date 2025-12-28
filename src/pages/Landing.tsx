@@ -6,6 +6,7 @@ import EmailDemo from "@/components/EmailDemo";
 import BilResearchDemo from "@/components/BilResearchDemo";
 import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
+import { ShowroomInterestDialog } from "@/components/ShowroomInterestDialog";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import showroomEmpty from "@/assets/showroom-empty.png";
@@ -20,6 +21,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
+  const [showInterestForm, setShowInterestForm] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
   const showcaseSteps = [
@@ -435,11 +437,11 @@ const Landing = () => {
           {/* CTA */}
           <div className="text-center mt-10">
             <button
-              onClick={() => navigate("/bildgenerator")}
+              onClick={() => setShowInterestForm(true)}
               className="group inline-flex items-center gap-2 px-6 md:px-8 py-3.5 md:py-4 rounded-full bg-primary text-primary-foreground font-semibold text-base md:text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/25 cursor-pointer"
             >
               <Image className="h-5 w-5" />
-              Skapa din showroom
+              Skaffa din egna showroom
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
@@ -589,6 +591,12 @@ const Landing = () => {
       <BookDemoForm 
         open={showBookDemoForm} 
         onClose={() => setShowBookDemoForm(false)} 
+      />
+
+      {/* Showroom Interest Form Modal */}
+      <ShowroomInterestDialog
+        open={showInterestForm}
+        onOpenChange={setShowInterestForm}
       />
 
       {/* Footer */}

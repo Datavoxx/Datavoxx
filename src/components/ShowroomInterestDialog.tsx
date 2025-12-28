@@ -14,8 +14,9 @@ import { Loader2, Send, Upload, X, ImageIcon, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Import images
-import showroomBg1 from "@/assets/showroom-bg-1.png";
-import showroomBg2 from "@/assets/showroom-bg-2.png";
+import showroomTemplate1 from "@/assets/showroom-template-1.png";
+import showroomTemplate2 from "@/assets/showroom-template-2.png";
+import showroomTemplate3 from "@/assets/showroom-template-3.png";
 
 interface ShowroomInterestDialogProps {
   open: boolean;
@@ -23,8 +24,9 @@ interface ShowroomInterestDialogProps {
 }
 
 const showroomBackgrounds = [
-  { id: 1, name: "Showroom 1", src: showroomBg1 },
-  { id: 2, name: "Showroom 2", src: showroomBg2 },
+  { id: 1, name: "Mall 1 - Vita väggar", src: showroomTemplate1 },
+  { id: 2, name: "Mall 2 - Svarta draperier", src: showroomTemplate2 },
+  { id: 3, name: "Mall 3 - Bruna draperier", src: showroomTemplate3 },
 ];
 
 export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestDialogProps) {

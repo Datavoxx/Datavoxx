@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Dialog,
   DialogContent,
@@ -275,28 +276,32 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
         </DialogContent>
       </Dialog>
 
-      {/* Fullscreen Image Lightbox */}
-      {selectedImage && (
+      {/* Fullscreen Image Lightbox - rendered in portal to avoid Radix Dialog conflicts */}
+      {selectedImage && createPortal(
         <div
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedImage(null);
+          }}
         >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImage(null);
-                }}
-                className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
-              >
-                <X className="h-8 w-8" />
-              </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage(null);
+            }}
+            className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
+          >
+            <X className="h-8 w-8" />
+          </button>
           <img
             src={selectedImage.src}
             alt={selectedImage.name}
             className="max-w-full max-h-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

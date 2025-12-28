@@ -77,7 +77,7 @@ export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomiz
         formData.append("logo", logoFile);
       }
 
-      const response = await fetch("https://datavox.app.n8n.cloud/webhook/showroomintresse", {
+      const response = await fetch("https://datavox.app.n8n.cloud/webhook-test/skraddarsyddshowroom", {
         method: "POST",
         body: formData,
       });

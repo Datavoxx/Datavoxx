@@ -7,6 +7,7 @@ import BilResearchDemo from "@/components/BilResearchDemo";
 import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import { ShowroomInterestDialog } from "@/components/ShowroomInterestDialog";
+import { ShowroomCustomizeDialog } from "@/components/ShowroomCustomizeDialog";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import showroomEmpty from "@/assets/showroom-empty.png";
@@ -25,6 +26,7 @@ const Landing = () => {
   const { user } = useAuth();
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
   const [showInterestForm, setShowInterestForm] = useState(false);
+  const [showCustomizeForm, setShowCustomizeForm] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
   const showcaseSteps = [
@@ -488,6 +490,18 @@ const Landing = () => {
               </div>
             ))}
           </div>
+
+          {/* CTA Button */}
+          <div className="text-center mt-10">
+            <Button 
+              size="lg" 
+              onClick={() => setShowCustomizeForm(true)}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Skräddarsy din egen mall
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -640,6 +654,12 @@ const Landing = () => {
       <ShowroomInterestDialog
         open={showInterestForm}
         onOpenChange={setShowInterestForm}
+      />
+
+      {/* Showroom Customize Form Modal */}
+      <ShowroomCustomizeDialog
+        open={showCustomizeForm}
+        onOpenChange={setShowCustomizeForm}
       />
 
       {/* Footer */}

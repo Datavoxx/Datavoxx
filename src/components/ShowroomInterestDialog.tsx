@@ -281,12 +281,15 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
-          >
-            <X className="h-8 w-8" />
-          </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage(null);
+                }}
+                className="absolute top-4 right-4 text-white hover:text-white/80 z-10"
+              >
+                <X className="h-8 w-8" />
+              </button>
           <img
             src={selectedImage.src}
             alt={selectedImage.name}

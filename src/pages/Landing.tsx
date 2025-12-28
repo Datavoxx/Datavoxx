@@ -8,6 +8,9 @@ import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import showroomEmpty from "@/assets/showroom-empty.png";
+import showroomLogo from "@/assets/showroom-logo.png";
+import showroomComplete from "@/assets/showroom-complete.png";
 import { Zap, Search, Mail, CheckCircle, ArrowRight, Clock, Sparkles, FileText, LogIn, Package, ChevronDown, Menu, X, Image, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -19,35 +22,10 @@ const Landing = () => {
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
-  const outputExamples = [
-    {
-      title: "Annonstext",
-      label: "10 sek",
-      icon: "📝",
-      content: `VOLVO XC60 D4 AWD 2019
-Välskött familjebil med dragkrok och panoramatak. Servad hos märkesverkstad.
-
-Pris: 289 000 kr`
-    },
-    {
-      title: "Kundmejl",
-      label: "5 sek",
-      icon: "✉️",
-      content: `Hej Anders,
-
-Tack för ditt intresse för BMW X5:an! Bilen finns tillgänglig för visning.
-
-Med vänliga hälsningar`
-    },
-    {
-      title: "Bil Research",
-      label: "Direkt",
-      icon: "🔍",
-      content: `Vanliga problem XC60 D4:
-• Injektorproblem vid 15 000+ mil
-• Stötdämpare bak slits snabbt
-• Kontrollera AdBlue-system`
-    }
+  const showcaseSteps = [
+    { image: showroomEmpty, label: "Välj bakgrund" },
+    { image: showroomLogo, label: "Lägg till logga" },
+    { image: showroomComplete, label: "Placera bilen" }
   ];
 
   const processSteps = [
@@ -414,41 +392,41 @@ Med vänliga hälsningar`
         </div>
       </section>
 
-      {/* Output Examples Section */}
+      {/* Bildgenerator Showcase Section */}
       <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
-              Exempel
+              Bildgenerator
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Se vad du får
+              Skapa din egna showroom
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Konkreta exempel på vad Bilgen skapar åt dig
+              Professionella bilbilder på sekunder – ingen fotostudio krävs
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {outputExamples.map((example, index) => (
+            {showcaseSteps.map((step, index) => (
               <div
                 key={index}
-                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
               >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{example.icon}</span>
-                    <h3 className="font-semibold text-foreground">{example.title}</h3>
-                  </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                    {example.label}
-                  </span>
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={step.image} 
+                    alt={step.label}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-                
-                {/* Code-style content */}
-                <div className="font-mono text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-4 border border-border/30">
-                  <pre className="whitespace-pre-wrap">{example.content}</pre>
+                <div className="p-4 text-center">
+                  <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                    <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
+                      {index + 1}
+                    </span>
+                    {step.label}
+                  </span>
                 </div>
               </div>
             ))}

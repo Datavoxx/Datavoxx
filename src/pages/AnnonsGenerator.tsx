@@ -817,8 +817,8 @@ const AnnonsGenerator = () => {
                               : "border border-border hover:border-foreground/50 bg-card"
                           }`}
                         >
-                          {/* Populärt val badge for financing */}
-                          {focus.id === "financing" && (
+                          {/* Populärt val badge for equipment */}
+                          {focus.id === "equipment" && (
                             <span className="absolute -top-2 right-2 sm:right-3 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full shadow-sm">
                               ⭐ Populärt
                             </span>

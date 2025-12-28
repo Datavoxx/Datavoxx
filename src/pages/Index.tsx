@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import HistoryPanel from "@/components/HistoryPanel";
 import { AccessRequestModal } from "@/components/AccessRequestModal";
 import bilgenLogo from "@/assets/bilgen-logo.png";
+import showroomEmpty from "@/assets/showroom-empty.png";
+import showroomLogo from "@/assets/showroom-logo.png";
+import showroomComplete from "@/assets/showroom-complete.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -148,10 +151,54 @@ const Index = () => {
           />
           <LevelCard
             title="Bildgenerator"
-            description="Generera professionella bilder med AI"
+            description="Skapa din egna showroom"
             onClick={isBildgenLocked ? () => handleLockedToolClick("Bildgenerator") : () => navigate("/bildgenerator")}
             blurred={isBildgenLocked}
           />
+        </div>
+
+        {/* Bildgenerator Showcase */}
+        <div className="w-full max-w-4xl mx-auto mt-16 sm:mt-24 px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Bildgenerator</h2>
+          <p className="text-center text-muted-foreground mb-8 sm:mb-12">Skapa din egna showroom</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {/* Steg 1: Tom showroom */}
+            <div className="flex flex-col items-center group">
+              <div className="relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <img 
+                  src={showroomEmpty} 
+                  alt="Tom showroom bakgrund" 
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <p className="mt-4 font-semibold text-foreground">1. Välj bakgrund</p>
+            </div>
+            
+            {/* Steg 2: Med logga */}
+            <div className="flex flex-col items-center group">
+              <div className="relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <img 
+                  src={showroomLogo} 
+                  alt="Showroom med logga" 
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <p className="mt-4 font-semibold text-foreground">2. Lägg till logga</p>
+            </div>
+            
+            {/* Steg 3: Komplett */}
+            <div className="flex flex-col items-center group">
+              <div className="relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <img 
+                  src={showroomComplete} 
+                  alt="Komplett showroom med bil" 
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <p className="mt-4 font-semibold text-foreground">3. Placera bilen</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>

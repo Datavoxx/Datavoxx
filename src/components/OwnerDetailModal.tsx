@@ -570,7 +570,7 @@ const OwnerDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {getTitle()} ({filteredData.length})
@@ -601,7 +601,7 @@ const OwnerDetailModal = ({
           </Select>
         </div>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 min-h-0 pr-4">
           <div className="space-y-2">
             {filteredData.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">

@@ -215,25 +215,25 @@ Varmt välkomna!
   },
 ];
 
-// Color coding for each focus type
+// Color coding for each focus type - using theme gradient colors
 const FOCUS_COLORS = {
   financing: {
-    bg: "bg-red-500",
-    bgLight: "bg-red-100",
-    border: "border-red-500",
-    borderLight: "border-red-200",
+    bg: "bg-primary",
+    bgLight: "bg-primary/10",
+    border: "border-primary",
+    borderLight: "border-primary/30",
   },
   equipment: {
-    bg: "bg-green-500",
-    bgLight: "bg-green-100",
-    border: "border-green-500",
-    borderLight: "border-green-200",
+    bg: "bg-[hsl(280,75%,55%)]",
+    bgLight: "bg-[hsl(280,75%,55%)]/10",
+    border: "border-[hsl(280,75%,55%)]",
+    borderLight: "border-[hsl(280,75%,55%)]/30",
   },
   mixed: {
-    bg: "bg-yellow-500",
-    bgLight: "bg-yellow-100",
-    border: "border-yellow-500",
-    borderLight: "border-yellow-200",
+    bg: "bg-[hsl(320,70%,60%)]",
+    bgLight: "bg-[hsl(320,70%,60%)]/10",
+    border: "border-[hsl(320,70%,60%)]",
+    borderLight: "border-[hsl(320,70%,60%)]/30",
   },
 };
 
@@ -819,7 +819,7 @@ const AnnonsGenerator = () => {
                         >
                           {/* Populärt val badge for financing */}
                           {focus.id === "financing" && (
-                            <span className="absolute -top-2 right-2 sm:right-3 bg-red-500 text-white text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full shadow-sm">
+                            <span className="absolute -top-2 right-2 sm:right-3 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full shadow-sm">
                               ⭐ Populärt
                             </span>
                           )}

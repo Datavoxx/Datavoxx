@@ -90,20 +90,22 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
     setIsLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("email", email.trim());
+      formData.append("phone", phone.trim());
+      formData.append("timestamp", new Date().toISOString());
+      formData.append("source", "landing_page_showroom");
+      formData.append("hasLogo", uploadedLogo ? "true" : "false");
+
+      if (uploadedLogo) {
+        formData.append("logo", uploadedLogo, uploadedLogo.name);
+      }
+
       await fetch("https://datavox.app.n8n.cloud/webhook/showroomintresse", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         mode: "no-cors",
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          hasLogo: !!uploadedLogo,
-          timestamp: new Date().toISOString(),
-          source: "landing_page_showroom",
-        }),
+        body: formData,
       });
 
       toast({

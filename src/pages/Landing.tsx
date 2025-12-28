@@ -27,6 +27,7 @@ const Landing = () => {
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
   const [showInterestForm, setShowInterestForm] = useState(false);
   const [showCustomizeForm, setShowCustomizeForm] = useState(false);
+  const [preselectedTemplate, setPreselectedTemplate] = useState("");
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
   const showcaseSteps = [
@@ -467,13 +468,17 @@ const Landing = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { image: showroomTemplate1, label: "Mall 1" },
-              { image: showroomTemplate2, label: "Mall 2" },
-              { image: showroomTemplate3, label: "Mall 3" }
-            ].map((template, index) => (
-              <div
-                key={index}
-                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+              { id: "mall-1", image: showroomTemplate1, label: "Mall 1" },
+              { id: "mall-2", image: showroomTemplate2, label: "Mall 2" },
+              { id: "mall-3", image: showroomTemplate3, label: "Mall 3" }
+            ].map((template) => (
+              <button
+                key={template.id}
+                onClick={() => {
+                  setPreselectedTemplate(template.id);
+                  setShowCustomizeForm(true);
+                }}
+                className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 cursor-pointer text-left"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
@@ -487,7 +492,7 @@ const Landing = () => {
                     {template.label}
                   </span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -659,7 +664,11 @@ const Landing = () => {
       {/* Showroom Customize Form Modal */}
       <ShowroomCustomizeDialog
         open={showCustomizeForm}
-        onOpenChange={setShowCustomizeForm}
+        onOpenChange={(open) => {
+          setShowCustomizeForm(open);
+          if (!open) setPreselectedTemplate("");
+        }}
+        preselectedTemplate={preselectedTemplate}
       />
 
       {/* Footer */}

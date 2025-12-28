@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import showroomTemplate3 from "@/assets/showroom-template-3.png";
 interface ShowroomCustomizeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  preselectedTemplate?: string;
 }
 
 const templates = [
@@ -27,13 +28,20 @@ const templates = [
   { id: "mall-3", label: "Mall 3 - Bruna draperier", image: showroomTemplate3 },
 ];
 
-export function ShowroomCustomizeDialog({ open, onOpenChange }: ShowroomCustomizeDialogProps) {
+export function ShowroomCustomizeDialog({ open, onOpenChange, preselectedTemplate = "" }: ShowroomCustomizeDialogProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(preselectedTemplate);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Update selectedTemplate when preselectedTemplate changes
+  useEffect(() => {
+    if (preselectedTemplate) {
+      setSelectedTemplate(preselectedTemplate);
+    }
+  }, [preselectedTemplate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

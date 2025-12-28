@@ -9,7 +9,7 @@ import PaddingHelpDialog from "@/components/PaddingHelpDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Eye, Car, ArrowUp, ArrowDown, ArrowLeftRight, RotateCcw } from "lucide-react";
+import { Loader2, ImageIcon, Download, Sparkles, Upload, ArrowLeft, HelpCircle, Eye, Car, ArrowUp, ArrowDown, Maximize2, Minimize2, RotateCcw, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserTemplate {
@@ -35,6 +35,8 @@ const Bildgenerator = () => {
   const [paddingBottom, setPaddingBottom] = useState(0.25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<{ message: string; tips: string[] } | null>(null);
   
   // Spara padding-värden när bilden genereras för att kunna visa live-preview
   const [generatedPadding, setGeneratedPadding] = useState(0.25);
@@ -237,6 +239,68 @@ const Bildgenerator = () => {
     setPaddingBottom(generatedPaddingBottom);
   };
 
+  const handleAISuggest = async () => {
+    if (!generatedImage) {
+      toast.error("Generera en bild först");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAiSuggestion(null);
+
+    try {
+      // Konvertera blob URL till base64
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      });
+      
+      const imageBase64 = await base64Promise;
+
+      const { data, error } = await supabase.functions.invoke('analyze-car-image', {
+        body: {
+          imageBase64,
+          currentPadding: padding,
+          currentPaddingBottom: paddingBottom
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      setAiSuggestion({
+        message: data.message,
+        tips: data.tips
+      });
+
+      // Om AI föreslår justeringar, applicera de optimala värdena
+      if (data.status === 'needs_adjustment') {
+        // Hämta optimala värden från tips eller använd standardvärden
+        setPadding(0.26);
+        setPaddingBottom(0.06);
+        toast.success("AI har justerat till optimala värden!");
+      } else {
+        toast.success("Bilden ser bra ut!");
+      }
+
+    } catch (error) {
+      console.error("Error analyzing image:", error);
+      toast.error("Kunde inte analysera bilden");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-background via-muted/30 to-background animate-fade-in">
       <DecorativeBackground />
@@ -418,25 +482,26 @@ const Bildgenerator = () => {
                     )}
                   </div>
 
-                  {/* Padding Slider with Visual Indicator */}
+                  {/* Bilstorlek Slider - Inverterad: höger = större */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                        <ArrowLeftRight className="h-4 w-4 text-purple-600" />
-                        Storlek (padding)
+                        <Maximize2 className="h-4 w-4 text-purple-600" />
+                        Bilstorlek
                       </label>
-                      <span className="text-sm font-mono text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                        {padding.toFixed(2)}
+                      <span className="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                        {Math.round((0.50 - padding) * 200)}%
                       </span>
                     </div>
                     
                     {/* Visual Size Indicator */}
                     <div className="flex items-center justify-center gap-4 py-2 px-3 bg-purple-50 rounded-lg">
                       <div className="flex items-center gap-1 text-purple-600">
-                        <span className="text-xs font-medium">Större</span>
+                        <Minimize2 className="h-4 w-4" />
+                        <span className="text-xs font-medium">Mindre</span>
                       </div>
                       
-                      <div className="relative w-20 h-12 flex items-end justify-center">
+                      <div className="relative w-20 h-12 flex items-end justify-center border border-purple-200 rounded bg-white">
                         <Car 
                           className="text-purple-600 transition-all duration-200" 
                           style={{ 
@@ -447,13 +512,14 @@ const Bildgenerator = () => {
                       </div>
                       
                       <div className="flex items-center gap-1 text-purple-600">
-                        <span className="text-xs font-medium">Mindre</span>
+                        <span className="text-xs font-medium">Större</span>
+                        <Maximize2 className="h-4 w-4" />
                       </div>
                     </div>
                     
                     <Slider
-                      value={[padding]}
-                      onValueChange={(val) => setPadding(val[0])}
+                      value={[0.50 - padding]}
+                      onValueChange={(val) => setPadding(0.50 - val[0])}
                       min={0.01}
                       max={0.49}
                       step={0.01}
@@ -461,15 +527,15 @@ const Bildgenerator = () => {
                     />
                   </div>
 
-                  {/* Padding Bottom Slider with Visual Indicator */}
+                  {/* Vertikal Position Slider */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium text-foreground flex items-center gap-2">
                         <ArrowUp className="h-4 w-4 text-green-600" />
-                        Position (padding bottom)
+                        Vertikal position
                       </label>
-                      <span className="text-sm font-mono text-green-600 bg-green-100 px-2 py-1 rounded">
-                        {paddingBottom.toFixed(2)}
+                      <span className="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded">
+                        {paddingBottom < 0.17 ? 'Låg' : paddingBottom < 0.33 ? 'Mitten' : 'Hög'}
                       </span>
                     </div>
                     
@@ -506,6 +572,43 @@ const Bildgenerator = () => {
                       className="w-full"
                     />
                   </div>
+
+                  {/* AI Suggestion Button */}
+                  <Button
+                    onClick={handleAISuggest}
+                    disabled={isAnalyzing || isGenerating}
+                    variant="outline"
+                    className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyserar...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Föreslå optimal position
+                      </>
+                    )}
+                  </Button>
+
+                  {/* AI Suggestion Display */}
+                  {aiSuggestion && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                      <p className="text-sm font-medium text-blue-800">{aiSuggestion.message}</p>
+                      {aiSuggestion.tips.length > 0 && (
+                        <ul className="text-xs text-blue-700 space-y-1">
+                          {aiSuggestion.tips.map((tip, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-blue-500">•</span>
+                              {tip}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
 
                   {/* Update Button */}
                   <Button

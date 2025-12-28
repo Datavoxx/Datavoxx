@@ -1,11 +1,12 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, Check, Sparkles, History, CreditCard, Focus, Loader2, Search, LogIn } from "lucide-react";
+import { ArrowLeft, Car, Check, Sparkles, History, CreditCard, Focus, Loader2, Search, LogIn, Plus, ChevronDown } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import DecorativeBackground from "@/components/DecorativeBackground";
@@ -237,6 +238,24 @@ const FOCUS_COLORS = {
   },
 };
 
+const EQUIPMENT_OPTIONS = [
+  { id: "panoramatak", label: "Panoramatak" },
+  { id: "dragkrok", label: "Dragkrok" },
+  { id: "navigation", label: "Navigation" },
+  { id: "adaptivFarthallare", label: "Adaptiv farthållare" },
+  { id: "360kamera", label: "360° kamera" },
+  { id: "backKamera", label: "Backkamera" },
+  { id: "elstolar", label: "Elstolar" },
+  { id: "uppvarmdaStolar", label: "Uppvärmda säten" },
+  { id: "uppvarmdRatt", label: "Uppvärmd ratt" },
+  { id: "keyless", label: "Keyless" },
+  { id: "elBaklucka", label: "Elektrisk baklucka" },
+  { id: "androidAuto", label: "Android Auto / Apple CarPlay" },
+  { id: "harmanKardon", label: "Harman Kardon / Premium ljud" },
+  { id: "headUpDisplay", label: "Head-up display" },
+  { id: "luftfjadring", label: "Luftfjädring" },
+];
+
 const STEPS = [
   { num: 1, label: "Bilinfo", icon: Car },
   { num: 2, label: "Finansiering", icon: CreditCard },
@@ -254,6 +273,9 @@ const AnnonsGenerator = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [carLookupSuccess, setCarLookupSuccess] = useState(false);
+  const [showExtraEquipment, setShowExtraEquipment] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+  const [customEquipment, setCustomEquipment] = useState("");
   const [formData, setFormData] = useState<FormData>({
     registrationNumber: "",
     car: "",
@@ -281,6 +303,28 @@ const AnnonsGenerator = () => {
       }
     }
   }, []);
+
+  // Update equipment string when checkboxes or custom text changes
+  useEffect(() => {
+    const checkedItems = selectedEquipment.map(id => 
+      EQUIPMENT_OPTIONS.find(opt => opt.id === id)?.label
+    ).filter(Boolean);
+    
+    const allEquipment = [...checkedItems];
+    if (customEquipment.trim()) {
+      allEquipment.push(customEquipment.trim());
+    }
+    
+    setFormData(prev => ({ ...prev, equipment: allEquipment.join(", ") }));
+  }, [selectedEquipment, customEquipment]);
+
+  const toggleEquipment = (id: string) => {
+    setSelectedEquipment(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
 
   // Handle focus change
   const handleFocusChange = (focus: FocusType) => {
@@ -668,10 +712,75 @@ const AnnonsGenerator = () => {
                           onChange={(e) => handleInputChange("year", e.target.value)}
                           className="transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
                         />
-                      </div>
                     </div>
                   </div>
+
+                  {/* Extra utrustning - expanderbar sektion */}
+                  <div className="pt-4 border-t border-border">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowExtraEquipment(!showExtraEquipment)}
+                      className="w-full flex items-center justify-between text-muted-foreground hover:text-foreground"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Extra utrustning
+                      </span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${showExtraEquipment ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    {showExtraEquipment && (
+                      <div className="mt-4 animate-fade-in space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                          Välj utrustning som inte hämtades automatiskt från Blocket/Bytbil
+                        </p>
+                        
+                        {/* Checkboxar i ett grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {EQUIPMENT_OPTIONS.map((option) => (
+                            <label
+                              key={option.id}
+                              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                                selectedEquipment.includes(option.id)
+                                  ? "bg-primary/10 border-primary"
+                                  : "bg-card border-border hover:border-foreground/30"
+                              }`}
+                            >
+                              <Checkbox
+                                checked={selectedEquipment.includes(option.id)}
+                                onCheckedChange={() => toggleEquipment(option.id)}
+                              />
+                              <span className="text-sm">{option.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                        
+                        {/* Fritext för övriga */}
+                        <div className="space-y-2">
+                          <Label className="text-sm text-muted-foreground">
+                            Övrig utrustning (fritext)
+                          </Label>
+                          <Textarea
+                            placeholder="t.ex. Vinterdäck, Takspoiler, M-sport paket..."
+                            value={customEquipment}
+                            onChange={(e) => setCustomEquipment(e.target.value)}
+                            className="min-h-[80px] transition-all duration-200 focus:ring-2 focus:ring-foreground/50"
+                          />
+                        </div>
+                        
+                        {/* Visa vad som kommer skickas */}
+                        {(selectedEquipment.length > 0 || customEquipment.trim()) && (
+                          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                            <p className="text-xs text-muted-foreground mb-1">Utrustning som läggs till i annonsen:</p>
+                            <p className="text-sm">{formData.equipment}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
+              </div>
               </div>
 
               {/* Navigation */}

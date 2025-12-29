@@ -529,7 +529,7 @@ const Landing = () => {
             {/* Text content */}
             <div className="space-y-6">
               <p className="text-muted-foreground leading-relaxed">
-                Mejl som aldrig besvaras, leads som tappas i inkorgen, uppföljningar som glöms bort – det händer de flesta. Email-assistant gör det i princip omöjligt att missa. Du får en sammanfattning av varje mejl så du snabbt förstår läget, färdiga svarsförslag att välja mellan, och kan ge direktiv i naturligt språk som "svara att vi har tid på fredag 14.00". Agenten skriver hela mejlet åt dig – du behöver bara godkänna eller justera.
+                <span className="font-semibold text-foreground">Mejl som aldrig besvaras, leads som tappas i inkorgen, uppföljningar som glöms bort</span> – det händer de flesta. Email-assistant gör det i princip omöjligt att missa. Du får en sammanfattning av varje mejl så du snabbt förstår läget, färdiga svarsförslag att välja mellan, och kan ge direktiv i naturligt språk som "svara att vi har tid på fredag 14.00". Agenten skriver hela mejlet åt dig – du behöver bara godkänna eller justera.
               </p>
 
               <ul className="space-y-4">

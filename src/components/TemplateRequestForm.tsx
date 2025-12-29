@@ -181,11 +181,6 @@ const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateReque
           </DialogDescription>
         </DialogHeader>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm mb-4">
-          <Clock className="h-4 w-4" />
-          <span className="font-medium">{getResponseTimeMessage()}</span>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="companyName">Företagsnamn *</Label>

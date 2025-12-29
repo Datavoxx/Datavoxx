@@ -17,7 +17,7 @@ interface EmailAssistantDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const CALENDAR_URL = "https://booking.setmore.com/scheduleappointment/65acf5f8-cc96-4a72-b498-2a8cc77108fd/services/s28f9bba1dec943bff29f0ddddfb19ee5bc52ea50?source=easyshare";
+const CALENDAR_URL = "https://datavox.x.setmore.com/services/8d29eaa9-55c6-4cce-9f99-afe7513cb7e5";
 
 const EmailAssistantDialog = ({ open, onOpenChange }: EmailAssistantDialogProps) => {
   const [formData, setFormData] = useState({

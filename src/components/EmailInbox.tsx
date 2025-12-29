@@ -122,7 +122,7 @@ const EmailInbox = ({
                     )}>
                       {email.subject}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="text-xs text-gray-400 truncate max-w-full overflow-hidden whitespace-nowrap">
                       {email.preview}
                     </p>
                   </div>

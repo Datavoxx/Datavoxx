@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import DecorativeBackground from "@/components/DecorativeBackground";
 import OwnerDetailModal, { ModalDataType } from "@/components/OwnerDetailModal";
+import EmailUsageModal, { EmailUsageUser } from "@/components/EmailUsageModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import {
   Image,
   KeyRound,
   Plus,
+  Zap,
 } from "lucide-react";
 import AddEmailCredentialsDialog from "@/components/AddEmailCredentialsDialog";
 
@@ -44,6 +46,9 @@ interface DashboardStats {
   totalProfiles: number;
   totalEmailAccess: number;
   usersByRole: Record<string, number>;
+  emailUsageActiveUsers: number;
+  emailUsageTotalEmails: number;
+  emailUsageLastActivity: string | null;
 }
 
 interface TableData {
@@ -82,6 +87,8 @@ const OwnerDashboard = () => {
   const [photoroomCredits, setPhotoroomCredits] = useState<PhotoroomCredits | null>(null);
   const [photoroomLoading, setPhotoroomLoading] = useState(true);
   const [addEmailDialogOpen, setAddEmailDialogOpen] = useState(false);
+  const [emailUsageModalOpen, setEmailUsageModalOpen] = useState(false);
+  const [emailUsageUsers, setEmailUsageUsers] = useState<EmailUsageUser[]>([]);
 
   const fetchAllData = useCallback(async () => {
     if (!user || !isOwner) return;
@@ -128,6 +135,55 @@ const OwnerDashboard = () => {
         0
       );
 
+      // Calculate Email Assistant usage stats
+      const emailConversations = emailConvRes.data || [];
+      const emailCredentials = emailCredRes.data || [];
+      const profiles = profilesRes.data || [];
+      
+      // Group by user_id to get per-user stats
+      const userEmailStats: Record<string, { user_name: string; total_emails: number; last_activity: string }> = {};
+      emailConversations.forEach((conv: any) => {
+        if (!conv.user_id) return;
+        if (!userEmailStats[conv.user_id]) {
+          userEmailStats[conv.user_id] = {
+            user_name: conv.user_name || "Okänd",
+            total_emails: 0,
+            last_activity: conv.created_at,
+          };
+        }
+        userEmailStats[conv.user_id].total_emails++;
+        if (new Date(conv.created_at) > new Date(userEmailStats[conv.user_id].last_activity)) {
+          userEmailStats[conv.user_id].last_activity = conv.created_at;
+        }
+      });
+
+      // Build EmailUsageUser array with credentials and profile info
+      const credentialUserIds = new Set(emailCredentials.map((c: any) => c.user_id));
+      const profileMap: Record<string, { company_name?: string; email?: string }> = {};
+      profiles.forEach((p: any) => {
+        profileMap[p.user_id] = { company_name: p.company_name, email: p.email };
+      });
+
+      const emailUsageUsersList: EmailUsageUser[] = Object.entries(userEmailStats).map(
+        ([user_id, data]) => ({
+          user_id,
+          user_name: data.user_name,
+          total_emails: data.total_emails,
+          last_activity: data.last_activity,
+          has_credentials: credentialUserIds.has(user_id),
+          company_name: profileMap[user_id]?.company_name,
+          email: profileMap[user_id]?.email,
+        })
+      );
+
+      setEmailUsageUsers(emailUsageUsersList);
+
+      // Find latest activity across all users
+      const allActivities = emailUsageUsersList.map((u) => u.last_activity);
+      const latestActivity = allActivities.length > 0
+        ? allActivities.reduce((a, b) => (new Date(a) > new Date(b) ? a : b))
+        : null;
+
       setStats({
         totalUsers: userRoles.length,
         totalAds: adGenRes.data?.length || 0,
@@ -143,6 +199,9 @@ const OwnerDashboard = () => {
         totalProfiles: profilesRes.data?.length || 0,
         totalEmailAccess: emailCredRes.data?.length || 0,
         usersByRole,
+        emailUsageActiveUsers: emailUsageUsersList.length,
+        emailUsageTotalEmails: emailConversations.length,
+        emailUsageLastActivity: latestActivity,
       });
 
       setTableData({
@@ -389,11 +448,18 @@ const OwnerDashboard = () => {
                 onClick={() => openModal("profiles")}
               />
               <StatCard
-                title="Email Access"
+                title="Kopplade e-postkonton"
                 value={stats.totalEmailAccess}
                 icon={KeyRound}
                 color="text-emerald-500"
                 onClick={() => openModal("email_access")}
+              />
+              <StatCard
+                title="Email Assistant Användning"
+                value={`${stats.emailUsageActiveUsers} aktiva`}
+                icon={Zap}
+                color="text-violet-500"
+                onClick={() => setEmailUsageModalOpen(true)}
               />
             </div>
           )}
@@ -484,6 +550,13 @@ const OwnerDashboard = () => {
         isOpen={addEmailDialogOpen}
         onClose={() => setAddEmailDialogOpen(false)}
         onSuccess={fetchAllData}
+      />
+
+      {/* Email Usage Modal */}
+      <EmailUsageModal
+        isOpen={emailUsageModalOpen}
+        onClose={() => setEmailUsageModalOpen(false)}
+        users={emailUsageUsers}
       />
     </div>
   );

@@ -8,6 +8,7 @@ import BildgeneratorDemo from "@/components/BildgeneratorDemo";
 import BookDemoForm from "@/components/BookDemoForm";
 import { ShowroomInterestDialog } from "@/components/ShowroomInterestDialog";
 import { ShowroomCustomizeDialog } from "@/components/ShowroomCustomizeDialog";
+import EmailAssistantDialog from "@/components/EmailAssistantDialog";
 import Footer from "@/components/Footer";
 import bilgenLogo from "@/assets/bilgen-logo.png";
 import showroomEmpty from "@/assets/showroom-empty.png";
@@ -27,6 +28,7 @@ const Landing = () => {
   const [showBookDemoForm, setShowBookDemoForm] = useState(false);
   const [showInterestForm, setShowInterestForm] = useState(false);
   const [showCustomizeForm, setShowCustomizeForm] = useState(false);
+  const [showEmailAssistantDialog, setShowEmailAssistantDialog] = useState(false);
   const [preselectedTemplate, setPreselectedTemplate] = useState("");
   const [selectedDemo, setSelectedDemo] = useState<'annons' | 'email' | 'research' | 'bildgenerator'>('annons');
 
@@ -554,12 +556,12 @@ const Landing = () => {
 
               <div className="pt-4">
                 <Button 
-                  onClick={() => navigate("/email-assistent")}
+                  onClick={() => setShowEmailAssistantDialog(true)}
                   size="lg"
                   className="gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  Prova Email Assistant
+                  Koppla Email Assistant
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -761,6 +763,11 @@ const Landing = () => {
           if (!open) setPreselectedTemplate("");
         }}
         preselectedTemplate={preselectedTemplate}
+      />
+
+      <EmailAssistantDialog
+        open={showEmailAssistantDialog}
+        onOpenChange={setShowEmailAssistantDialog}
       />
 
       {/* Footer */}

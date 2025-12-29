@@ -282,14 +282,14 @@ const EmailReplyPanel = ({
         <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 shrink-0">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground truncate">{email.subject}</h3>
-          <div className="flex items-center gap-3 text-sm text-gray-500">
-            <span className="flex items-center gap-1 truncate">
-              <User className="h-3 w-3" />
-              {email.fromName}
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <h3 className="font-semibold text-foreground truncate max-w-full">{email.subject}</h3>
+          <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-3 text-sm text-gray-500">
+            <span className="flex items-center gap-1 truncate max-w-full overflow-hidden">
+              <User className="h-3 w-3 shrink-0" />
+              <span className="truncate">{email.fromName}</span>
             </span>
-            <span className="flex items-center gap-1 shrink-0">
+            <span className="flex items-center gap-1 shrink-0 text-xs xs:text-sm">
               <Calendar className="h-3 w-3" />
               {formatDate(email.date)}
             </span>

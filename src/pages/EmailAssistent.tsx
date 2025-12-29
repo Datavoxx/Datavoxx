@@ -543,17 +543,17 @@ const EmailAssistent = () => {
             /* User with connected email sees their inbox */
             <div className="flex flex-col h-[calc(100vh-180px)] gap-4">
               {/* Email Account Header */}
-              <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 p-4">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">{profile?.connected_email || "Kopplad e-post"}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">{profile?.connected_email || "Kopplad e-post"}</p>
                     <p className="text-xs text-muted-foreground">Aktiv e-postanslutning</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
@@ -561,7 +561,8 @@ const EmailAssistent = () => {
                     className="gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Byt konto
+                    <span className="hidden xs:inline">Byt konto</span>
+                    <span className="xs:hidden">Byt</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -570,45 +571,72 @@ const EmailAssistent = () => {
                     className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4" />
-                    Koppla bort
+                    <span className="hidden xs:inline">Koppla bort</span>
+                    <span className="xs:hidden">Bort</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Inbox Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-                {/* Inbox Panel */}
-                <EmailInbox
-                  emails={emails}
-                  selectedEmail={selectedEmail}
-                  onSelectEmail={setSelectedEmail}
-                  onRefresh={fetchEmails}
-                  isLoading={isLoadingEmails}
-                  error={emailError}
-                />
+              {/* Inbox Grid - Mobile: push navigation, Desktop: side-by-side */}
+              <div className="flex-1 min-h-0">
+                {/* Mobile: Show only one panel at a time */}
+                <div className="block lg:hidden h-full">
+                  {selectedEmail ? (
+                    <EmailReplyPanel
+                      email={selectedEmail}
+                      onBack={() => setSelectedEmail(null)}
+                      onGenerateReply={handleGenerateReply}
+                      onSendEmail={handleSendEmail}
+                      isGenerating={isGeneratingReply}
+                      isSending={isSendingEmail}
+                      companyName={profile?.company_name || undefined}
+                      userName={profile?.display_name || undefined}
+                      hasAIEmailAccess={hasAIEmailSummary}
+                    />
+                  ) : (
+                    <EmailInbox
+                      emails={emails}
+                      selectedEmail={selectedEmail}
+                      onSelectEmail={setSelectedEmail}
+                      onRefresh={fetchEmails}
+                      isLoading={isLoadingEmails}
+                      error={emailError}
+                    />
+                  )}
+                </div>
 
-                {/* Reply Panel */}
-                {selectedEmail ? (
-                  <EmailReplyPanel
-                    email={selectedEmail}
-                    onBack={() => setSelectedEmail(null)}
-                    onGenerateReply={handleGenerateReply}
-                    onSendEmail={handleSendEmail}
-                    isGenerating={isGeneratingReply}
-                    isSending={isSendingEmail}
-                    companyName={profile?.company_name || undefined}
-                    userName={profile?.display_name || undefined}
-                    hasAIEmailAccess={hasAIEmailSummary}
+                {/* Desktop: Show both panels side-by-side */}
+                <div className="hidden lg:grid lg:grid-cols-2 gap-4 h-full">
+                  <EmailInbox
+                    emails={emails}
+                    selectedEmail={selectedEmail}
+                    onSelectEmail={setSelectedEmail}
+                    onRefresh={fetchEmails}
+                    isLoading={isLoadingEmails}
+                    error={emailError}
                   />
-                ) : (
-                  <div className="hidden lg:flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
-                    <Reply className="h-12 w-12 text-gray-300 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
-                    <p className="text-sm text-gray-400 text-center">
-                      Klicka på ett mejl i inkorgen för att generera ett svar
-                    </p>
-                  </div>
-                )}
+                  {selectedEmail ? (
+                    <EmailReplyPanel
+                      email={selectedEmail}
+                      onBack={() => setSelectedEmail(null)}
+                      onGenerateReply={handleGenerateReply}
+                      onSendEmail={handleSendEmail}
+                      isGenerating={isGeneratingReply}
+                      isSending={isSendingEmail}
+                      companyName={profile?.company_name || undefined}
+                      userName={profile?.display_name || undefined}
+                      hasAIEmailAccess={hasAIEmailSummary}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 p-8">
+                      <Reply className="h-12 w-12 text-gray-300 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-500 mb-2">Välj ett mejl</h3>
+                      <p className="text-sm text-gray-400 text-center">
+                        Klicka på ett mejl i inkorgen för att generera ett svar
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : (

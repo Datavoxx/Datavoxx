@@ -19,6 +19,7 @@ export interface EmailUsageUser {
   has_credentials: boolean;
   company_name?: string;
   email?: string;
+  connected_email?: string;
 }
 
 interface EmailUsageModalProps {
@@ -123,6 +124,12 @@ const EmailUsageModal = ({ isOpen, onClose, users }: EmailUsageModalProps) => {
                           </Badge>
                         )}
                       </div>
+                      {user.has_credentials && user.connected_email && (
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {user.connected_email}
+                        </p>
+                      )}
                       {user.company_name && (
                         <p className="text-sm text-muted-foreground mt-0.5">
                           {user.company_name}

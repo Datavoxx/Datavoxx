@@ -158,7 +158,10 @@ const OwnerDashboard = () => {
       });
 
       // Build EmailUsageUser array with credentials and profile info
-      const credentialUserIds = new Set(emailCredentials.map((c: any) => c.user_id));
+      const credentialMap: Record<string, string> = {};
+      emailCredentials.forEach((c: any) => {
+        credentialMap[c.user_id] = c.imap_username;
+      });
       const profileMap: Record<string, { company_name?: string; email?: string }> = {};
       profiles.forEach((p: any) => {
         profileMap[p.user_id] = { company_name: p.company_name, email: p.email };
@@ -170,9 +173,10 @@ const OwnerDashboard = () => {
           user_name: data.user_name,
           total_emails: data.total_emails,
           last_activity: data.last_activity,
-          has_credentials: credentialUserIds.has(user_id),
+          has_credentials: !!credentialMap[user_id],
           company_name: profileMap[user_id]?.company_name,
           email: profileMap[user_id]?.email,
+          connected_email: credentialMap[user_id],
         })
       );
 

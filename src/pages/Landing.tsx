@@ -510,6 +510,98 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Email Assistant Section */}
+      <section className="relative px-6 py-20 md:py-28 bg-gradient-to-b from-primary/5 to-transparent">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
+              Email Assistant
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Missa aldrig ett kundmejl igen
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Dålig återkoppling kostar affärer. Email-assistant ser till att du alltid svarar – snabbt, professionellt och utan stress.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Text content */}
+            <div className="space-y-6">
+              <p className="text-muted-foreground leading-relaxed">
+                Mejl som aldrig besvaras, leads som tappas i inkorgen, uppföljningar som glöms bort – det händer de flesta. Email-assistant gör det i princip omöjligt att missa. Du får en sammanfattning av varje mejl så du snabbt förstår läget, färdiga svarsförslag att välja mellan, och kan ge direktiv i naturligt språk som "svara att vi har tid på fredag 14.00". Agenten skriver hela mejlet åt dig – du behöver bara godkänna eller justera.
+              </p>
+
+              <ul className="space-y-4">
+                {[
+                  "Inga missade svar – påminnelser som faktiskt fungerar",
+                  "Snabb återkoppling utan stress",
+                  "Full koll på konversationen på några sekunder",
+                  "Mer tid till försäljning, mindre tid i inkorgen"
+                ].map((benefit, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                      <CheckCircle className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-foreground">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-4">
+                Låt en agent hålla koll på din inkorg – du fokuserar på affärerna.
+              </p>
+
+              <div className="pt-4">
+                <Button 
+                  onClick={() => navigate("/email-assistent")}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Prova Email Assistant
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Visual card */}
+            <div className="relative">
+              <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-border/50">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Nytt mejl från kund</p>
+                    <p className="text-sm text-muted-foreground">Just nu</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium text-foreground mb-2">📝 Sammanfattning:</p>
+                    <p className="text-sm text-muted-foreground">Kunden vill boka provkörning av Volvo XC60 och undrar om ni har tid på fredag.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">💡 Förslag:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1.5 rounded-full text-xs bg-primary/10 text-primary">Boka fredag 14:00</span>
+                      <span className="px-3 py-1.5 rounded-full text-xs bg-primary/10 text-primary">Be om mer info</span>
+                      <span className="px-3 py-1.5 rounded-full text-xs bg-primary/10 text-primary">Föreslå alternativ</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-radial from-primary/10 to-transparent rounded-full blur-3xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Nulägesanalys Section */}
       <section className="relative px-6 py-20 md:py-28">
         <div className="max-w-5xl mx-auto">

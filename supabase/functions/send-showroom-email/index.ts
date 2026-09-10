@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const TEST_RECIPIENT = 'mahad@datavoxx.se'
+const TEST_RECIPIENT = 'mahad.abdullahi1@outlook.com'
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

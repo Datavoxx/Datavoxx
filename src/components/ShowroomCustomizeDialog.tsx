@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 
 import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import showroomTemplate1 from "@/assets/showroom-template-1.png";
 import showroomTemplate2 from "@/assets/showroom-template-2.png";
 import showroomTemplate3 from "@/assets/showroom-template-3.png";
@@ -84,6 +85,17 @@ export function ShowroomCustomizeDialog({ open, onOpenChange, preselectedTemplat
       if (!response.ok) {
         throw new Error("Kunde inte skicka förfrågan");
       }
+
+      const { error: saveError } = await supabase.from("showroom_requests").insert({
+        contact_name: name.trim(),
+        company_name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        selected_template:
+          templates.find((t) => t.id === selectedTemplate)?.label || selectedTemplate,
+        source: "showroom_customize",
+      });
+      if (saveError) console.error("Kunde inte spara showroom-förfrågan:", saveError);
 
       setIsSubmitted(true);
       toast.success("Din förfrågan har skickats!");

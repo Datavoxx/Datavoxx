@@ -442,6 +442,57 @@ export type Database = {
         }
         Relationships: []
       }
+      showroom_requests: {
+        Row: {
+          company_name: string | null
+          contact_name: string | null
+          created_at: string
+          email: string
+          id: string
+          notes: string | null
+          phone: string | null
+          selected_template: string | null
+          sent_at: string | null
+          source: string
+          status: string
+          test_sent_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          selected_template?: string | null
+          sent_at?: string | null
+          source?: string
+          status?: string
+          test_sent_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          selected_template?: string | null
+          sent_at?: string | null
+          source?: string
+          status?: string
+          test_sent_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       template_requests: {
         Row: {
           company_name: string

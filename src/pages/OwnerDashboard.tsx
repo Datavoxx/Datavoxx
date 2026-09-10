@@ -30,6 +30,8 @@ import {
   Zap,
 } from "lucide-react";
 import AddEmailCredentialsDialog from "@/components/AddEmailCredentialsDialog";
+import ShowroomRequestsPanel from "@/components/ShowroomRequestsPanel";
+import { Store } from "lucide-react";
 
 interface DashboardStats {
   totalUsers: number;
@@ -89,6 +91,16 @@ const OwnerDashboard = () => {
   const [addEmailDialogOpen, setAddEmailDialogOpen] = useState(false);
   const [emailUsageModalOpen, setEmailUsageModalOpen] = useState(false);
   const [emailUsageUsers, setEmailUsageUsers] = useState<EmailUsageUser[]>([]);
+  const [showroomPanelOpen, setShowroomPanelOpen] = useState(false);
+  const [showroomRequestCount, setShowroomRequestCount] = useState(0);
+
+  useEffect(() => {
+    if (!user || !isOwner) return;
+    supabase
+      .from("showroom_requests")
+      .select("id", { count: "exact", head: true })
+      .then(({ count }) => setShowroomRequestCount(count || 0));
+  }, [user, isOwner, showroomPanelOpen]);
 
   const fetchAllData = useCallback(async () => {
     if (!user || !isOwner) return;
@@ -465,6 +477,13 @@ const OwnerDashboard = () => {
                 color="text-violet-500"
                 onClick={() => setEmailUsageModalOpen(true)}
               />
+              <StatCard
+                title="Showroom-förfrågningar"
+                value={showroomRequestCount}
+                icon={Store}
+                color="text-rose-500"
+                onClick={() => setShowroomPanelOpen(true)}
+              />
             </div>
           )}
 
@@ -561,6 +580,11 @@ const OwnerDashboard = () => {
         isOpen={emailUsageModalOpen}
         onClose={() => setEmailUsageModalOpen(false)}
         users={emailUsageUsers}
+      />
+
+      <ShowroomRequestsPanel
+        open={showroomPanelOpen}
+        onOpenChange={setShowroomPanelOpen}
       />
     </div>
   );

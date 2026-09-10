@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send, Upload, X, ImageIcon, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import images
 import showroomBg1 from "@/assets/showroom-bg-1.png";
@@ -112,6 +113,18 @@ export function ShowroomInterestDialog({ open, onOpenChange }: ShowroomInterestD
         mode: "no-cors",
         body: formData,
       });
+
+      const { error: saveError } = await supabase.from("showroom_requests").insert({
+        contact_name: name.trim(),
+        company_name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        selected_template: selectedBackground
+          ? showroomBackgrounds.find((bg) => bg.id === selectedBackground)?.name || null
+          : null,
+        source: "showroom_interest",
+      });
+      if (saveError) console.error("Kunde inte spara showroom-förfrågan:", saveError);
 
       toast({
         title: "Tack för ditt intresse!",

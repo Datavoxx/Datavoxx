@@ -18,6 +18,7 @@ interface TemplateRequestFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateName: string;
+  backgroundUrl?: string;
 }
 
 const WEBHOOK_URL = "https://datavox.app.n8n.cloud/webhook/mallvaljande";

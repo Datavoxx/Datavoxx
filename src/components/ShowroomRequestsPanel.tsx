@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Send, Mail, Building2, Phone, Clock } from "lucide-react";
 
 // Slås på när avsändardomänen showroom@bilgen.se är verifierad
-export const SHOWROOM_EMAIL_READY = false;
+export const SHOWROOM_EMAIL_READY = true;
 export const SHOWROOM_TEST_RECIPIENT = "mahad@datavoxx.se";
 
 export interface ShowroomRequest {

@@ -57,6 +57,14 @@ const bonusTemplates = [
   { id: "bonus-2", name: "Gardin Mörk", image: bonusMall2, isGeneric: true },
 ];
 
+// Tomma bakgrunder (utan logga) som skickas med i beställningen
+const templateBackgrounds: Record<string, string> = {
+  "Showroom Grå": "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/backgrounds/showroom-gra.png",
+  "Showroom Mörk": "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/backgrounds/showroom-mork.png",
+  "Showroom Premium": "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/backgrounds/showroom-premium.png",
+  "Showroom Ljus": "https://bdzszxhhkktqmekmlkpv.supabase.co/storage/v1/object/public/templates/backgrounds/showroom-ljus.png",
+};
+
 // Mapping from generic template names to keywords for matching user templates
 const genericNameKeywords: Record<string, string[]> = {
   "Showroom Grå": ["grå", "gra", "grey", "gray"],
@@ -421,6 +429,7 @@ const BildgeneratorMallar = () => {
         open={requestFormOpen}
         onOpenChange={setRequestFormOpen}
         templateName={selectedTemplateName}
+        backgroundUrl={templateBackgrounds[selectedTemplateName]}
       />
 
       {/* Example Comparison Dialog */}

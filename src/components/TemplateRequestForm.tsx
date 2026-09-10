@@ -18,6 +18,7 @@ interface TemplateRequestFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateName: string;
+  backgroundUrl?: string;
 }
 
 const WEBHOOK_URL = "https://datavox.app.n8n.cloud/webhook/mallvaljande";
@@ -34,7 +35,7 @@ const getResponseTimeMessage = (): string => {
   return "Vi svarar senast kl 09:00";
 };
 
-const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateRequestFormProps) => {
+const TemplateRequestForm = ({ open, onOpenChange, templateName, backgroundUrl }: TemplateRequestFormProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -115,6 +116,7 @@ const TemplateRequestForm = ({ open, onOpenChange, templateName }: TemplateReque
       formData.append("email", email);
       formData.append("phone", phone || "");
       formData.append("template_name", templateName);
+      formData.append("background_url", backgroundUrl || "");
       formData.append("logo_url", logoUrl);
       formData.append("user_id", user?.id || "anonymous");
       formData.append("request_id", requestData.id);

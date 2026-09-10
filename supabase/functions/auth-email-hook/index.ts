@@ -15,7 +15,7 @@ const corsHeaders = {
 }
 
 // Configuration
-const SITE_NAME = "Level Selector"
+const SITE_NAME = "BILGEN"
 const SENDER_DOMAIN = "notify.bilgen.se"
 const ROOT_DOMAIN = "bilgen.se"
 const FROM_DOMAIN = "notify.bilgen.se"

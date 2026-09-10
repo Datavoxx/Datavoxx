@@ -14,6 +14,9 @@ const SENDER_DOMAIN = "notify.bilgen.se"
 // FROM_DOMAIN is the domain shown in the From: header (e.g., "example.com").
 // Can be the root domain when display_from_root is enabled — this is cosmetic only.
 const FROM_DOMAIN = "bilgen.se"
+// App emails are branded and replyable — never no-reply.
+const FROM_MAILBOX = "showroom"
+const DEFAULT_REPLY_TO = `showroom@${FROM_DOMAIN}`
 
 export type SendTemplateEmailResult =
   | { sent: true }
@@ -70,7 +73,7 @@ export async function sendTemplateEmail(
     await sendLovableEmail(
       {
         to: recipient,
-        from: `${SITE_NAME} <showroom@${FROM_DOMAIN}>`,
+        from: `${SITE_NAME} <${FROM_MAILBOX}@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
         subject,
         html,
@@ -78,7 +81,7 @@ export async function sendTemplateEmail(
         purpose: 'transactional',
         label: templateName,
         idempotency_key: options.idempotencyKey || crypto.randomUUID(),
-        reply_to: options.replyTo,
+        reply_to: options.replyTo ?? DEFAULT_REPLY_TO,
       },
       { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
     )

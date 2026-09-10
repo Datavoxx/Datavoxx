@@ -429,6 +429,7 @@ const BildgeneratorMallar = () => {
         open={requestFormOpen}
         onOpenChange={setRequestFormOpen}
         templateName={selectedTemplateName}
+        backgroundUrl={templateBackgrounds[selectedTemplateName]}
       />
 
       {/* Example Comparison Dialog */}
